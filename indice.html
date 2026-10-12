@@ -1,4 +1,4 @@
-si<!DOCTYPE html>
+nosi<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -64,7 +64,7 @@ si<!DOCTYPE html>
     </button>
 
     <!-- Botón administrador / Caja (Con PIN) -->
-    <button onclick="abrirModalPIN('admin')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 p-5 rounded-2xl flex items-center justify-between shadow-lg transition duration-200 active:scale-95">
+    <button onclick="abrirModalPIN('administrador')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 p-5 rounded-2xl flex items-center justify-between shadow-lg transition duration-200 active:scale-95">
       <div class="flex items-center gap-4">
         <div class="bg-slate-900/50 p-3 rounded-xl">
           <i class="fa-solid fa-chart-line text-2xl text-amber-500"></i>
@@ -118,7 +118,7 @@ si<!DOCTYPE html>
   <script>
     const PINS = {
       cocina: '1234',
-      administrador: '9999',
+      administrador:'9999'
       meseras: {
         '2222': 'María',
         '4721': 'Esther',
@@ -142,7 +142,7 @@ si<!DOCTYPE html>
       
       const titulos = {
         cocina: 'PIN de Cocina',
-        admin: 'PIN de Administrador',
+        administrador: 'PIN de Administrador',
         mesera: 'PIN de Mesera'
       };
       document.getElementById('tituloRol').innerText = titulos[rol];
@@ -192,8 +192,8 @@ si<!DOCTYPE html>
         } else {
           mostrarError();
         }
-      } else if (rolSeleccionado === 'admin') {
-        if (pinActual === PINS.admin) {
+      } else if (rolSeleccionado === 'administrador') {
+        if (pinActual === PINS.administrador) {
           window.location.href = 'administrador.html';
         } else {
           mostrarError();
