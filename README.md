@@ -1,0 +1,2 @@
+# Bistroiq
+Inteligencia Operativa 
