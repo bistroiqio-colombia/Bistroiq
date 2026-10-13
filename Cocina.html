@@ -13,15 +13,15 @@
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
       <div class="bg-amber-600/30 p-2 rounded-xl border border-amber-500/30">
-        <i class="fa-solid fa-fire text-amber-500 text-xl"></i>
+        <i class="fa-solid fa-fire text-amber-500 text-xl" aria-hidden="true"></i>
       </div>
       <div>
         <h1 class="font-bold text-lg text-white">Monitor de Cocina (KDS)</h1>
         <p class="text-xs text-amber-400 font-medium">Gestión de Comandas e Insumos en Tiempo Real</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition">
-      <i class="fa-solid fa-house"></i> Salir
+    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir al portal">
+      <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
     </button>
   </header>
 
@@ -32,7 +32,7 @@
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-list-check text-amber-500"></i> Comandas Activas
+          <i class="fa-solid fa-list-check text-amber-500" aria-hidden="true"></i> Comandas Activas
         </h2>
         <span id="contador-comandas" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 En Marcha</span>
       </div>
@@ -42,31 +42,18 @@
       </div>
     </section>
 
-    <!-- Control de Insumos / Agotados -->
+    <!-- Control de Insumos / Agotados Sincronizado -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-3">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-boxes-stacked text-indigo-400"></i> Control Rápido de Disponibilidad de Insumos
+          <i class="fa-solid fa-boxes-stacked text-indigo-400" aria-hidden="true"></i> Control Rápido de Disponibilidad de Insumos
         </h2>
-        <span class="text-xs text-slate-400">Toca para alternar estado</span>
+        <span class="text-xs text-slate-400">Toca para alternar estado en tiempo real</span>
       </div>
 
       <div id="contenedor-insumos" class="flex flex-wrap gap-2 pt-1">
-        <button onclick="toggleInsumo(this, 'Carne de Res')" class="bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
-          <i class="fa-solid fa-circle text-[10px] text-emerald-400"></i> Carne de Res: Disponible
-        </button>
-        <button onclick="toggleInsumo(this, 'Pescado')" class="bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
-          <i class="fa-solid fa-circle text-[10px] text-emerald-400"></i> Pescado: Disponible
-        </button>
-        <button onclick="toggleInsumo(this, 'Pechuga de Pollo')" class="bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
-          <i class="fa-solid fa-circle text-[10px] text-emerald-400"></i> Pechuga de Pollo: Disponible
-        </button>
-        <button onclick="toggleInsumo(this, 'Aguacate')" class="bg-red-900/40 border border-red-500/50 text-red-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
-          <i class="fa-solid fa-circle text-[10px] text-red-400"></i> Aguacate: Agotado
-        </button>
-        <button onclick="toggleInsumo(this, 'Queso Mozzarella')" class="bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2">
-          <i class="fa-solid fa-circle text-[10px] text-emerald-400"></i> Queso Mozzarella: Disponible
-        </button>
+        <!-- Se cargarán dinámicamente desde Firebase -->
+        <div class="text-xs text-slate-400 py-2">Sincronizando disponibilidad de insumos...</div>
       </div>
     </section>
 
@@ -81,6 +68,7 @@
       onSnapshot, 
       doc, 
       updateDoc, 
+      setDoc,
       query, 
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -98,7 +86,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Escuchar comandas activas en la colección "pedidos_cocina"
+    // 1. Escuchar comandas activas en la colección "pedidos_cocina"
     const qCocina = query(collection(db, "pedidos_cocina"), where("estado", "!=", "ENTREGADO"));
     onSnapshot(qCocina, (snapshot) => {
       const contenedor = document.getElementById("contenedor-comandas");
@@ -107,7 +95,7 @@
       contador.textContent = `${snapshot.size} En Marcha`;
 
       if (snapshot.empty) {
-        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4 col-span-2">No hay comandas activas en este momento.</div>`;
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4 col-span-2">No hay comandas activas en este momento. Esperando nuevos pedidos...</div>`;
         return;
       }
 
@@ -146,31 +134,69 @@
       });
     });
 
+    // 2. Escuchar Inventario / Insumos en Tiempo Real desde Firebase
+    const insumosPorDefecto = [
+      { id: 'arroz_pollo', nombre: 'Arroz con Pollo Especial', disponible: true },
+      { id: 'pasta_bolonesa', nombre: 'Pasta a la Boloñesa', disponible: true },
+      { id: 'pechuga_gratinada', nombre: 'Pechuga Gratinada', disponible: true },
+      { id: 'limonada_coco', nombre: 'Limonada de Coco', disponible: true },
+      { id: 'cerveza_aguila', nombre: 'Cerveza Águila Light', disponible: true }
+    ];
+
+    onSnapshot(collection(db, "inventario_insumos"), async (snapshot) => {
+      const contenedorInsumos = document.getElementById("contenedor-insumos");
+
+      // Si la colección está vacía en Firebase, la inicializamos automáticamente
+      if (snapshot.empty) {
+        for (let item of insumosPorDefecto) {
+          await setDoc(doc(db, "inventario_insumos", item.id), item);
+        }
+        return;
+      }
+
+      contenedorInsumos.innerHTML = "";
+      snapshot.forEach((docInsumo) => {
+        const data = docInsumo.data();
+        const id = docInsumo.id;
+        const disponible = data.disponible;
+
+        const btn = document.createElement("button");
+        btn.onclick = () => toggleInsumoFirebase(id, !disponible);
+        
+        if (disponible) {
+          btn.className = "bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2";
+          btn.innerHTML = `<i class="fa-solid fa-circle text-[10px] text-emerald-400" aria-hidden="true"></i> ${data.nombre}: Disponible`;
+        } else {
+          btn.className = "bg-red-900/40 border border-red-500/50 text-red-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2";
+          btn.innerHTML = `<i class="fa-solid fa-circle text-[10px] text-red-400" aria-hidden="true"></i> ${data.nombre}: Agotado`;
+        }
+
+        contenedorInsumos.appendChild(btn);
+      });
+    });
+
+    window.toggleInsumoFirebase = async function(idInsumo, nuevoEstado) {
+      try {
+        const refDoc = doc(db, "inventario_insumos", idInsumo);
+        await updateDoc(refDoc, { disponible: nuevoEstado });
+      } catch (e) {
+        console.error("Error al actualizar disponibilidad", e);
+      }
+    };
+
     window.marcarPreparando = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: "EN_PREPARACION" });
-        alert(`👨‍🍳 Pedido de ${mesa} marcado en marcha.`);
       } catch (e) {
-        alert(`👨‍🍳 En preparación (${mesa}).`);
+        console.error(e);
       }
     };
 
     window.marcarListo = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
-        alert(`🔔 Pedido de ${mesa} marcado como ¡LISTO! Notificación enviada a la mesera.`);
       } catch (e) {
-        alert(`🔔 ¡Listo! (${mesa}).`);
-      }
-    };
-
-    window.toggleInsumo = function(btn, nombre) {
-      if (btn.classList.contains('bg-emerald-900/40')) {
-        btn.className = 'bg-red-900/40 border border-red-500/50 text-red-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2';
-        btn.innerHTML = `<i class="fa-solid fa-circle text-[10px] text-red-400"></i> ${nombre}: Agotado`;
-      } else {
-        btn.className = 'bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2';
-        btn.innerHTML = `<i class="fa-solid fa-circle text-[10px] text-emerald-400"></i> ${nombre}: Disponible`;
+        console.error(e);
       }
     };
 
