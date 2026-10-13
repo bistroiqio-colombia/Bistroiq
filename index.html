@@ -20,10 +20,10 @@
       <p class="text-xs text-slate-400">Sistema Inteligente de Gestión de Restaurantes</p>
     </div>
 
-    <!-- Módulos con el diseño original y nombres de archivos exactos -->
+    <!-- Módulos con el diseño original y seguridad por PIN dinámico -->
     <div class="space-y-3.5 text-left">
 
-      <!-- Soy Cliente (Verde) -->
+      <!-- Soy Cliente (Verde - Libre sin PIN) -->
       <a href="cliente.html" class="bg-emerald-600 hover:bg-emerald-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
         <div class="flex items-center gap-3.5">
           <div class="bg-black/10 p-3 rounded-xl text-white">
@@ -37,8 +37,8 @@
         <i class="fa-solid fa-chevron-right text-emerald-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
       </a>
 
-      <!-- Soy Mesera (Azul) -->
-      <a href="mesera.html" class="bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
+      <!-- Soy Mesera (Azul - Protegido por PIN) -->
+      <button onclick="verificarAcceso('mesera.html', 'mesera')" class="w-full bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group text-white cursor-pointer text-left">
         <div class="flex items-center gap-3.5">
           <div class="bg-black/10 p-3 rounded-xl text-white">
             <i class="fa-solid fa-user-tie text-lg" aria-hidden="true"></i>
@@ -52,10 +52,10 @@
           <i class="fa-solid fa-lock text-indigo-200 text-xs" aria-hidden="true"></i>
           <i class="fa-solid fa-chevron-right text-indigo-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
         </div>
-      </a>
+      </button>
 
-      <!-- Soy Cocina (Naranja) - Apunta a Cocina.html con C mayúscula -->
-      <a href="Cocina.html" class="bg-amber-600 hover:bg-amber-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
+      <!-- Soy Cocina (Naranja - Protegido por PIN) -->
+      <button onclick="verificarAcceso('Cocina.html', 'cocina')" class="w-full bg-amber-600 hover:bg-amber-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group text-white cursor-pointer text-left">
         <div class="flex items-center gap-3.5">
           <div class="bg-black/10 p-3 rounded-xl text-white">
             <i class="fa-solid fa-fire text-lg" aria-hidden="true"></i>
@@ -69,10 +69,10 @@
           <i class="fa-solid fa-lock text-amber-200 text-xs" aria-hidden="true"></i>
           <i class="fa-solid fa-chevron-right text-amber-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
         </div>
-      </a>
+      </button>
 
-      <!-- Administrador / Caja - Apunta a administrador.html -->
-      <a href="administrador.html" class="bg-slate-800 hover:bg-slate-700/80 border border-slate-700 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
+      <!-- Administrador / Caja (Oscuro - Protegido por PIN) -->
+      <button onclick="verificarAcceso('administrador.html', 'admin')" class="w-full bg-slate-800 hover:bg-slate-700/80 border border-slate-700 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group text-white cursor-pointer text-left">
         <div class="flex items-center gap-3.5">
           <div class="bg-purple-500/20 p-3 rounded-xl text-purple-400">
             <i class="fa-solid fa-chart-line text-lg" aria-hidden="true"></i>
@@ -86,7 +86,7 @@
           <i class="fa-solid fa-lock text-purple-400 text-xs" aria-hidden="true"></i>
           <i class="fa-solid fa-chevron-right text-slate-400 group-hover:translate-x-1 transition" aria-hidden="true"></i>
         </div>
-      </a>
+      </button>
 
     </div>
 
@@ -95,6 +95,60 @@
     </footer>
 
   </div>
+
+  <!-- Lógica de Verificación de PIN conectada a Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Configuración Firebase BistroIQ Colombia
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV780O1ZNeTaGFI3vCTbHpiLAzHO1hIf8",
+      authDomain: "bistroiq-colombia.firebaseapp.com",
+      projectId: "bistroiq-colombia",
+      storageBucket: "bistroiq-colombia.firebasestorage.app",
+      messagingSenderId: "745222925239",
+      appId: "1:745222925239:web:12d0ecca6b65f1e15c1632"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.verificarAcceso = async function(paginaDestino, tipoModulo) {
+      const pinIngresado = prompt(`🔒 Ingrese el PIN de seguridad para acceder:`);
+      
+      if (pinIngresado === null) return; // Si el usuario cancela
+
+      try {
+        const docRef = doc(db, "configuracion", "claves_sistema");
+        const docSnap = await getDoc(docRef);
+
+        // PINs por defecto maestros por si acaso
+        let pinEsperado = "9999";
+        let nombreModulo = "Administrador";
+
+        if (tipoModulo === 'mesera') {
+          pinEsperado = docSnap.exists() && docSnap.data().pinMesera ? docSnap.data().pinMesera : "1234";
+          nombreModulo = "Mesera";
+        } else if (tipoModulo === 'cocina') {
+          pinEsperado = docSnap.exists() && docSnap.data().pinCocina ? docSnap.data().pinCocina : "5678";
+          nombreModulo = "Cocina";
+        } else if (tipoModulo === 'admin') {
+          pinEsperado = docSnap.exists() && docSnap.data().pinAdmin ? docSnap.data().pinAdmin : "9999";
+          nombreModulo = "Administrador";
+        }
+
+        if (pinIngresado.trim() === pinEsperado) {
+          window.location.href = paginaDestino;
+        } else {
+          alert(`❌ PIN incorrecto para el módulo de ${nombreModulo}. Acceso denegado.`);
+        }
+      } catch (e) {
+        console.error("Error verificando PIN:", e);
+        alert("⚠️ Error de conexión al validar el PIN. Intente nuevamente.");
+      }
+    };
+  </script>
 
 </body>
 </html>
