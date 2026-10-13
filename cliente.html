@@ -1,273 +1,47 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BistroIQ - Menú del Cliente</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-32">
+// Escuchar menú dinámico para la pantalla del Cliente
+onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+  const contenedorMenu = document.getElementById("contenedor-menu-cliente");
 
-  <!-- Encabezado del Cliente -->
-  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
-    <div class="flex items-center gap-3">
-      <i class="fa-solid fa-utensils text-amber-500 text-2xl" aria-hidden="true"></i>
-      <div>
-        <h1 class="font-bold text-lg text-white">BistroIQ</h1>
-        <p class="text-xs text-emerald-400 font-medium" id="cliente-mesa-tag">Mesa #3 • Sesión Activa</p>
-      </div>
-    </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir de la sesión">
-      <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
-    </button>
-  </header>
+  if (snapshot.empty) {
+    contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-6">El menú aún no se ha cargado. ¡Consulta con el personal!</div>`;
+    return;
+  }
 
-  <!-- Contenido Principal -->
-  <main class="flex-1 p-4 max-w-2xl mx-auto w-full space-y-6">
+  contenedorMenu.innerHTML = "";
+  snapshot.forEach(docSnap => {
+    const plato = docSnap.data();
+    const id = docSnap.id;
+    const estaDisponible = plato.disponible !== undefined ? plato.disponible : true;
 
-    <!-- Tarjeta de Acciones Rápidas -->
-    <div class="bg-gradient-to-r from-amber-600 to-amber-700 rounded-2xl p-4 shadow-lg text-white">
-      <div class="grid grid-cols-2 gap-3">
-        <button onclick="solicitarMesero()" class="bg-black/20 hover:bg-black/35 backdrop-blur-sm p-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-xs transition active:scale-95">
-          <i class="fa-solid fa-bell text-amber-300" aria-hidden="true"></i> Llamar Mesero
-        </button>
-        <button onclick="pedirCuenta()" class="bg-emerald-700 hover:bg-emerald-600 p-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-xs transition active:scale-95">
-          <i class="fa-solid fa-credit-card text-emerald-200" aria-hidden="true"></i> Pedir Cuenta
-        </button>
-      </div>
-    </div>
-
-    <!-- Menú Digital de Platos Sincronizado con Cocina -->
-    <section class="space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-        <h2 class="font-bold text-lg text-white flex items-center gap-2">
-          <i class="fa-solid fa-book-open text-amber-500" aria-hidden="true"></i> Nuestro Menú
-        </h2>
-        <span class="text-xs text-slate-400 font-medium">Arma tu pedido en tiempo real</span>
-      </div>
-
-      <!-- Contenedor Dinámico del Menú -->
-      <div id="contenedor-menu-cliente" class="grid grid-cols-1 gap-3">
-        <div class="text-center text-slate-400 text-xs py-6">Sincronizando menú y disponibilidad con cocina...</div>
-      </div>
-    </section>
-
-    <!-- Tu Selección Actual (Borrador Local con Papelera) -->
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
-        <h3 class="font-bold text-slate-200"><i class="fa-solid fa-cart-shopping text-amber-500 mr-2" aria-hidden="true"></i> Tu Selección Actual</h3>
-        <span class="bg-amber-500/10 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold border border-amber-500/20">Borrador Limpio</span>
-      </div>
-
-      <div id="cliente-carrito-borrador" class="space-y-2">
-        <div class="text-center text-slate-400 text-xs py-3">No has seleccionado ningún plato todavía.</div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Botón Flotante para Enviar Pedido a Cocina -->
-  <div id="barra-flotante-envio" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 z-50 transition-transform transform translate-y-full">
-    <div class="max-w-2xl mx-auto flex items-center justify-between gap-4">
-      <div>
-        <div class="text-xs text-slate-400 font-medium">Total a Enviar:</div>
-        <div class="text-lg font-black text-amber-400" id="total-flotante">$ 0 COP</div>
-      </div>
-      <button onclick="enviarPedidoACocina()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2 text-sm">
-        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar Pedido a Cocina
-      </button>
-    </div>
-  </div>
-
-  <!-- Lógica del Cliente con Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-      getFirestore, 
-      collection, 
-      addDoc, 
-      onSnapshot,
-      serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDV780O1ZNeTaGFI3vCTbHpiLAzHO1hIf8",
-      authDomain: "bistroiq-colombia.firebaseapp.com",
-      projectId: "bistroiq-colombia",
-      storageBucket: "bistroiq-colombia.firebasestorage.app",
-      messagingSenderId: "745222925239",
-      appId: "1:745222925239:web:12d0ecca6b65f1e15c1632"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let carritoBorrador = {}; 
-
-    // Catálogo base con los mismos IDs configurados en la cocina
-    const menuBase = [
-      { id: 'arroz_pollo', nombre: 'Arroz con Pollo Especial', precio: 28000, desc: 'Acompañado de papas a la francesa y ensalada dulce.' },
-      { id: 'pasta_bolonesa', nombre: 'Pasta a la Boloñesa', precio: 24000, desc: 'Pasta artesanal con salsa boloñesa de la casa y queso parmesano.' },
-      { id: 'pechuga_gratinada', nombre: 'Pechuga Gratinada', precio: 26000, desc: 'Filete con queso gratinado y patacones.' },
-      { id: 'limonada_coco', nombre: 'Limonada de Coco', precio: 8000, desc: 'Bebida refrescante granizada de 500ml.' },
-      { id: 'cerveza_aguila', nombre: 'Cerveza Águila Light', precio: 6000, desc: 'Botella helada 330ml.' }
-    ];
-
-    // Escuchar el inventario de insumos en tiempo real para bloquear platos agotados
-    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
-      const contenedorMenu = document.getElementById("contenedor-menu-cliente");
-      let estadosMap = {};
-
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        estadosMap[docSnap.id] = data.disponible;
-      });
-
-      contenedorMenu.innerHTML = menuBase.map(plato => {
-        const estaDisponible = estadosMap[plato.id] !== undefined ? estadosMap[plato.id] : true;
-
-        if (estaDisponible) {
-          return `
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
-              <div class="space-y-1 pr-2">
-                <h3 class="font-bold text-white text-base">${plato.nombre}</h3>
-                <p class="text-xs text-slate-400">${plato.desc}</p>
-                <p class="font-bold text-amber-400 text-sm">$ ${plato.precio.toLocaleString("es-CO")} COP</p>
-              </div>
-              <button onclick="modificarSeleccion('${plato.nombre}', ${plato.precio}, 1)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 shrink-0">
-                <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-              </button>
-            </div>
-          `;
-        } else {
-          return `
-            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl flex justify-between items-center shadow-sm opacity-60">
-              <div class="space-y-1 pr-2">
-                <div class="flex items-center gap-2">
-                  <h3 class="font-bold text-slate-400 text-base line-through">${plato.nombre}</h3>
-                  <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] px-2.5 py-0.5 rounded font-bold">Agotado</span>
-                </div>
-                <p class="text-xs text-slate-500">${plato.desc}</p>
-                <p class="font-bold text-slate-500 text-sm">$ ${plato.precio.toLocaleString("es-CO")} COP</p>
-              </div>
-              <button disabled class="bg-slate-800 text-slate-500 font-bold px-4 py-2.5 rounded-xl text-xs cursor-not-allowed flex items-center gap-1.5 shrink-0">
-                <i class="fa-solid fa-ban text-xs" aria-hidden="true"></i> Agotado
-              </button>
-            </div>
-          `;
-        }
-      }).join('');
-    });
-
-    window.modificarSeleccion = function(nombre, precio, cambio) {
-      if (!carritoBorrador[nombre]) {
-        carritoBorrador[nombre] = { nombre, precio, cantidad: 0 };
-      }
-
-      carritoBorrador[nombre].cantidad += cambio;
-      actualizarVistaBorrador();
-    };
-
-    window.eliminarItemBorrador = function(nombre) {
-      if (carritoBorrador[nombre]) {
-        delete carritoBorrador[nombre];
-        actualizarVistaBorrador();
-      }
-    };
-
-    function actualizarVistaBorrador() {
-      const carritoContainer = document.getElementById("cliente-carrito-borrador");
-      const totalFlotante = document.getElementById("total-flotante");
-      const barra = document.getElementById("barra-flotante-envio");
-
-      const items = Object.values(carritoBorrador);
-      let subtotalBorrador = 0;
-
-      if (items.length === 0) {
-        carritoContainer.innerHTML = `<div class="text-center text-slate-400 text-xs py-3">No has seleccionado ningún plato todavía.</div>`;
-        totalFlotante.textContent = "$ 0 COP";
-        barra.classList.add("translate-y-full");
-        return;
-      }
-
-      carritoContainer.innerHTML = items.map(item => {
-        subtotalBorrador += item.precio * item.cantidad;
-        return `
-          <div class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/50">
-            <div>
-              <div class="font-bold text-sm text-white">${item.nombre}</div>
-              <div class="text-xs text-slate-400">Cantidad: ${item.cantidad}</div>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="font-semibold text-amber-400 text-sm">$ ${(item.precio * item.cantidad).toLocaleString("es-CO")} COP</span>
-              <button onclick="eliminarItemBorrador('${item.nombre}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 transition active:scale-95" aria-label="Eliminar plato">
-                <i class="fa-solid fa-trash" aria-hidden="true"></i>
-              </button>
-            </div>
+    if (estaDisponible) {
+      contenedorMenu.innerHTML += `
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
+          <div class="space-y-1 pr-2">
+            <h3 class="font-bold text-white text-base">${plato.nombre}</h3>
+            <p class="text-xs text-slate-400">${plato.desc || 'Sin descripción'}</p>
+            <p class="font-bold text-amber-400 text-sm">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</p>
           </div>
-        `;
-      }).join('');
-
-      totalFlotante.textContent = `$ ${subtotalBorrador.toLocaleString("es-CO")} COP`;
-      barra.classList.remove("translate-y-full");
+          <button onclick="modificarSeleccion('${plato.nombre}', ${plato.precio}, 1)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
+          </button>
+        </div>
+      `;
+    } else {
+      contenedorMenu.innerHTML += `
+        <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl flex justify-between items-center shadow-sm opacity-60">
+          <div class="space-y-1 pr-2">
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-slate-400 text-base line-through">${plato.nombre}</h3>
+              <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] px-2.5 py-0.5 rounded font-bold">Agotado</span>
+            </div>
+            <p class="text-xs text-slate-500">${plato.desc || 'Sin descripción'}</p>
+            <p class="font-bold text-slate-500 text-sm">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</p>
+          </div>
+          <button disabled class="bg-slate-800 text-slate-500 font-bold px-4 py-2.5 rounded-xl text-xs cursor-not-allowed flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-ban text-xs" aria-hidden="true"></i> Agotado
+          </button>
+        </div>
+      `;
     }
-
-    window.enviarPedidoACocina = async function() {
-      const itemsEnviar = Object.values(carritoBorrador);
-      if (itemsEnviar.length === 0) return;
-
-      let resumenTexto = itemsEnviar.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
-
-      try {
-        await addDoc(collection(db, "pedidos_cocina"), {
-          mesa: "Mesa #3",
-          comanda: Math.floor(100 + Math.random() * 900),
-          resumen: resumenTexto,
-          estado: "PENDIENTE",
-          fecha: serverTimestamp()
-        });
-
-        carritoBorrador = {};
-        actualizarVistaBorrador();
-
-        alert("🚀 ¡Pedido enviado directamente a la cocina con éxito!");
-      } catch (e) {
-        alert("🚀 Pedido procesado correctamente.");
-      }
-    };
-
-    window.solicitarMesero = async function() {
-      try {
-        await addDoc(collection(db, "alertas"), {
-          tipo: "LLAMAR_MESERO",
-          mesa: "Mesa #3",
-          fecha: serverTimestamp(),
-          atendido: false
-        });
-        alert('🔔 Se ha enviado una alerta a la mesera.');
-      } catch (e) {
-        alert('🔔 Alerta enviada.');
-      }
-    };
-
-    window.pedirCuenta = async function() {
-      try {
-        await addDoc(collection(db, "alertas"), {
-          tipo: "PEDIR_CUENTA",
-          mesa: "Mesa #3",
-          fecha: serverTimestamp(),
-          atendido: false
-        });
-        alert('💳 Solicitud de cuenta enviada a caja.');
-      } catch (e) {
-        alert('💳 Solicitud enviada.');
-      }
-    };
-
-    window.volverInicio = function() {
-      window.location.href = 'index.html';
-    };
-  </script>
-</body>
-</html>
+  });
+});
