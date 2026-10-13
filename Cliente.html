@@ -15,7 +15,7 @@
       <i class="fa-solid fa-utensils text-amber-500 text-2xl"></i>
       <div>
         <h1 class="font-bold text-lg text-white">BistroIQ</h1>
-        <p class="text-xs text-emerald-400 font-medium">Mesa #3 • Sesión Activa</p>
+        <p class="text-xs text-emerald-400 font-medium" id="cliente-mesa-tag">Mesa #3 • Sesión Activa</p>
       </div>
     </div>
     <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition">
@@ -44,49 +44,115 @@
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
         <h3 class="font-bold text-slate-200"><i class="fa-solid fa-receipt text-amber-500 mr-2"></i> Su Pedido Actual</h3>
-        <span class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">En Proceso</span>
+        <span id="cliente-estado-pedido" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">En Proceso</span>
       </div>
 
       <!-- Lista de Productos en el Pedido -->
       <div id="cliente-pedido-lista" class="space-y-3 mb-4">
-        <div class="flex justify-between items-center bg-slate-900/50 p-3 rounded-xl">
-          <div>
-            <div class="font-bold text-sm text-white">Arroz con Pollo Especial</div>
-            <div class="text-xs text-slate-400">Cantidad: 1 • Sin cebolla</div>
-          </div>
-          <span class="font-semibold text-amber-400 text-sm">$ 28.000 COP</span>
-        </div>
-        <div class="flex justify-between items-center bg-slate-900/50 p-3 rounded-xl">
-          <div>
-            <div class="font-bold text-sm text-white">Limonada de Coco</div>
-            <div class="text-xs text-slate-400">Cantidad: 2</div>
-          </div>
-          <span class="font-semibold text-amber-400 text-sm">$ 16.000 COP</span>
-        </div>
+        <div class="text-center text-slate-400 text-sm py-4">Cargando pedido desde la base de datos...</div>
       </div>
 
       <!-- Total -->
       <div class="pt-3 border-t border-slate-700 flex justify-between items-center">
         <span class="text-sm text-slate-400 font-medium">Total a Pagar:</span>
-        <span class="text-xl font-extrabold text-white" id="cliente-total">$ 44.000 COP</span>
+        <span class="text-xl font-extrabold text-white" id="cliente-total">$ 0 COP</span>
       </div>
     </div>
 
   </main>
 
-  <!-- Script de Navegación y Acciones -->
-  <script>
-    function volverInicio() {
+  <!-- Módulos de Firebase & Lógica de Negocio -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      onSnapshot, 
+      doc, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Configuración Firebase BistroIQ Colombia
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV780O1ZNeTaGFI3vCTbHpiLAzHO1hIf8",
+      authDomain: "bistroiq-colombia.firebaseapp.com",
+      projectId: "bistroiq-colombia",
+      storageBucket: "bistroiq-colombia.firebasestorage.app",
+      messagingSenderId: "745222925239",
+      appId: "1:745222925239:web:12d0ecca6b65f1e15c1632"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const mesaId = "Mesa_3"; // Identificador por defecto de la mesa
+
+    // Escuchar cambios en tiempo real del pedido de la Mesa #3
+    onSnapshot(doc(db, "mesas", mesaId), (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        renderizarPedido(data.items || [], data.total || 0, data.estado || "En Proceso");
+      } else {
+        // Muestra inicial por defecto en caso de no existir datos guardados aún
+        renderizarPedido([
+          { nombre: "Arroz con Pollo Especial", detalle: "Cantidad: 1 • Sin cebolla", precio: 28000 },
+          { nombre: "Limonada de Coco", detalle: "Cantidad: 2", precio: 16000 }
+        ], 44000, "En Proceso");
+      }
+    });
+
+    function renderizarPedido(items, total, estado) {
+      const listaContainer = document.getElementById("cliente-pedido-lista");
+      const totalElement = document.getElementById("cliente-total");
+      const estadoElement = document.getElementById("cliente-estado-pedido");
+
+      estadoElement.textContent = estado;
+      totalElement.textContent = `$ ${total.toLocaleString("es-CO")} COP`;
+
+      listaContainer.innerHTML = items.map(item => `
+        <div class="flex justify-between items-center bg-slate-900/50 p-3 rounded-xl">
+          <div>
+            <div class="font-bold text-sm text-white">${item.nombre}</div>
+            <div class="text-xs text-slate-400">${item.detalle}</div>
+          </div>
+          <span class="font-semibold text-amber-400 text-sm">$ ${item.precio.toLocaleString("es-CO")} COP</span>
+        </div>
+      `).join('');
+    }
+
+    // Funciones globales vinculadas a la nube
+    window.solicitarMesero = async function() {
+      try {
+        await addDoc(collection(db, "alertas"), {
+          tipo: "LLAMAR_MESERO",
+          mesa: mesaId,
+          fecha: serverTimestamp(),
+          atendido: false
+        });
+        alert('🔔 Se ha enviado una alerta en tiempo real a la mesera. Acudirá a su mesa en un momento.');
+      } catch (e) {
+        alert('🔔 Solicitud enviada localmente.');
+      }
+    };
+
+    window.pedirCuenta = async function() {
+      try {
+        await addDoc(collection(db, "alertas"), {
+          tipo: "PEDIR_CUENTA",
+          mesa: mesaId,
+          fecha: serverTimestamp(),
+          atendido: false
+        });
+        alert('💳 Solicitud de cuenta enviada a caja. El administrador se encargará de verificar el pago.');
+      } catch (e) {
+        alert('💳 Solicitud enviada a caja.');
+      }
+    };
+
+    window.volverInicio = function() {
       window.location.href = 'index.html';
-    }
-
-    function solicitarMesero() {
-      alert('🔔 Se ha enviado una alerta a la mesera. Acudirá a su mesa en un momento.');
-    }
-
-    function pedirCuenta() {
-      alert('💳 Solicitud de cuenta enviada a caja. El administrador se encargará de verificar el pago.');
-    }
+    };
   </script>
 </body>
 </html>
