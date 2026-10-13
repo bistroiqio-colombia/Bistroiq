@@ -11,78 +11,86 @@
 
   <div class="max-w-md w-full space-y-6 text-center">
     
-    <!-- Logo o Encabezado -->
+    <!-- Encabezado / Logo Original -->
     <div class="space-y-2">
       <div class="inline-block bg-emerald-500/20 p-3 rounded-2xl border border-emerald-500/30">
         <i class="fa-solid fa-utensils text-emerald-400 text-3xl" aria-hidden="true"></i>
       </div>
       <h1 class="text-3xl font-black text-white">Bistro<span class="text-emerald-400">IQ</span></h1>
-      <p class="text-xs text-slate-400">Sistema Inteligente de Gestión Gastronómica</p>
+      <p class="text-xs text-slate-400">Sistema Inteligente de Gestión de Restaurantes</p>
     </div>
 
-    <!-- Menú de Selección de Módulos -->
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl space-y-3 text-left">
-      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Seleccione el Módulo</p>
+    <!-- Módulos con el diseño original de tarjetas coloridas -->
+    <div class="space-y-3.5 text-left">
 
-      <!-- Botón Administrador -->
-      <a href="admin.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
-        <div class="flex items-center gap-3">
-          <div class="bg-purple-600/20 p-2.5 rounded-lg text-purple-400">
-            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+      <!-- Soy Cliente (Verde) -->
+      <a href="cliente.html" class="bg-emerald-600 hover:bg-emerald-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
+        <div class="flex items-center gap-3.5">
+          <div class="bg-black/10 p-3 rounded-xl text-white">
+            <i class="fa-solid fa-qrcode text-lg" aria-hidden="true"></i>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-white">Administrador y Caja</h3>
-            <p class="text-[11px] text-slate-400">Gestión de menús y ventas</p>
+            <h3 class="font-bold text-base">Soy Cliente</h3>
+            <p class="text-xs text-emerald-100">Ver menú digital y hacer pedido</p>
           </div>
         </div>
-        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+        <i class="fa-solid fa-chevron-right text-emerald-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
       </a>
 
-      <!-- Botón Cocina -->
-      <a href="cocina.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
-        <div class="flex items-center gap-3">
-          <div class="bg-amber-500/20 p-2.5 rounded-lg text-amber-400">
-            <i class="fa-solid fa-fire" aria-hidden="true"></i>
+      <!-- Soy Mesera (Azul) -->
+      <a href="mesera.html" class="bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
+        <div class="flex items-center gap-3.5">
+          <div class="bg-black/10 p-3 rounded-xl text-white">
+            <i class="fa-solid fa-user-tie text-lg" aria-hidden="true"></i>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-white">Monitor de Cocina (KDS)</h3>
-            <p class="text-[11px] text-slate-400">Control de comandas y stock</p>
+            <h3 class="font-bold text-base">Soy Mesera</h3>
+            <p class="text-xs text-indigo-100">Gestionar mesas y comandas</p>
           </div>
         </div>
-        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-lock text-indigo-200 text-xs" aria-hidden="true"></i>
+          <i class="fa-solid fa-chevron-right text-indigo-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+        </div>
       </a>
 
-      <!-- Botón Mesera -->
-      <a href="mesera.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
-        <div class="flex items-center gap-3">
-          <div class="bg-indigo-500/20 p-2.5 rounded-lg text-indigo-400">
-            <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+      <!-- Soy Cocina (Naranja) -->
+      <a href="cocina.html" class="bg-amber-600 hover:bg-amber-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
+        <div class="flex items-center gap-3.5">
+          <div class="bg-black/10 p-3 rounded-xl text-white">
+            <i class="fa-solid fa-fire text-lg" aria-hidden="true"></i>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-white">Atención a Mesas</h3>
-            <p class="text-[11px] text-slate-400">Toma de pedidos y llamadas</p>
+            <h3 class="font-bold text-base">Soy Cocina</h3>
+            <p class="text-xs text-amber-100">Pantalla de pedidos e insumos</p>
           </div>
         </div>
-        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-lock text-amber-200 text-xs" aria-hidden="true"></i>
+          <i class="fa-solid fa-chevron-right text-amber-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+        </div>
       </a>
 
-      <!-- Botón Cliente -->
-      <a href="cliente.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
-        <div class="flex items-center gap-3">
-          <div class="bg-emerald-500/20 p-2.5 rounded-lg text-emerald-400">
-            <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+      <!-- Administrador / Caja (Oscuro con su candadito agregado) -->
+      <a href="admin.html" class="bg-slate-800 hover:bg-slate-700/80 border border-slate-700 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
+        <div class="flex items-center gap-3.5">
+          <div class="bg-purple-500/20 p-3 rounded-xl text-purple-400">
+            <i class="fa-solid fa-chart-line text-lg" aria-hidden="true"></i>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-white">Menú del Cliente</h3>
-            <p class="text-[11px] text-slate-400">Vista de pedidos en mesa</p>
+            <h3 class="font-bold text-base">Administrador / Caja</h3>
+            <p class="text-xs text-slate-400">Reportes, métricas y control</p>
           </div>
         </div>
-        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-lock text-purple-400 text-xs" aria-hidden="true"></i>
+          <i class="fa-solid fa-chevron-right text-slate-400 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+        </div>
       </a>
 
     </div>
 
-    <footer class="text-xs text-slate-500">
+    <footer class="text-xs text-slate-500 pt-2">
       BistroIQ • Todos los derechos reservados
     </footer>
 
