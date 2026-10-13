@@ -28,12 +28,12 @@
   <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
 
-    <!-- Resumen de Ventas en Vivo (Caja) -->
+    <!-- Resumen de Ventas en Vivo (Caja) en $0 COP -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-md">
         <div>
           <p class="text-xs text-slate-400 font-medium">Ventas Totales Hoy</p>
-          <p class="text-2xl font-black text-emerald-400" id="admin-ventas-totales">$ 384.000 COP</p>
+          <p class="text-2xl font-black text-emerald-400" id="admin-ventas-totales">$ 0 COP</p>
         </div>
         <div class="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
           <i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl" aria-hidden="true"></i>
@@ -43,7 +43,7 @@
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-md">
         <div>
           <p class="text-xs text-slate-400 font-medium">Transferencias Digitales</p>
-          <p class="text-2xl font-black text-indigo-400" id="admin-transferencias">$ 210.000 COP</p>
+          <p class="text-2xl font-black text-indigo-400" id="admin-transferencias">$ 0 COP</p>
         </div>
         <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
           <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl" aria-hidden="true"></i>
@@ -53,7 +53,7 @@
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-md">
         <div>
           <p class="text-xs text-slate-400 font-medium">Efectivo en Caja</p>
-          <p class="text-2xl font-black text-amber-400" id="admin-efectivo">$ 174.000 COP</p>
+          <p class="text-2xl font-black text-amber-400" id="admin-efectivo">$ 0 COP</p>
         </div>
         <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
           <i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl" aria-hidden="true"></i>
@@ -121,11 +121,11 @@
       </div>
     </section>
 
-    <!-- Acciones de Cierre y Gestión -->
+    <!-- Acciones de Cierre y Gestión Completa de Caja -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row justify-between items-center gap-4">
       <div>
         <h3 class="font-bold text-white">Cierre de Caja Diario</h3>
-        <p class="text-xs text-slate-400">Finaliza la jornada, liquida totales y reinicia los consumos de las mesas a $0 COP.</p>
+        <p class="text-xs text-slate-400">Finaliza la jornada, liquida totales y reinicia los contadores de las ventas a $0 COP.</p>
       </div>
       <button onclick="realizarCierreCaja()" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition active:scale-95 w-full sm:w-auto flex items-center justify-center gap-2">
         <i class="fa-solid fa-lock" aria-hidden="true"></i> Ejecutar Cierre de Caja
@@ -134,7 +134,7 @@
 
   </main>
 
-  <!-- Script de Navegación, Firebase & Caja -->
+  <!-- Script de Navegación, Firebase & Lógica Integrada -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -266,7 +266,7 @@
         document.getElementById("form-nuevo-plato").reset();
         alert(`✅ ¡Plato "${nombre}" publicado exitosamente! Aparecerá de inmediato en Cliente, Mesera y Cocina.`);
       } catch (e) {
-        alert(`✅ Plato agregado correctamente.`);
+        console.error("Error al agregar plato:", e);
       }
     };
 
@@ -283,17 +283,20 @@
       }
     };
 
-    // Función para eliminar plato
+    // Función para eliminar plato (CORREGIDA Y FUNCIONAL)
     window.eliminarPlatoFirebase = async function(id, nombre) {
-      if (confirm(`¿Estás seguro de eliminar "${nombre}" del menú? Se quitará de las pantallas del cliente y mesera.`)) {
+      if (confirm(`¿Estás seguro de eliminar "${nombre}" del menú? Se quitará de las pantallas del cliente, mesera y cocina.`)) {
         try {
-          await deleteDoc(doc(doc(db, "inventario_insumos", id)));
+          await deleteDoc(doc(db, "inventario_insumos", id));
+          alert(`🗑️ Plato "${nombre}" eliminado correctamente.`);
         } catch (e) {
-          console.error(e);
+          console.error("Error al eliminar plato:", e);
+          alert("⚠️ Ocurrió un error al intentar eliminar el plato.");
         }
       }
     };
 
+    // Confirmar pago y liberar la mesa
     window.confirmarPago = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "alertas", id), { atendido: true, pagado: true });
@@ -311,9 +314,14 @@
       }
     };
 
+    // Ejecutar Cierre de Caja y Reiniciar Contadores
     window.realizarCierreCaja = function() {
-      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Se reiniciarán los contadores de las mesas.')) {
-        alert('🔒 Cierre de caja realizado con éxito. Reportes guardados y consolidados.');
+      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Se reiniciarán los contadores de ventas a $0 COP.')) {
+        document.getElementById("admin-ventas-totales").textContent = "$ 0 COP";
+        document.getElementById("admin-transferencias").textContent = "$ 0 COP";
+        document.getElementById("admin-efectivo").textContent = "$ 0 COP";
+
+        alert('🔒 Cierre de caja realizado con éxito. Los contadores han sido limpiados y reiniciados a $0 COP.');
       }
     };
 
