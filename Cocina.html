@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BistroIQ - Monitor de Cocina</title>
+  <title>BistroIQ - Monitor de Cocina (KDS)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -12,12 +12,12 @@
   <!-- Encabezado de Cocina -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
-      <div class="bg-amber-600/30 p-2 rounded-xl border border-amber-500/30">
+      <div class="bg-amber-500/20 p-2 rounded-xl border border-amber-500/30">
         <i class="fa-solid fa-fire text-amber-500 text-xl" aria-hidden="true"></i>
       </div>
       <div>
         <h1 class="font-bold text-lg text-white">Monitor de Cocina (KDS)</h1>
-        <p class="text-xs text-amber-400 font-medium">Gestión de Comandas e Insumos en Tiempo Real</p>
+        <p class="text-xs text-amber-300 font-medium">Gestión de Comandas e Insumos en Tiempo Real</p>
       </div>
     </div>
     <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir al portal">
@@ -28,38 +28,40 @@
   <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-4xl mx-auto w-full space-y-6">
 
-    <!-- Sección de Comandas Entrantes -->
+    <!-- Comandas Entrantes desde Clientes y Mesera -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-list-check text-amber-500" aria-hidden="true"></i> Comandas Activas
+          <i class="fa-solid fa-receipt text-amber-500" aria-hidden="true"></i> Comandas Activas en Cocina
         </h2>
-        <span id="contador-comandas" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 En Marcha</span>
+        <span id="contador-comandas" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 Pendientes</span>
       </div>
 
-      <div id="contenedor-comandas" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="text-center text-slate-400 text-sm py-4 col-span-2">Cargando comandas en tiempo real...</div>
+      <div id="contenedor-comandas-cocina" class="space-y-3">
+        <div class="text-center text-slate-400 text-sm py-4">Cargando comandas en tiempo real...</div>
       </div>
     </section>
 
-    <!-- Control de Insumos / Agotados Sincronizado -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-3">
+    <!-- Control de Inventario y Disponibilidad (Sincronizado con Administrador) -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
-        <h2 class="font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-boxes-stacked text-indigo-400" aria-hidden="true"></i> Control Rápido de Disponibilidad de Insumos
-        </h2>
-        <span class="text-xs text-slate-400">Toca para alternar estado en tiempo real</span>
+        <div>
+          <h2 class="font-bold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-indigo-400" aria-hidden="true"></i> Control Rápido de Disponibilidad de Platos
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Toca para marcar agotado/disponible en tiempo real</p>
+        </div>
+        <span id="contador-insumos" class="text-xs text-indigo-300 font-semibold bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">0 Platos</span>
       </div>
 
-      <div id="contenedor-insumos" class="flex flex-wrap gap-2 pt-1">
-        <!-- Se cargarán dinámicamente desde Firebase -->
-        <div class="text-xs text-slate-400 py-2">Sincronizando disponibilidad de insumos...</div>
+      <!-- Los platos creados en el Administrador se cargan dinámicamente aquí -->
+      <div id="contenedor-control-insumos" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="text-center text-slate-400 text-xs py-4 col-span-full">Cargando catálogo de platos...</div>
       </div>
     </section>
 
   </main>
 
-  <!-- Script de Navegación, Firebase & KDS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -67,13 +69,11 @@
       collection, 
       onSnapshot, 
       doc, 
-      updateDoc, 
-      setDoc,
-      query, 
+      updateDoc,
+      query,
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Configuración Firebase BistroIQ Colombia
     const firebaseConfig = {
       apiKey: "AIzaSyDV780O1ZNeTaGFI3vCTbHpiLAzHO1hIf8",
       authDomain: "bistroiq-colombia.firebaseapp.com",
@@ -86,16 +86,16 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. Escuchar comandas activas en la colección "pedidos_cocina"
-    const qCocina = query(collection(db, "pedidos_cocina"), where("estado", "!=", "ENTREGADO"));
+    // 1. Escuchar Comandas de Cocina
+    const qCocina = query(collection(db, "pedidos_cocina"), where("estado", "in", ["PENDIENTE", "EN_PREPARACION"]));
     onSnapshot(qCocina, (snapshot) => {
-      const contenedor = document.getElementById("contenedor-comandas");
+      const contenedor = document.getElementById("contenedor-comandas-cocina");
       const contador = document.getElementById("contador-comandas");
       
-      contador.textContent = `${snapshot.size} En Marcha`;
+      contador.textContent = `${snapshot.size} Pendientes`;
 
       if (snapshot.empty) {
-        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4 col-span-2">No hay comandas activas en este momento. Esperando nuevos pedidos...</div>`;
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No hay comandas pendientes en este momento.</div>`;
         return;
       }
 
@@ -103,29 +103,25 @@
       snapshot.forEach((docSnap) => {
         const pedido = docSnap.data();
         const id = docSnap.id;
-        const esPreparando = pedido.estado === "EN_PREPARACION";
-        const esListo = pedido.estado === "LISTO";
 
         const card = document.createElement("div");
-        card.className = `bg-slate-900/80 border ${esListo ? 'border-emerald-500' : esPreparando ? 'border-amber-500' : 'border-slate-700'} rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-md`;
+        card.className = "bg-slate-900/80 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4";
         
         card.innerHTML = `
           <div>
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
-              <span class="font-bold text-amber-400 text-base">${pedido.mesa || 'Mesa'} — Comanda #${pedido.comanda || '00'}</span>
-              <span class="text-xs ${esListo ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500/40' : esPreparando ? 'bg-amber-900/60 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-400'} px-2 py-0.5 rounded font-bold">
-                ${pedido.estado || 'PENDIENTE'}
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-base">${pedido.mesa || 'Mesa'} — Comanda #${pedido.comanda || '00'}</span>
+              <span class="text-xs px-2 py-0.5 rounded font-bold ${pedido.estado === 'EN_PREPARACION' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'}">
+                ${pedido.estado === 'EN_PREPARACION' ? 'En Preparación' : 'Pendiente'}
               </span>
             </div>
-            <div class="text-sm space-y-1 text-slate-200 font-medium">
-              ${pedido.resumen || '1x Plato principal'}
-            </div>
+            <div class="text-sm font-semibold text-amber-400 mt-1">${pedido.resumen || 'Sin especificar'}</div>
           </div>
-          <div class="flex gap-2 pt-2">
-            <button onclick="marcarPreparando('${id}', '${pedido.mesa}')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-lg text-xs font-bold transition active:scale-95">
+          <div class="flex gap-2">
+            <button onclick="cambiarEstadoPedido('${id}', 'EN_PREPARACION')" class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95">
               En Preparación
             </button>
-            <button onclick="marcarListo('${id}', '${pedido.mesa}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-bold transition active:scale-95">
+            <button onclick="cambiarEstadoPedido('${id}', 'LISTO')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95">
               ¡Listo!
             </button>
           </div>
@@ -134,69 +130,60 @@
       });
     });
 
-    // 2. Escuchar Inventario / Insumos en Tiempo Real desde Firebase
-    const insumosPorDefecto = [
-      { id: 'arroz_pollo', nombre: 'Arroz con Pollo Especial', disponible: true },
-      { id: 'pasta_bolonesa', nombre: 'Pasta a la Boloñesa', disponible: true },
-      { id: 'pechuga_gratinada', nombre: 'Pechuga Gratinada', disponible: true },
-      { id: 'limonada_coco', nombre: 'Limonada de Coco', disponible: true },
-      { id: 'cerveza_aguila', nombre: 'Cerveza Águila Light', disponible: true }
-    ];
+    // 2. Escuchar Catálogo Completo desde "inventario_insumos" para Control de Stock
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      const contenedorInsumos = document.getElementById("contenedor-control-insumos");
+      const contadorInsumos = document.getElementById("contador-insumos");
 
-    onSnapshot(collection(db, "inventario_insumos"), async (snapshot) => {
-      const contenedorInsumos = document.getElementById("contenedor-insumos");
+      contadorInsumos.textContent = `${snapshot.size} Platos`;
 
-      // Si la colección está vacía en Firebase, la inicializamos automáticamente
       if (snapshot.empty) {
-        for (let item of insumosPorDefecto) {
-          await setDoc(doc(db, "inventario_insumos", item.id), item);
-        }
+        contenedorInsumos.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay platos registrados. Agrégalos desde el panel de Administrador.</div>`;
         return;
       }
 
       contenedorInsumos.innerHTML = "";
-      snapshot.forEach((docInsumo) => {
-        const data = docInsumo.data();
-        const id = docInsumo.id;
-        const disponible = data.disponible;
+      snapshot.forEach((docSnap) => {
+        const item = docSnap.data();
+        const id = docSnap.id;
+        const disponible = item.disponible !== undefined ? item.disponible : true;
 
         const btn = document.createElement("button");
-        btn.onclick = () => toggleInsumoFirebase(id, !disponible);
-        
-        if (disponible) {
-          btn.className = "bg-emerald-900/40 border border-emerald-500/50 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2";
-          btn.innerHTML = `<i class="fa-solid fa-circle text-[10px] text-emerald-400" aria-hidden="true"></i> ${data.nombre}: Disponible`;
-        } else {
-          btn.className = "bg-red-900/40 border border-red-500/50 text-red-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition active:scale-95 flex items-center gap-2";
-          btn.innerHTML = `<i class="fa-solid fa-circle text-[10px] text-red-400" aria-hidden="true"></i> ${data.nombre}: Agotado`;
-        }
+        btn.onclick = () => toggleDisponibilidadCocina(id, disponible);
+        btn.className = `p-3.5 rounded-xl border flex items-center justify-between text-left transition active:scale-95 font-semibold text-xs ${
+          disponible 
+            ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/40' 
+            : 'bg-rose-950/30 border-rose-500/40 text-rose-300 hover:bg-rose-900/40'
+        }`;
 
+        btn.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full ${disponible ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}"></span>
+            <span class="truncate">${item.nombre}</span>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold shrink-0 ${
+            disponible ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'
+          }">
+            ${disponible ? 'Disponible' : 'Agotado'}
+          </span>
+        `;
         contenedorInsumos.appendChild(btn);
       });
     });
 
-    window.toggleInsumoFirebase = async function(idInsumo, nuevoEstado) {
+    window.cambiarEstadoPedido = async function(id, nuevoEstado) {
       try {
-        const refDoc = doc(db, "inventario_insumos", idInsumo);
-        await updateDoc(refDoc, { disponible: nuevoEstado });
+        await updateDoc(doc(db, "pedidos_cocina", id), { estado: nuevoEstado });
       } catch (e) {
-        console.error("Error al actualizar disponibilidad", e);
+        console.error("Error al actualizar pedido", e);
       }
     };
 
-    window.marcarPreparando = async function(id, mesa) {
+    window.toggleDisponibilidadCocina = async function(id, estadoActual) {
       try {
-        await updateDoc(doc(db, "pedidos_cocina", id), { estado: "EN_PREPARACION" });
+        await updateDoc(doc(db, "inventario_insumos", id), { disponible: !estadoActual });
       } catch (e) {
-        console.error(e);
-      }
-    };
-
-    window.marcarListo = async function(id, mesa) {
-      try {
-        await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
-      } catch (e) {
-        console.error(e);
+        console.error("Error al cambiar estado de producto", e);
       }
     };
 
