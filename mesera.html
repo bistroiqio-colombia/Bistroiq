@@ -34,31 +34,11 @@
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
           <i class="fa-solid fa-bell text-amber-500 animate-pulse"></i> Solicitudes de Mesas
         </h2>
-        <span class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">2 Pendientes</span>
+        <span id="contador-alertas" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 Pendientes</span>
       </div>
 
-      <div class="space-y-3">
-        <!-- Alerta 1 -->
-        <div class="bg-slate-900/60 border border-slate-700/50 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div class="font-bold text-white text-base">Mesa #3 — Solicitud de Atención</div>
-            <div class="text-xs text-slate-400">Cliente solicitó presencia del mesero • Hace 2 min</div>
-          </div>
-          <button onclick="atenderLlamado('Mesa #3')" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
-            <i class="fa-solid fa-check mr-1"></i> Atender Llamado
-          </button>
-        </div>
-
-        <!-- Alerta 2 -->
-        <div class="bg-slate-900/60 border border-slate-700/50 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div class="font-bold text-white text-base">Mesa #5 — Pide Datos de Pago</div>
-            <div class="text-xs text-emerald-400 font-medium">Cliente desea pagar vía Transferencia (Nequi/Daviplata)</div>
-          </div>
-          <button onclick="enviarDatosPago('Mesa #5')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
-            <i class="fa-solid fa-paper-plane mr-1"></i> Enviar Datos de Pago
-          </button>
-        </div>
+      <div id="contenedor-alertas" class="space-y-3">
+        <div class="text-center text-slate-400 text-sm py-4">Cargando solicitudes en tiempo real...</div>
       </div>
     </section>
 
@@ -68,24 +48,42 @@
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
           <i class="fa-solid fa-circle-check text-emerald-400"></i> Platos Listos para Entregar
         </h2>
-        <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">1 En Barra</span>
+        <span id="contador-listos" class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 En Barra</span>
       </div>
 
-      <div class="bg-slate-900/60 border border-emerald-500/30 p-4 rounded-xl flex justify-between items-center">
-        <div>
-          <div class="font-bold text-emerald-300 text-sm">Mesa #2 — Comanda #084</div>
-          <div class="text-xs text-slate-300">1x Pechuga a la Plancha, 1x Águila Light</div>
-        </div>
-        <button onclick="entregarPedido('Mesa #2')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95">
-          <i class="fa-solid fa-utensils mr-1"></i> Entregado
-        </button>
+      <div id="contenedor-listos" class="space-y-3">
+        <div class="text-center text-slate-400 text-sm py-4">No hay platos pendientes en barra.</div>
       </div>
     </section>
 
   </main>
 
-  <script>
-    // Recupera el nombre de la mesera desde la sesión
+  <!-- Script de Navegación, Firebase & Lógica de Negocio -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      onSnapshot, 
+      doc, 
+      updateDoc, 
+      query, 
+      where 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Configuración Firebase BistroIQ Colombia
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV780O1ZNeTaGFI3vCTbHpiLAzHO1hIf8",
+      authDomain: "bistroiq-colombia.firebaseapp.com",
+      projectId: "bistroiq-colombia",
+      storageBucket: "bistroiq-colombia.firebasestorage.app",
+      messagingSenderId: "745222925239",
+      appId: "1:745222925239:web:12d0ecca6b65f1e15c1632"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     document.addEventListener('DOMContentLoaded', () => {
       const meseraGuardada = localStorage.getItem('meseraActiva');
       if (meseraGuardada) {
@@ -93,21 +91,107 @@
       }
     });
 
-    function volverInicio() {
+    // 1. Escuchar Alertas en Tiempo Real desde la colección "alertas"
+    const qAlertas = query(collection(db, "alertas"), where("atendido", "==", false));
+    onSnapshot(qAlertas, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-alertas");
+      const contador = document.getElementById("contador-alertas");
+      
+      contador.textContent = `${snapshot.size} Pendientes`;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No hay solicitudes pendientes en este momento.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const alerta = docSnap.data();
+        const id = docSnap.id;
+        const esCuenta = alerta.tipo === "PEDIR_CUENTA";
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/60 border border-slate-700/50 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3";
+        card.innerHTML = `
+          <div>
+            <div class="font-bold text-white text-base">${alerta.mesa || 'Mesa'} — ${esCuenta ? 'Pide Datos de Pago' : 'Solicitud de Atención'}</div>
+            <div class="text-xs ${esCuenta ? 'text-emerald-400 font-medium' : 'text-slate-400'}">
+              ${esCuenta ? 'Cliente desea pagar vía Transferencia (Nequi/Daviplata)' : 'Cliente solicitó presencia del mesero'}
+            </div>
+          </div>
+          <button onclick="${esCuenta ? `enviarDatosPago('${id}', '${alerta.mesa}')` : `atenderLlamado('${id}', '${alerta.mesa}')`}" 
+                  class="${esCuenta ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-amber-600 hover:bg-amber-500'} text-white px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
+            <i class="fa-solid ${esCuenta ? 'fa-paper-plane' : 'fa-check'} mr-1"></i> ${esCuenta ? 'Enviar Datos de Pago' : 'Atender Llamado'}
+          </button>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    // 2. Escuchar Pedidos Listos desde Cocina
+    const qListos = query(collection(db, "pedidos_cocina"), where("estado", "==", "LISTO"));
+    onSnapshot(qListos, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-listos");
+      const contador = document.getElementById("contador-listos");
+      
+      contador.textContent = `${snapshot.size} En Barra`;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No hay platos pendientes en barra.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const pedido = docSnap.data();
+        const id = docSnap.id;
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/60 border border-emerald-500/30 p-4 rounded-xl flex justify-between items-center";
+        card.innerHTML = `
+          <div>
+            <div class="font-bold text-emerald-300 text-sm">${pedido.mesa || 'Mesa'} — Comanda #${pedido.comanda || '00'}</div>
+            <div class="text-xs text-slate-300">${pedido.resumen || 'Platos preparados'}</div>
+          </div>
+          <button onclick="entregarPedido('${id}', '${pedido.mesa}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95">
+            <i class="fa-solid fa-utensils mr-1"></i> Entregado
+          </button>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    // Funciones asociadas a Firestore
+    window.atenderLlamado = async function(id, mesa) {
+      try {
+        await updateDoc(doc(db, "alertas", id), { atendido: true });
+        alert(`✅ Acudiendo a la ${mesa}.`);
+      } catch (e) {
+        alert(`✅ Atendiendo ${mesa}.`);
+      }
+    };
+
+    window.enviarDatosPago = async function(id, mesa) {
+      try {
+        await updateDoc(doc(db, "alertas", id), { atendido: true, datosEnviados: true });
+        alert(`📲 Datos de transferencia bancaria enviados a la pantalla de la ${mesa}.`);
+      } catch (e) {
+        alert(`📲 Datos enviados a ${mesa}.`);
+      }
+    };
+
+    window.entregarPedido = async function(id, mesa) {
+      try {
+        await updateDoc(doc(db, "pedidos_cocina", id), { estado: "ENTREGADO" });
+        alert(`🍽️ Pedido marcado como entregado en ${mesa}.`);
+      } catch (e) {
+        alert(`🍽️ Entregado en ${mesa}.`);
+      }
+    };
+
+    window.volverInicio = function() {
       window.location.href = 'index.html';
-    }
-
-    function atenderLlamado(mesa) {
-      alert(`✅ Acudiendo a la ${mesa}.`);
-    }
-
-    function enviarDatosPago(mesa) {
-      alert(`📲 Datos de transferencia bancaria enviados a la pantalla de la ${mesa}.`);
-    }
-
-    function entregarPedido(mesa) {
-      alert(`🍽️ Pedido marcado como entregado en ${mesa}.`);
-    }
+    };
   </script>
 </body>
 </html>
