@@ -1,47 +1,266 @@
-// Escuchar menú completo dinámico creado en Administrador
-onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
-  const contenedorMenu = document.getElementById("contenedor-menu-mesera");
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BistroIQ - Panel de Mesera</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-24">
 
-  if (snapshot.empty) {
-    contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-4">No hay productos en el menú. Agrégalos desde el Administrador.</div>`;
-    return;
-  }
+  <!-- Encabezado Mesera -->
+  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
+    <div class="flex items-center gap-3">
+      <div class="bg-indigo-500/20 p-2 rounded-xl border border-indigo-500/30">
+        <i class="fa-solid fa-user-tie text-indigo-400 text-xl" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-lg text-white">Atención a Mesas</h1>
+        <p class="text-xs text-indigo-300 font-medium">Panel de Mesera • BistroIQ</p>
+      </div>
+    </div>
+    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir al inicio">
+      <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
+    </button>
+  </header>
 
-  contenedorMenu.innerHTML = "";
-  snapshot.forEach(docSnap => {
-    const plato = docSnap.data();
-    const id = docSnap.id;
-    const estaDisponible = plato.disponible !== undefined ? plato.disponible : true;
+  <!-- Contenido Principal -->
+  <main class="flex-1 p-4 max-w-4xl mx-auto w-full space-y-6">
 
-    if (estaDisponible) {
-      contenedorMenu.innerHTML += `
-        <div class="bg-slate-900/70 border border-slate-700 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
-          <div class="space-y-0.5 pr-2">
-            <h3 class="font-bold text-white text-sm">${plato.nombre}</h3>
-            <p class="text-xs text-slate-400">${plato.desc || 'Sin descripción'}</p>
-            <p class="font-bold text-amber-400 text-xs">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</p>
+    <!-- Notificaciones / Llamados de Clientes en Tiempo Real -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-3">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-bell text-amber-400 animate-bounce" aria-hidden="true"></i> Solicitudes de Mesas
+        </h2>
+        <span id="contador-alertas-mesera" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Llamados</span>
+      </div>
+      <div id="contenedor-alertas-mesera" class="space-y-2">
+        <div class="text-center text-slate-400 text-xs py-3">No hay llamadas pendientes de clientes.</div>
+      </div>
+    </section>
+
+    <!-- Selector de Mesa Activa -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-3">
+      <label class="text-xs font-bold text-slate-300 block">Selecciona la Mesa a Atender:</label>
+      <div class="grid grid-cols-4 sm:grid-cols-6 gap-2" id="grid-mesas-selector">
+        <button onclick="seleccionarMesa('Mesa #1')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition">Mesa 1</button>
+        <button onclick="seleccionarMesa('Mesa #2')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition">Mesa 2</button>
+        <button onclick="seleccionarMesa('Mesa #3')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition border-indigo-500 bg-indigo-950/40">Mesa 3</button>
+        <button onclick="seleccionarMesa('Mesa #4')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition">Mesa 4</button>
+        <button onclick="seleccionarMesa('Mesa #5')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition">Mesa 5</button>
+        <button onclick="seleccionarMesa('Mesa #6')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition">Mesa 6</button>
+      </div>
+    </section>
+
+    <!-- Catálogo de Productos Dinámicos (Sincronizado con Admin y Cocina) -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-utensils text-indigo-400" aria-hidden="true"></i> Menú Dinámico
+        </h2>
+        <span class="text-xs text-indigo-300 font-semibold" id="mesa-seleccionada-label">Atendiendo: Mesa #3</span>
+      </div>
+
+      <div id="contenedor-menu-mesera" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="text-center text-slate-400 text-xs py-4 col-span-full">Cargando catálogo dinámico...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Barra Flotante de Pedido Activo -->
+  <footer id="barra-pedido-mesera" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 shadow-2xl z-40 hidden">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+      <div>
+        <p class="text-xs text-slate-400" id="resumen-mesa-pie">Mesa #3 • Items acumulados</p>
+        <p class="text-lg font-black text-emerald-400" id="total-pedido-mesera">$ 0 COP</p>
+      </div>
+      <button onclick="enviarComandaMesera()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-lg active:scale-95 flex items-center gap-2">
+        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar Comanda a Cocina
+      </button>
+    </div>
+  </footer>
+
+  <!-- Script Firebase Integrado -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      onSnapshot, 
+      addDoc,
+      doc,
+      updateDoc,
+      query,
+      where 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV780O1ZNeTaGFI3vCTbHpiLAzHO1hIf8",
+      authDomain: "bistroiq-colombia.firebaseapp.com",
+      projectId: "bistroiq-colombia",
+      storageBucket: "bistroiq-colombia.firebasestorage.app",
+      messagingSenderId: "745222925239",
+      appId: "1:745222925239:web:12d0ecca6b65f1e15c1632"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let mesaActual = "Mesa #3";
+    let pedidoActual = [];
+
+    // 1. Escuchar Solicitudes de Clientes (Llamar Mesera)
+    const qAlertas = query(collection(db, "alertas"), where("tipo", "==", "LLAMAR_MESERA"), where("atendido", "==", false));
+    onSnapshot(qAlertas, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-alertas-mesera");
+      const contador = document.getElementById("contador-alertas-mesera");
+
+      contador.textContent = `${snapshot.size} Llamados`;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-xs py-3">No hay llamadas pendientes de clientes.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const alerta = docSnap.data();
+        const id = docSnap.id;
+
+        const card = document.createElement("div");
+        card.className = "bg-amber-950/30 border border-amber-500/40 p-3 rounded-xl flex items-center justify-between gap-3";
+        card.innerHTML = `
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-bell text-amber-400 text-sm animate-pulse"></i>
+            <span class="font-bold text-white text-xs">${alerta.mesa || 'Mesa'} solicita atención</span>
           </div>
-          <button onclick="modificarSeleccionMesera('${plato.nombre}', ${plato.precio}, 1)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow transition active:scale-95 flex items-center gap-1 shrink-0">
-            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
+          <button onclick="atenderLlamado('${id}')" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-lg text-[11px] font-bold transition">
+            Atendido
           </button>
-        </div>
-      `;
-    } else {
-      contenedorMenu.innerHTML += `
-        <div class="bg-slate-950/40 border border-slate-800/80 p-3.5 rounded-xl flex justify-between items-center shadow-sm opacity-60">
-          <div class="space-y-0.5 pr-2">
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    // 2. Escuchar Menú Dinámico desde "inventario_insumos"
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      const contenedorMenu = document.getElementById("contenedor-menu-mesera");
+
+      if (snapshot.empty) {
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay productos en el menú. Agrégalos desde el Administrador.</div>`;
+        return;
+      }
+
+      contenedorMenu.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const plato = docSnap.data();
+        const id = docSnap.id;
+        const disponible = plato.disponible !== undefined ? plato.disponible : true;
+
+        const card = document.createElement("div");
+        card.className = `bg-slate-900 border rounded-xl p-3.5 flex justify-between items-center space-x-3 transition ${
+          disponible ? 'border-slate-700/80 shadow-sm' : 'border-rose-900/30 opacity-60'
+        }`;
+
+        card.innerHTML = `
+          <div class="space-y-1 overflow-hidden">
             <div class="flex items-center gap-2">
-              <h3 class="font-bold text-slate-400 text-sm line-through">${plato.nombre}</h3>
-              <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] px-2 py-0.5 rounded font-bold">Agotado</span>
+              <h3 class="font-bold text-xs text-white truncate">${plato.nombre}</h3>
+              <span class="text-[9px] px-1.5 py-0.5 rounded font-bold shrink-0 ${
+                disponible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+              }">
+                ${disponible ? 'OK' : 'Agotado'}
+              </span>
             </div>
-            <p class="text-xs text-slate-500">${plato.desc || 'Sin descripción'}</p>
-            <p class="font-bold text-slate-500 text-xs">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</p>
+            <p class="text-emerald-400 text-xs font-semibold">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</p>
           </div>
-          <button disabled class="bg-slate-800 text-slate-500 font-bold px-3.5 py-2 rounded-xl text-xs cursor-not-allowed flex items-center gap-1 shrink-0">
-            <i class="fa-solid fa-ban text-xs" aria-hidden="true"></i> Agotado
-          </button>
-        </div>
-      `;
+
+          <div class="shrink-0">
+            ${
+              disponible 
+                ? `<button onclick="agregarPlatoMesera('${id}', '${plato.nombre}',${plato.precio})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition active:scale-95 flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Añadir
+                   </button>`
+                : `<span class="text-[10px] text-rose-400 font-semibold italic">Agotado</span>`
+            }
+          </div>
+        `;
+        contenedorMenu.appendChild(card);
+      });
+    });
+
+    window.seleccionarMesa = function(nombreMesa) {
+      mesaActual = nombreMesa;
+      document.getElementById("mesa-seleccionada-label").textContent = `Atendiendo: ${mesaActual}`;
+      document.getElementById("resumen-mesa-pie").textContent = `${mesaActual} • Items acumulados`;
+      
+      // Resaltar botón de mesa seleccionada
+      document.querySelectorAll('.btn-mesa').forEach(btn => {
+        btn.classList.remove('border-indigo-500', 'bg-indigo-950/40');
+        if (btn.textContent.trim() === nombreMesa.replace(' #', ' ')) {
+          btn.classList.add('border-indigo-500', 'bg-indigo-950/40');
+        }
+      });
+    };
+
+    window.agregarPlatoMesera = function(id, nombre, precio) {
+      pedidoActual.push({ id, nombre, precio });
+      actualizarBarraMesera();
+    };
+
+    function actualizarBarraMesera() {
+      const barra = document.getElementById("barra-pedido-mesera");
+      const totalTexto = document.getElementById("total-pedido-mesera");
+
+      if (pedidoActual.length > 0) {
+        const total = pedidoActual.reduce((acc, item) => acc + item.precio, 0);
+        totalTexto.textContent = `$ ${total.toLocaleString("es-CO")} COP (${pedidoActual.length} items)`;
+        barra.classList.remove("hidden");
+      } else {
+        barra.classList.add("hidden");
+      }
     }
-  });
-});
+
+    window.enviarComandaMesera = async function() {
+      if (pedidoActual.length === 0) return;
+
+      const resumen = pedidoActual.map(i => i.nombre).join(", ");
+      const total = pedidoActual.reduce((acc, item) => acc + item.precio, 0);
+
+      if (confirm(`¿Enviar comanda para ${mesaActual}?\n\nItems: ${resumen}\nTotal: $${total.toLocaleString("es-CO")} COP`)) {
+        try {
+          await addDoc(collection(db, "pedidos_cocina"), {
+            mesa: mesaActual,
+            comanda: Math.floor(100 + Math.random() * 900),
+            resumen: resumen,
+            estado: "PENDIENTE",
+            fecha: new Date().toISOString()
+          });
+
+          alert(`🚀 Comanda de ${mesaActual} enviada exitosamente a Cocina.`);
+          pedidoActual = [];
+          actualizarBarraMesera();
+        } catch (e) {
+          console.error("Error al enviar comanda:", e);
+          alert("⚠️ Hubo un problema al enviar la comanda.");
+        }
+      }
+    };
+
+    window.atenderLlamado = async function(id) {
+      try {
+        await updateDoc(doc(db, "alertas", id), { atendido: true });
+      } catch (e) {
+        console.error("Error al marcar alerta:", e);
+      }
+    };
+
+    window.volverInicio = function() {
+      window.location.href = 'index.html';
+    };
+  </script>
+</body>
+</html>
