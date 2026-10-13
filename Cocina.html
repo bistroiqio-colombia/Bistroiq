@@ -70,6 +70,7 @@
       onSnapshot, 
       doc, 
       updateDoc,
+      deleteDoc,
       query,
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -117,12 +118,15 @@
             </div>
             <div class="text-sm font-semibold text-amber-400 mt-1">${pedido.resumen || 'Sin especificar'}</div>
           </div>
-          <div class="flex gap-2">
-            <button onclick="cambiarEstadoPedido('${id}', 'EN_PREPARACION')" class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95">
+          <div class="flex items-center gap-2">
+            <button onclick="cambiarEstadoPedido('${id}', 'EN_PREPARACION')" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition active:scale-95">
               En Preparación
             </button>
-            <button onclick="cambiarEstadoPedido('${id}', 'LISTO')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95">
+            <button onclick="cambiarEstadoPedido('${id}', 'LISTO')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition active:scale-95">
               ¡Listo!
+            </button>
+            <button onclick="eliminarComandaIndividual('${id}', '${pedido.mesa || 'Mesa'}')" class="bg-rose-900/30 hover:bg-rose-900/50 text-rose-300 p-2.5 rounded-xl text-xs transition" title="Eliminar esta comanda">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
             </button>
           </div>
         `;
@@ -184,6 +188,18 @@
         await updateDoc(doc(db, "inventario_insumos", id), { disponible: !estadoActual });
       } catch (e) {
         console.error("Error al cambiar estado de producto", e);
+      }
+    };
+
+    // Función para eliminar una comanda individualmente con su icono de papelera
+    window.eliminarComandaIndividual = async function(id, mesa) {
+      if (confirm(`¿Deseas eliminar la comanda de la ${mesa}?`)) {
+        try {
+          await deleteDoc(doc(db, "pedidos_cocina", id));
+        } catch (e) {
+          console.error("Error al eliminar la comanda:", e);
+          alert("⚠️ Ocurrió un error al intentar eliminar la comanda.");
+        }
       }
     };
 
