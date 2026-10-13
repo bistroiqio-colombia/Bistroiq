@@ -12,14 +12,14 @@
   <!-- Encabezado del Cliente -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
-      <i class="fa-solid fa-utensils text-amber-500 text-2xl"></i>
+      <i class="fa-solid fa-utensils text-amber-500 text-2xl" aria-hidden="true"></i>
       <div>
         <h1 class="font-bold text-lg text-white">BistroIQ</h1>
         <p class="text-xs text-emerald-400 font-medium" id="cliente-mesa-tag">Mesa #3 • Sesión Activa</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition">
-      <i class="fa-solid fa-house"></i> Salir
+    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir de la sesión">
+      <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
     </button>
   </header>
 
@@ -30,90 +30,79 @@
     <div class="bg-gradient-to-r from-amber-600 to-amber-700 rounded-2xl p-4 shadow-lg text-white">
       <div class="grid grid-cols-2 gap-3">
         <button onclick="solicitarMesero()" class="bg-black/20 hover:bg-black/30 backdrop-blur-sm p-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-xs transition active:scale-95">
-          <i class="fa-solid fa-bell text-amber-300"></i> Llamar Mesero
+          <i class="fa-solid fa-bell text-amber-300" aria-hidden="true"></i> Llamar Mesero
         </button>
         <button onclick="pedirCuenta()" class="bg-emerald-700 hover:bg-emerald-600 p-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-xs transition active:scale-95">
-          <i class="fa-solid fa-credit-card text-emerald-200"></i> Pedir Cuenta
+          <i class="fa-solid fa-credit-card text-emerald-200" aria-hidden="true"></i> Pedir Cuenta
         </button>
       </div>
     </div>
 
-    <!-- Menú Digital de Platos con Categorías -->
+    <!-- Menú Digital de Platos -->
     <section class="space-y-4">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-        <h3 class="font-bold text-lg text-white flex items-center gap-2">
-          <i class="fa-solid fa-book-open text-amber-500"></i> Nuestro Menú
-        </h3>
-        <span class="text-xs text-slate-400 font-medium">Toca para agregar</span>
+        <h2 class="font-bold text-lg text-white flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-amber-500" aria-hidden="true"></i> Nuestro Menú
+        </h2>
+        <span class="text-xs text-slate-400 font-medium">Arma tu pedido</span>
       </div>
 
-      <!-- Filtros por Categoría -->
-      <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-        <button onclick="filtrarCategoria('todos')" class="cat-btn bg-amber-500 text-slate-900 font-bold px-4 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-sm">Todos</button>
-        <button onclick="filtrarCategoria('fuertes')" class="cat-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-4 py-1.5 rounded-xl text-xs whitespace-nowrap">Platos Fuertes</button>
-        <button onclick="filtrarCategoria('bebidas')" class="cat-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-4 py-1.5 rounded-xl text-xs whitespace-nowrap">Bebidas</button>
-        <button onclick="filtrarCategoria('postres')" class="cat-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-4 py-1.5 rounded-xl text-xs whitespace-nowrap">Postres</button>
-        <button onclick="filtrarCategoria('adicionales')" class="cat-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-4 py-1.5 rounded-xl text-xs whitespace-nowrap">Adicionales</button>
-      </div>
-
-      <!-- Tarjetas de Productos (Selección Directa) -->
+      <!-- Tarjetas de Productos -->
       <div id="contenedor-menu" class="grid grid-cols-1 gap-3">
-        <!-- Producto 1 -->
-        <div class="item-menu fuertes bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md hover:border-amber-500/50 transition cursor-pointer" onclick="agregarPlato('Pasta a la Boloñesa', 24000)">
+        
+        <!-- Producto 1: Pasta a la Boloñesa -->
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
           <div class="space-y-1">
-            <h4 class="font-bold text-white text-base">Pasta a la Boloñesa</h4>
+            <h3 class="font-bold text-white text-base">Pasta a la Boloñesa</h3>
             <p class="text-xs text-slate-400">Pasta artesanal con salsa boloñesa de la casa y queso parmesano.</p>
             <p class="font-bold text-amber-400 text-sm">$ 24.000 COP</p>
           </div>
-          <div class="bg-amber-500/10 text-amber-400 border border-amber-500/30 p-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-plus"></i> Pedir
+          <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-700">
+            <button onclick="modificarSeleccion('Pasta a la Boloñesa', 24000, -1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-sm active:scale-95 flex items-center justify-center" aria-label="Disminuir cantidad de Pasta a la Boloñesa">-</button>
+            <span id="cant-pasta-bolonesa" class="font-bold text-sm px-1">0</span>
+            <button onclick="modificarSeleccion('Pasta a la Boloñesa', 24000, 1)" class="w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm active:scale-95 flex items-center justify-center" aria-label="Aumentar cantidad de Pasta a la Boloñesa">+</button>
           </div>
         </div>
 
-        <!-- Producto 2 -->
-        <div class="item-menu fuertes bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md hover:border-amber-500/50 transition cursor-pointer" onclick="agregarPlato('Arroz con Pollo Especial', 28000)">
+        <!-- Producto 2: Arroz con Pollo -->
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
           <div class="space-y-1">
-            <h4 class="font-bold text-white text-base">Arroz con Pollo Especial</h4>
+            <h3 class="font-bold text-white text-base">Arroz con Pollo Especial</h3>
             <p class="text-xs text-slate-400">Acompañado de papas a la francesa y ensalada dulce.</p>
             <p class="font-bold text-amber-400 text-sm">$ 28.000 COP</p>
           </div>
-          <div class="bg-amber-500/10 text-amber-400 border border-amber-500/30 p-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-plus"></i> Pedir
+          <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-700">
+            <button onclick="modificarSeleccion('Arroz con Pollo Especial', 28000, -1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-sm active:scale-95 flex items-center justify-center" aria-label="Disminuir cantidad de Arroz con Pollo Especial">-</button>
+            <span id="cant-arroz-con-pollo" class="font-bold text-sm px-1">0</span>
+            <button onclick="modificarSeleccion('Arroz con Pollo Especial', 28000, 1)" class="w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm active:scale-95 flex items-center justify-center" aria-label="Aumentar cantidad de Arroz con Pollo Especial">+</button>
           </div>
         </div>
 
-        <!-- Producto 3 -->
-        <div class="item-menu bebidas bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md hover:border-amber-500/50 transition cursor-pointer" onclick="agregarPlato('Limonada de Coco', 8000)">
+        <!-- Producto 3: Limonada de Coco -->
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
           <div class="space-y-1">
-            <h4 class="font-bold text-white text-base">Limonada de Coco</h4>
+            <h3 class="font-bold text-white text-base">Limonada de Coco</h3>
             <p class="text-xs text-slate-400">Bebida refrescante granizada de 500ml.</p>
             <p class="font-bold text-amber-400 text-sm">$ 8.000 COP</p>
           </div>
-          <div class="bg-amber-500/10 text-amber-400 border border-amber-500/30 p-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-plus"></i> Pedir
+          <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-700">
+            <button onclick="modificarSeleccion('Limonada de Coco', 8000, -1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-sm active:scale-95 flex items-center justify-center" aria-label="Disminuir cantidad de Limonada de Coco">-</button>
+            <span id="cant-limonada-de-coco" class="font-bold text-sm px-1">0</span>
+            <button onclick="modificarSeleccion('Limonada de Coco', 8000, 1)" class="w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-sm active:scale-95 flex items-center justify-center" aria-label="Aumentar cantidad de Limonada de Coco">+</button>
           </div>
         </div>
+
       </div>
     </section>
-
-    <!-- Borrador Temporal de Elección -->
-    <div id="seccion-borrador" class="bg-slate-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-lg space-y-3 hidden">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
-        <h3 class="font-bold text-amber-400 text-sm flex items-center gap-2">
-          <i class="fa-solid fa-basket-shopping"></i> Tu Selección Temporal
-        </h3>
-        <span class="text-xs text-slate-400">Pendiente por enviar</span>
-      </div>
-      <div id="lista-borrador" class="space-y-2"></div>
-    </div>
 
     <!-- Resumen de Pedido Consolidado en Mesa -->
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
-        <h3 class="font-bold text-slate-200"><i class="fa-solid fa-receipt text-amber-500 mr-2"></i> Pedido Confirmado en Mesa</h3>
+        <h3 class="font-bold text-slate-200"><i class="fa-solid fa-receipt text-amber-500 mr-2" aria-hidden="true"></i> Pedido Confirmado en Mesa</h3>
         <span id="cliente-estado-pedido" class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full font-semibold">Sin Pedido</span>
       </div>
 
+      <!-- Lista de Productos Confirmados -->
       <div id="cliente-pedido-lista" class="space-y-2">
         <div class="text-center text-slate-400 text-xs py-3">Mesa limpia. Selecciona tus platos en el menú.</div>
       </div>
@@ -126,14 +115,20 @@
 
   </main>
 
-  <!-- Botón Circular Flotante para Enviar a Cocina -->
-  <button id="btn-flotante-circular" onclick="enviarPedidoACocina()" class="fixed bottom-6 right-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white w-16 h-16 rounded-full shadow-2xl flex flex-col items-center justify-center transition-all transform scale-0 active:scale-95 z-50 border-2 border-emerald-300">
-    <i class="fa-solid fa-paper-plane text-lg"></i>
-    <span class="text-[9px] font-extrabold uppercase tracking-wider">Enviar</span>
-    <span id="badge-contador" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">0</span>
-  </button>
+  <!-- Botón Flotante para Enviar Pedido a Cocina -->
+  <div id="barra-flotante-envio" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 z-50 transition-transform transform translate-y-full">
+    <div class="max-w-2xl mx-auto flex items-center justify-between gap-4">
+      <div>
+        <div class="text-xs text-slate-400 font-medium">Total Seleccionado:</div>
+        <div class="text-lg font-black text-amber-400" id="total-flotante">$ 0 COP</div>
+      </div>
+      <button onclick="enviarPedidoACocina()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2 text-sm">
+        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar Pedido a Cocina
+      </button>
+    </div>
+  </div>
 
-  <!-- Script de Navegación, Firebase & Lógica -->
+  <!-- Script de Navegación, Firebase & Selección Dinámica -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -159,7 +154,14 @@
     const db = getFirestore(app);
 
     const mesaId = "Mesa_3"; 
-    let borradorSeleccion = [];
+    let carritoBorrador = {}; 
+
+    // Función auxiliar para convertir nombres de platos en IDs seguros de HTML/JS
+    function obtenerIdSlug(nombre) {
+      return nombre.toLowerCase()
+        .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó/g, 'o').replace(/ú/g, 'u')
+        .replace(/\s+/g, '-');
+    }
 
     // 1. Escuchar la Mesa #3 en Firebase
     onSnapshot(doc(db, "mesas", mesaId), (docSnapshot) => {
@@ -188,62 +190,63 @@
         <div class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded-xl">
           <div>
             <div class="font-bold text-sm text-white">${item.nombre}</div>
-            <div class="text-xs text-slate-400">Cantidad: ${item.cantidad || 1}</div>
+            <div class="text-xs text-slate-400">Cantidad: ${item.cantidad}</div>
           </div>
-          <span class="font-semibold text-amber-400 text-sm">$ ${(item.precio * (item.cantidad || 1)).toLocaleString("es-CO")} COP</span>
+          <span class="font-semibold text-amber-400 text-sm">$ ${(item.precio * item.cantidad).toLocaleString("es-CO")} COP</span>
         </div>
       `).join('');
     }
 
-    // 2. Agregar plato al borrador
-    window.agregarPlato = function(nombre, precio) {
-      borradorSeleccion.push({ id: Date.now(), nombre, precio });
-      actualizarBorradorUI();
-    };
-
-    // 3. Eliminar plato del borrador mediante el botecito de basura
-    window.eliminarPlatoBorrador = function(id) {
-      borradorSeleccion = borradorSeleccion.filter(p => p.id !== id);
-      actualizarBorradorUI();
-    };
-
-    function actualizarBorradorUI() {
-      const contenedorBorrador = document.getElementById("seccion-borrador");
-      const listaBorrador = document.getElementById("lista-borrador");
-      const btnFlotante = document.getElementById("btn-flotante-circular");
-      const badgeContador = document.getElementById("badge-contador");
-
-      if (borradorSeleccion.length === 0) {
-        contenedorBorrador.classList.add("hidden");
-        btnFlotante.classList.add("scale-0");
-        return;
+    // 2. Modificar Selección Local (+ / -)
+    window.modificarSeleccion = function(nombre, precio, cambio) {
+      if (!carritoBorrador[nombre]) {
+        carritoBorrador[nombre] = { nombre, precio, cantidad: 0 };
       }
 
-      contenedorBorrador.classList.remove("hidden");
-      btnFlotante.classList.remove("scale-0");
-      badgeContador.textContent = borradorSeleccion.length;
+      carritoBorrador[nombre].cantidad += cambio;
+      const slug = obtenerIdSlug(nombre);
+      const elementoCantidad = document.getElementById(`cant-${slug}`);
 
-      listaBorrador.innerHTML = borradorSeleccion.map(p => `
-        <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-          <div>
-            <div class="font-bold text-xs text-white">${p.nombre}</div>
-            <div class="text-amber-400 text-xs">$ ${p.precio.toLocaleString("es-CO")} COP</div>
-          </div>
-          <button onclick="eliminarPlatoBorrador(${p.id})" class="text-red-400 hover:text-red-300 p-2 rounded-lg bg-red-900/20 active:scale-95 transition">
-            <i class="fa-solid fa-trash-can text-sm"></i>
-          </button>
-        </div>
-      `).join('');
+      if (carritoBorrador[nombre].cantidad <= 0) {
+        delete carritoBorrador[nombre];
+        if (elementoCantidad) elementoCantidad.textContent = 0;
+      } else {
+        if (elementoCantidad) elementoCantidad.textContent = carritoBorrador[nombre].cantidad;
+      }
+
+      actualizarBarraFlotante();
+    };
+
+    function actualizarBarraFlotante() {
+      let totalBorrador = 0;
+      let cantidadTotal = 0;
+
+      Object.values(carritoBorrador).forEach(p => {
+        totalBorrador += p.precio * p.cantidad;
+        cantidadTotal += p.cantidad;
+      });
+
+      const barra = document.getElementById("barra-flotante-envio");
+      const totalFlotante = document.getElementById("total-flotante");
+
+      totalFlotante.textContent = `$ ${totalBorrador.toLocaleString("es-CO")} COP`;
+
+      if (cantidadTotal > 0) {
+        barra.classList.remove("translate-y-full");
+      } else {
+        barra.classList.add("translate-y-full");
+      }
     }
 
-    // 4. Enviar comanda DIRECTAMENTE a la Cocina
+    // 3. Confirmar y Enviar Pedido a Cocina
     window.enviarPedidoACocina = async function() {
-      if (borradorSeleccion.length === 0) return;
+      const itemsEnviar = Object.values(carritoBorrador);
+      if (itemsEnviar.length === 0) return;
 
       let subtotal = 0;
-      let resumenTexto = borradorSeleccion.map(i => {
-        subtotal += i.precio;
-        return `1x ${i.nombre}`;
+      let resumenTexto = itemsEnviar.map(i => {
+        subtotal += i.precio * i.cantidad;
+        return `${i.cantidad}x ${i.nombre}`;
       }).join(", ");
 
       try {
@@ -256,31 +259,21 @@
         });
 
         await setDoc(doc(db, "mesas", mesaId), {
-          items: borradorSeleccion,
+          items: itemsEnviar,
           total: subtotal,
           estado: "En Proceso",
           ultimaActualizacion: serverTimestamp()
         }, { merge: true });
 
-        borradorSeleccion = [];
-        actualizarBorradorUI();
+        carritoBorrador = {};
+        // Limpiar contadores dinámicamente según los slugs
+        document.querySelectorAll('[id^="cant-"]').forEach(el => el.textContent = 0);
+        actualizarBarraFlotante();
 
-        alert("🚀 ¡Pedido enviado directamente a la cocina!");
+        alert("🚀 ¡Pedido enviado directamente a la cocina con éxito!");
       } catch (e) {
         alert("🚀 Pedido procesado.");
       }
-    };
-
-    // 5. Filtros de Categorías
-    window.filtrarCategoria = function(categoria) {
-      const items = document.querySelectorAll('.item-menu');
-      items.forEach(item => {
-        if (categoria === 'todos' || item.classList.contains(categoria)) {
-          item.classList.remove('hidden');
-        } else {
-          item.classList.add('hidden');
-        }
-      });
     };
 
     window.solicitarMesero = async function() {
