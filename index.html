@@ -3,107 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BistroIQ - Sistema de Gestión de Restaurantes</title>
+  <title>BistroIQ - Portal Principal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between p-6">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
 
-  <!-- Encabezado / Logo Principal -->
-  <header class="text-center space-y-2 my-6">
-    <div class="inline-flex bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl shadow-inner">
-      <i class="fa-solid fa-utensils text-emerald-400 text-3xl" aria-hidden="true"></i>
+  <div class="max-w-md w-full space-y-6 text-center">
+    
+    <!-- Logo o Encabezado -->
+    <div class="space-y-2">
+      <div class="inline-block bg-emerald-500/20 p-3 rounded-2xl border border-emerald-500/30">
+        <i class="fa-solid fa-utensils text-emerald-400 text-3xl" aria-hidden="true"></i>
+      </div>
+      <h1 class="text-3xl font-black text-white">Bistro<span class="text-emerald-400">IQ</span></h1>
+      <p class="text-xs text-slate-400">Sistema Inteligente de Gestión Gastronómica</p>
     </div>
-    <h1 class="text-2xl font-black text-white tracking-wider">Bistro<span class="text-emerald-400">IQ</span></h1>
-    <p class="text-xs text-slate-400 font-medium max-w-xs mx-auto">Sistema autónomo inteligente de gestión gastronómica y caja</p>
-  </header>
 
-  <!-- Contenedor de Accesos / Módulos -->
-  <main class="max-w-md mx-auto w-full space-y-3.5 my-auto">
-    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-4">Selecciona el módulo de trabajo</p>
+    <!-- Menú de Selección de Módulos -->
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl space-y-3 text-left">
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Seleccione el Módulo</p>
 
-    <!-- Módulo Administrador -->
-    <a href="admin.html" class="bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-purple-500/50 p-4 rounded-2xl flex items-center justify-between shadow-md transition group block">
-      <div class="flex items-center gap-3.5">
-        <div class="bg-purple-500/10 border border-purple-500/20 p-3 rounded-xl text-purple-400 group-hover:scale-105 transition">
-          <i class="fa-solid fa-chart-line text-lg" aria-hidden="true"></i>
+      <!-- Botón Administrador -->
+      <a href="admin.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
+        <div class="flex items-center gap-3">
+          <div class="bg-purple-600/20 p-2.5 rounded-lg text-purple-400">
+            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">Administrador y Caja</h3>
+            <p class="text-[11px] text-slate-400">Gestión de menús y ventas</p>
+          </div>
         </div>
-        <div>
-          <h2 class="font-bold text-sm text-white group-hover:text-purple-300 transition">Administración y Caja</h2>
-          <p class="text-xs text-slate-400">Control de ventas, menú y cierre</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-1 rounded-lg">
-          <i class="fa-solid fa-lock mr-1" aria-hidden="true"></i> Segura
-        </span>
-        <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:translate-x-1 transition" aria-hidden="true"></i>
-      </div>
-    </a>
+        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+      </a>
 
-    <!-- Módulo Cocina (KDS) -->
-    <a href="cocina.html" class="bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 p-4 rounded-2xl flex items-center justify-between shadow-md transition group block">
-      <div class="flex items-center gap-3.5">
-        <div class="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-amber-400 group-hover:scale-105 transition">
-          <i class="fa-solid fa-fire text-lg" aria-hidden="true"></i>
+      <!-- Botón Cocina -->
+      <a href="cocina.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
+        <div class="flex items-center gap-3">
+          <div class="bg-amber-500/20 p-2.5 rounded-lg text-amber-400">
+            <i class="fa-solid fa-fire" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">Monitor de Cocina (KDS)</h3>
+            <p class="text-[11px] text-slate-400">Control de comandas y stock</p>
+          </div>
         </div>
-        <div>
-          <h2 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Monitor de Cocina (KDS)</h2>
-          <p class="text-xs text-slate-400">Gestión de comandas y stock</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-bold px-2 py-1 rounded-lg">
-          <i class="fa-solid fa-bolt mr-1" aria-hidden="true"></i> En vivo
-        </span>
-        <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:translate-x-1 transition" aria-hidden="true"></i>
-      </div>
-    </a>
+        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+      </a>
 
-    <!-- Módulo Mesera -->
-    <a href="mesera.html" class="bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 p-4 rounded-2xl flex items-center justify-between shadow-md transition group block">
-      <div class="flex items-center gap-3.5">
-        <div class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl text-indigo-400 group-hover:scale-105 transition">
-          <i class="fa-solid fa-user-tie text-lg" aria-hidden="true"></i>
+      <!-- Botón Mesera -->
+      <a href="mesera.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
+        <div class="flex items-center gap-3">
+          <div class="bg-indigo-500/20 p-2.5 rounded-lg text-indigo-400">
+            <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">Atención a Mesas</h3>
+            <p class="text-[11px] text-slate-400">Toma de pedidos y llamadas</p>
+          </div>
         </div>
-        <div>
-          <h2 class="font-bold text-sm text-white group-hover:text-indigo-300 transition">Atención a Mesas</h2>
-          <p class="text-xs text-slate-400">Toma de pedidos y llamados</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold px-2 py-1 rounded-lg">
-          <i class="fa-solid fa-bell mr-1" aria-hidden="true"></i> Alertas
-        </span>
-        <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:translate-x-1 transition" aria-hidden="true"></i>
-      </div>
-    </a>
+        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+      </a>
 
-    <!-- Módulo Cliente -->
-    <a href="cliente.html" class="bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 p-4 rounded-2xl flex items-center justify-between shadow-md transition group block">
-      <div class="flex items-center gap-3.5">
-        <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-emerald-400 group-hover:scale-105 transition">
-          <i class="fa-solid fa-mobile-screen-button text-lg" aria-hidden="true"></i>
+      <!-- Botón Cliente -->
+      <a href="cliente.html" class="bg-slate-900 hover:bg-slate-700/60 border border-slate-700 p-3.5 rounded-xl flex items-center justify-between transition group block">
+        <div class="flex items-center gap-3">
+          <div class="bg-emerald-500/20 p-2.5 rounded-lg text-emerald-400">
+            <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">Menú del Cliente</h3>
+            <p class="text-[11px] text-slate-400">Vista de pedidos en mesa</p>
+          </div>
         </div>
-        <div>
-          <h2 class="font-bold text-sm text-white group-hover:text-emerald-300 transition">Menú del Cliente</h2>
-          <p class="text-xs text-slate-400">Vista de pedidos en mesa</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-1 rounded-lg">
-          <i class="fa-solid fa-qrcode mr-1" aria-hidden="true"></i> QR
-        </span>
-        <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:translate-x-1 transition" aria-hidden="true"></i>
-      </div>
-    </a>
+        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+      </a>
 
-  </main>
+    </div>
 
-  <!-- Pie de página -->
-  <footer class="text-center text-[11px] text-slate-500">
-    BistroIQ Colombia • Arquitectura Autónoma Sincronizada
-  </footer>
+    <footer class="text-xs text-slate-500">
+      BistroIQ • Todos los derechos reservados
+    </footer>
+
+  </div>
 
 </body>
 </html>
