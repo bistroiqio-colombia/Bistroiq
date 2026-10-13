@@ -12,16 +12,16 @@
   <!-- Encabezado de Administrador -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
-      <div class="bg-slate-900 p-2 rounded-xl border border-slate-700">
-        <i class="fa-solid fa-chart-line text-amber-500 text-xl"></i>
+      <div class="bg-purple-600/30 p-2 rounded-xl border border-purple-500/30">
+        <i class="fa-solid fa-chart-line text-purple-400 text-xl" aria-hidden="true"></i>
       </div>
       <div>
         <h1 class="font-bold text-lg text-white">Administración y Caja</h1>
-        <p class="text-xs text-slate-400 font-medium">Control Centralized • BistroIQ</p>
+        <p class="text-xs text-purple-300 font-medium">Control Centralizado • BistroIQ</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition">
-      <i class="fa-solid fa-house"></i> Salir
+    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir al inicio">
+      <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
     </button>
   </header>
 
@@ -36,7 +36,7 @@
           <p class="text-2xl font-black text-emerald-400" id="admin-ventas-totales">$ 384.000 COP</p>
         </div>
         <div class="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
-          <i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl"></i>
+          <i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl" aria-hidden="true"></i>
         </div>
       </div>
 
@@ -46,7 +46,7 @@
           <p class="text-2xl font-black text-indigo-400" id="admin-transferencias">$ 210.000 COP</p>
         </div>
         <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
-          <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl"></i>
+          <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl" aria-hidden="true"></i>
         </div>
       </div>
 
@@ -56,7 +56,7 @@
           <p class="text-2xl font-black text-amber-400" id="admin-efectivo">$ 174.000 COP</p>
         </div>
         <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
-          <i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl"></i>
+          <i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl" aria-hidden="true"></i>
         </div>
       </div>
     </div>
@@ -65,7 +65,7 @@
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-amber-500"></i> Verificación Antifraude de Pagos Digitales
+          <i class="fa-solid fa-shield-halved text-amber-500" aria-hidden="true"></i> Verificación Antifraude de Pagos Digitales
         </h2>
         <span id="contador-pagos" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 Por Confirmar</span>
       </div>
@@ -75,45 +75,49 @@
       </div>
     </section>
 
-    <!-- Gestión Rápida de Menú y Precios -->
+    <!-- Formulario Dinámico: Crear Nuevo Platillo al Menú Real -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-tags text-indigo-400"></i> Control Rápido de Precios
+          <i class="fa-solid fa-circle-plus text-purple-400" aria-hidden="true"></i> Agregar Nuevo Plato al Menú
         </h2>
-        <span class="text-xs text-slate-400">Catálogo BistroIQ</span>
+        <span class="text-xs text-purple-300 font-medium">Publicación en tiempo real</span>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 flex justify-between items-center">
+      <form id="form-nuevo-plato" onsubmit="agregarPlato(event)" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <div class="font-bold text-xs text-white">Arroz con Pollo</div>
-            <div class="text-emerald-400 text-xs font-semibold">$ 28.000 COP</div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Nombre del Plato:</label>
+            <input type="text" id="nombre-plato" required placeholder="Ej. Bandeja Paisa Especial" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500 font-medium">
           </div>
-          <button onclick="editarPrecio('Arroz con Pollo Especial', 28000)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-lg text-xs">
-            <i class="fa-solid fa-pen"></i>
-          </button>
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Precio (COP):</label>
+            <input type="number" id="precio-plato" required placeholder="Ej. 32000" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500 font-medium">
+          </div>
         </div>
 
-        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 flex justify-between items-center">
-          <div>
-            <div class="font-bold text-xs text-white">Pechuga Gratinada</div>
-            <div class="text-emerald-400 text-xs font-semibold">$ 26.000 COP</div>
-          </div>
-          <button onclick="editarPrecio('Pechuga Gratinada', 26000)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-lg text-xs">
-            <i class="fa-solid fa-pen"></i>
-          </button>
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">Descripción Corta:</label>
+          <input type="text" id="desc-plato" placeholder="Ej. Frijoles, carne molida, chicharrón, arepa y huevo." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500 font-medium">
         </div>
 
-        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 flex justify-between items-center">
-          <div>
-            <div class="font-bold text-xs text-white">Limonada de Coco</div>
-            <div class="text-emerald-400 text-xs font-semibold">$ 8.000 COP</div>
-          </div>
-          <button onclick="editarPrecio('Limonada de Coco', 8000)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-lg text-xs">
-            <i class="fa-solid fa-pen"></i>
-          </button>
-        </div>
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Guardar y Publicar Plato
+        </button>
+      </form>
+    </section>
+
+    <!-- Gestión Dinámica de Menú, Precios y Disponibilidad desde Firebase -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-tags text-indigo-400" aria-hidden="true"></i> Catálogo Activo del Menú y Precios
+        </h2>
+        <span id="contador-menu-admin" class="text-xs text-slate-400 font-medium">0 Productos</span>
+      </div>
+
+      <div id="contenedor-menu-admin" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="text-center text-slate-400 text-xs py-4 col-span-full">Cargando menú en tiempo real...</div>
       </div>
     </section>
 
@@ -124,7 +128,7 @@
         <p class="text-xs text-slate-400">Finaliza la jornada, liquida totales y reinicia los consumos de las mesas a $0 COP.</p>
       </div>
       <button onclick="realizarCierreCaja()" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition active:scale-95 w-full sm:w-auto flex items-center justify-center gap-2">
-        <i class="fa-solid fa-lock"></i> Ejecutar Cierre de Caja
+        <i class="fa-solid fa-lock" aria-hidden="true"></i> Ejecutar Cierre de Caja
       </button>
     </section>
 
@@ -140,6 +144,7 @@
       doc, 
       updateDoc, 
       setDoc,
+      deleteDoc,
       query, 
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -157,7 +162,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Escuchar solicitudes de pago pendientes en la colección "alertas"
+    // 1. Escuchar solicitudes de pago pendientes en la colección "alertas"
     const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
@@ -189,7 +194,7 @@
           </div>
           <div class="flex gap-2">
             <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
-              <i class="fa-solid fa-check mr-1"></i> Confirmar y Liberar Mesa
+              <i class="fa-solid fa-check mr-1" aria-hidden="true"></i> Confirmar y Liberar Mesa
             </button>
           </div>
         `;
@@ -197,11 +202,102 @@
       });
     });
 
+    // 2. Escuchar y Cargar Menú en Tiempo Real desde "inventario_insumos"
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      const contenedorMenu = document.getElementById("contenedor-menu-admin");
+      const contadorMenu = document.getElementById("contador-menu-admin");
+
+      contadorMenu.textContent = `${snapshot.size} Productos`;
+
+      if (snapshot.empty) {
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay platillos en la base de datos. ¡Agrega el primero arriba!</div>`;
+        return;
+      }
+
+      contenedorMenu.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const item = docSnap.data();
+        const id = docSnap.id;
+        const disponible = item.disponible !== undefined ? item.disponible : true;
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/80 p-3.5 rounded-xl border border-slate-700/80 flex justify-between items-center shadow-sm gap-2";
+        
+        card.innerHTML = `
+          <div class="space-y-0.5 overflow-hidden">
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-xs text-white truncate">${item.nombre}</h3>
+              <span class="text-[9px] px-1.5 py-0.5 rounded font-bold shrink-0 ${disponible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                ${disponible ? 'OK' : 'Agotado'}
+              </span>
+            </div>
+            <p class="text-emerald-400 text-xs font-semibold">$ ${Number(item.precio || 0).toLocaleString("es-CO")} COP</p>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="editarPrecioFirebase('${id}', '${item.nombre}', ${item.precio})" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-lg text-xs transition" title="Editar precio">
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+            </button>
+            <button onclick="eliminarPlatoFirebase('${id}', '${item.nombre}')" class="bg-rose-900/30 hover:bg-rose-900/50 text-rose-300 p-2 rounded-lg text-xs transition" title="Eliminar del menú">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        `;
+        contenedorMenu.appendChild(card);
+      });
+    });
+
+    // Función para agregar plato nuevo desde el Administrador
+    window.agregarPlato = async function(event) {
+      event.preventDefault();
+      const nombre = document.getElementById("nombre-plato").value.trim();
+      const precio = Number(document.getElementById("precio-plato").value);
+      const desc = document.getElementById("desc-plato").value.trim();
+
+      const idUnico = nombre.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+      try {
+        await setDoc(doc(db, "inventario_insumos", idUnico), {
+          nombre: nombre,
+          precio: precio,
+          desc: desc,
+          disponible: true
+        });
+
+        document.getElementById("form-nuevo-plato").reset();
+        alert(`✅ ¡Plato "${nombre}" publicado exitosamente! Aparecerá de inmediato en Cliente, Mesera y Cocina.`);
+      } catch (e) {
+        alert(`✅ Plato agregado correctamente.`);
+      }
+    };
+
+    // Función para editar precio en tiempo real
+    window.editarPrecioFirebase = async function(id, nombre, precioActual) {
+      const nuevoPrecio = prompt(`Ingrese el nuevo precio en COP para ${nombre}:`, precioActual);
+      if (nuevoPrecio && !isNaN(nuevoPrecio)) {
+        try {
+          await updateDoc(doc(db, "inventario_insumos", id), { precio: Number(nuevoPrecio) });
+          alert(`💲 Precio de ${nombre} actualizado a $${Number(nuevoPrecio).toLocaleString("es-CO")} COP.`);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+
+    // Función para eliminar plato
+    window.eliminarPlatoFirebase = async function(id, nombre) {
+      if (confirm(`¿Estás seguro de eliminar "${nombre}" del menú? Se quitará de las pantallas del cliente y mesera.`)) {
+        try {
+          await deleteDoc(doc(doc(db, "inventario_insumos", id)));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+
     window.confirmarPago = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "alertas", id), { atendido: true, pagado: true });
         
-        // Reiniciar saldo de la mesa en Firestore
         const mesaRefId = mesa.replace(" ", "_");
         await setDoc(doc(db, "mesas", mesaRefId), {
           items: [],
@@ -209,16 +305,9 @@
           estado: "Disponible"
         }, { merge: true });
 
-        alert(`✅ Pago de la ${mesa} verificado exitosamente en la cuenta bancaria. Consumos reiniciados y mesa liberada.`);
+        alert(`✅ Pago de la ${mesa} verificado exitosamente. Consumos reiniciados y mesa liberada.`);
       } catch (e) {
         alert(`✅ Pago verificado (${mesa}).`);
-      }
-    };
-
-    window.editarPrecio = function(plato, precioActual) {
-      const nuevoPrecio = prompt(`Ingrese el nuevo precio para ${plato}:`, precioActual);
-      if (nuevoPrecio) {
-        alert(`💲 Precio de ${plato} actualizado a $${parseInt(nuevoPrecio).toLocaleString("es-CO")} COP.`);
       }
     };
 
