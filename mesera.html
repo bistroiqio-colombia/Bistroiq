@@ -42,7 +42,7 @@
       </div>
     </section>
 
-    <!-- Tomar Pedido Manual con Menú Visual y Botón Agregar -->
+    <!-- Tomar Pedido Manual con Menú Dinámico e Inventario -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-5">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
@@ -63,60 +63,12 @@
         </select>
       </div>
 
-      <!-- Tarjetas Visuales de Platos del Menú -->
+      <!-- Tarjetas Visuales de Platos del Menú (Cargados dinámicamente desde Firebase) -->
       <div class="space-y-3">
-        <label class="text-xs font-semibold text-slate-300 block">Menú del Restaurante:</label>
+        <label class="text-xs font-semibold text-slate-300 block">Menú del Restaurante (Sincronizado con Cocina):</label>
         
-        <div class="grid grid-cols-1 gap-3">
-          
-          <!-- Producto 1: Arroz con Pollo -->
-          <div class="bg-slate-900/70 border border-slate-700 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
-            <div class="space-y-0.5 pr-2">
-              <h3 class="font-bold text-white text-sm">Arroz con Pollo Especial</h3>
-              <p class="text-xs text-slate-400">Papas a la francesa y ensalada dulce.</p>
-              <p class="font-bold text-amber-400 text-xs">$ 28.000 COP</p>
-            </div>
-            <button onclick="modificarSeleccionMesera('Arroz con Pollo Especial', 28000, 1)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow transition active:scale-95 flex items-center gap-1 shrink-0">
-              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-            </button>
-          </div>
-
-          <!-- Producto 2: Pechuga Gratinada -->
-          <div class="bg-slate-900/70 border border-slate-700 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
-            <div class="space-y-0.5 pr-2">
-              <h3 class="font-bold text-white text-sm">Pechuga Gratinada</h3>
-              <p class="text-xs text-slate-400">Filete con queso gratinado y patacones.</p>
-              <p class="font-bold text-amber-400 text-xs">$ 26.000 COP</p>
-            </div>
-            <button onclick="modificarSeleccionMesera('Pechuga Gratinada', 26000, 1)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow transition active:scale-95 flex items-center gap-1 shrink-0">
-              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-            </button>
-          </div>
-
-          <!-- Producto 3: Limonada de Coco -->
-          <div class="bg-slate-900/70 border border-slate-700 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
-            <div class="space-y-0.5 pr-2">
-              <h3 class="font-bold text-white text-sm">Limonada de Coco</h3>
-              <p class="text-xs text-slate-400">Bebida refrescante granizada de 500ml.</p>
-              <p class="font-bold text-amber-400 text-xs">$ 8.000 COP</p>
-            </div>
-            <button onclick="modificarSeleccionMesera('Limonada de Coco', 8000, 1)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow transition active:scale-95 flex items-center gap-1 shrink-0">
-              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-            </button>
-          </div>
-
-          <!-- Producto 4: Cerveza Águila Light -->
-          <div class="bg-slate-900/70 border border-slate-700 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
-            <div class="space-y-0.5 pr-2">
-              <h3 class="font-bold text-white text-sm">Cerveza Águila Light</h3>
-              <p class="text-xs text-slate-400">Botella helada 330ml.</p>
-              <p class="font-bold text-amber-400 text-xs">$ 6.000 COP</p>
-            </div>
-            <button onclick="modificarSeleccionMesera('Cerveza Águila Light', 6000, 1)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow transition active:scale-95 flex items-center gap-1 shrink-0">
-              <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-            </button>
-          </div>
-
+        <div id="contenedor-menu-mesera" class="grid grid-cols-1 gap-3">
+          <div class="text-center text-slate-400 text-xs py-4">Sincronizando menú y disponibilidad...</div>
         </div>
       </div>
 
@@ -191,11 +143,66 @@
 
     let comandaBorrador = {};
 
+    // Menú prototipo base con datos de muestra
+    const menuPrototipo = [
+      { id: 'arroz_pollo', nombre: 'Arroz con Pollo Especial', precio: 28000, desc: 'Papas a la francesa y ensalada dulce.' },
+      { id: 'pasta_bolonesa', nombre: 'Pasta a la Boloñesa', precio: 24000, desc: 'Salsa boloñesa artesanal y queso.' },
+      { id: 'pechuga_gratinada', nombre: 'Pechuga Gratinada', precio: 26000, desc: 'Filete con queso gratinado y patacones.' },
+      { id: 'limonada_coco', nombre: 'Limonada de Coco', precio: 8000, desc: 'Bebida refrescante granizada de 500ml.' },
+      { id: 'cerveza_aguila', nombre: 'Cerveza Águila Light', precio: 6000, desc: 'Botella helada 330ml.' }
+    ];
+
     document.addEventListener('DOMContentLoaded', () => {
       const meseraGuardada = localStorage.getItem('meseraActiva');
       if (meseraGuardada) {
         document.getElementById('nombreMesera').innerText = `Mesera: ${meseraGuardada}`;
       }
+    });
+
+    // Escuchar disponibilidad de platos desde Firebase (inventario_insumos)
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      const contenedorMenu = document.getElementById("contenedor-menu-mesera");
+      let estadosMap = {};
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        estadosMap[docSnap.id] = data.disponible;
+      });
+
+      contenedorMenu.innerHTML = menuPrototipo.map(plato => {
+        // Por defecto disponible si aún no se ha guardado en Firebase
+        const estaDisponible = estadosMap[plato.id] !== undefined ? estadosMap[plato.id] : true;
+
+        if (estaDisponible) {
+          return `
+            <div class="bg-slate-900/70 border border-slate-700 p-3.5 rounded-xl flex justify-between items-center shadow-sm">
+              <div class="space-y-0.5 pr-2">
+                <h3 class="font-bold text-white text-sm">${plato.nombre}</h3>
+                <p class="text-xs text-slate-400">${plato.desc}</p> <p class="font-bold text-amber-400 text-xs">$ ${plato.precio.toLocaleString("es-CO")} COP</p>
+              </div>
+              <button onclick="modificarSeleccionMesera('${plato.nombre}',${plato.precio}, 1)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow transition active:scale-95 flex items-center gap-1 shrink-0">
+                <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
+              </button>
+            </div>
+          `;
+        } else {
+          // Si la cocina lo marcó como Agotado
+          return `
+            <div class="bg-slate-950/40 border border-slate-800/80 p-3.5 rounded-xl flex justify-between items-center shadow-sm opacity-60">
+              <div class="space-y-0.5 pr-2">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-slate-400 text-sm line-through">${plato.nombre}</h3>
+                  <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] px-2 py-0.5 rounded font-bold">Agotado</span>
+                </div>
+                <p class="text-xs text-slate-500">${plato.desc}</p> <p class="font-bold text-slate-500 text-xs">$ ${plato.precio.toLocaleString("es-CO")} COP</p>
+              </div>
+              <button disabled class="bg-slate-800 text-slate-500 font-bold px-3.5 py-2 rounded-xl text-xs cursor-not-allowed flex items-center gap-1 shrink-0">
+                <i class="fa-solid fa-ban text-xs" aria-hidden="true"></i> Agotado
+              </button>
+            </div>
+          `;
+        }
+      }).join('');
     });
 
     window.modificarSeleccionMesera = function(nombre, precio, cambio) {
@@ -242,149 +249,4 @@
           <div class="flex justify-between items-center bg-slate-950/50 p-2.5 rounded-lg border border-slate-800">
             <div>
               <div class="font-bold text-xs text-white">${item.nombre}</div>
-              <div class="text-[11px] text-slate-400">Cantidad: ${item.cantidad}</div>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="font-semibold text-amber-400 text-xs">$ ${(item.precio * item.cantidad).toLocaleString("es-CO")} COP</span>
-              <button onclick="eliminarItemBorradorMesera('${item.nombre}')" class="text-rose-400 hover:text-rose-300 p-1.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition active:scale-95" aria-label="Eliminar plato">
-                <i class="fa-solid fa-trash text-xs" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      totalTexto.textContent = `$ ${subtotal.toLocaleString("es-CO")} COP`;
-      barraFlotante.classList.remove("translate-y-full");
-    }
-
-    // 1. Escuchar Alertas en Tiempo Real desde la colección "alertas"
-    const qAlertas = query(collection(db, "alertas"), where("atendido", "==", false));
-    onSnapshot(qAlertas, (snapshot) => {
-      const contenedor = document.getElementById("contenedor-alertas");
-      const contador = document.getElementById("contador-alertas");
-      
-      contador.textContent = `${snapshot.size} Pendientes`;
-
-      if (snapshot.empty) {
-        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No hay solicitudes pendientes en este momento.</div>`;
-        return;
-      }
-
-      contenedor.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const alerta = docSnap.data();
-        const id = docSnap.id;
-        const esCuenta = alerta.tipo === "PEDIR_CUENTA";
-
-        const card = document.createElement("div");
-        card.className = "bg-slate-900/60 border border-slate-700/50 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3";
-        card.innerHTML = `
-          <div>
-            <div class="font-bold text-white text-base">${alerta.mesa || 'Mesa'} — ${esCuenta ? 'Pide Datos de Pago' : 'Solicitud de Atención'}</div>
-            <div class="text-xs ${esCuenta ? 'text-emerald-400 font-medium' : 'text-slate-400'}">
-              ${esCuenta ? 'Cliente desea pagar vía Transferencia (Nequi/Daviplata)' : 'Cliente solicitó presencia del mesero'}
-            </div>
-          </div>
-          <button onclick="${esCuenta ? `enviarDatosPago('${id}', '${alerta.mesa}')` : `atenderLlamado('${id}', '${alerta.mesa}')`}" 
-                  class="${esCuenta ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-amber-600 hover:bg-amber-500'} text-white px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
-            <i class="fa-solid ${esCuenta ? 'fa-paper-plane' : 'fa-check'} mr-1" aria-hidden="true"></i> ${esCuenta ? 'Enviar Datos de Pago' : 'Atender Llamado'}
-          </button>
-        `;
-        contenedor.appendChild(card);
-      });
-    });
-
-    // 2. Escuchar Pedidos Listos desde Cocina
-    const qListos = query(collection(db, "pedidos_cocina"), where("estado", "==", "LISTO"));
-    onSnapshot(qListos, (snapshot) => {
-      const contenedor = document.getElementById("contenedor-listos");
-      const contador = document.getElementById("contador-listos");
-      
-      contador.textContent = `${snapshot.size} En Barra`;
-
-      if (snapshot.empty) {
-        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No hay platos pendientes en barra.</div>`;
-        return;
-      }
-
-      contenedor.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const pedido = docSnap.data();
-        const id = docSnap.id;
-
-        const card = document.createElement("div");
-        card.className = "bg-slate-900/60 border border-emerald-500/30 p-4 rounded-xl flex justify-between items-center";
-        card.innerHTML = `
-          <div>
-            <div class="font-bold text-emerald-300 text-sm">${pedido.mesa || 'Mesa'} — Comanda #${pedido.comanda || '00'}</div>
-            <div class="text-xs text-slate-300">${pedido.resumen || 'Platos preparados'}</div>
-          </div>
-          <button onclick="entregarPedido('${id}', '${pedido.mesa}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95">
-            <i class="fa-solid fa-utensils mr-1" aria-hidden="true"></i> Entregado
-          </button>
-        `;
-        contenedor.appendChild(card);
-      });
-    });
-
-    // Funciones globales vinculadas a Firestore
-    window.enviarPedidoManual = async function() {
-      const itemsEnviar = Object.values(comandaBorrador);
-      if (itemsEnviar.length === 0) return;
-
-      const mesa = document.getElementById("select-mesa-manual").value;
-      const meseraGuardada = localStorage.getItem('meseraActiva') || 'Turno Activo';
-      let resumenTexto = itemsEnviar.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
-
-      try {
-        await addDoc(collection(db, "pedidos_cocina"), {
-          mesa: mesa,
-          comanda: Math.floor(100 + Math.random() * 900),
-          resumen: resumenTexto,
-          estado: "PENDIENTE",
-          atendidoPor: meseraGuardada,
-          fecha: serverTimestamp()
-        });
-
-        comandaBorrador = {};
-        actualizarVistaBorradorMesera();
-        alert(`✅ Comanda manual enviada a cocina para ${mesa}.`);
-      } catch (e) {
-        alert(`✅ Comanda registrada para ${mesa}.`);
-      }
-    };
-
-    window.atenderLlamado = async function(id, mesa) {
-      try {
-        await updateDoc(doc(db, "alertas", id), { atendido: true });
-        alert(`✅ Acudiendo a la ${mesa}.`);
-      } catch (e) {
-        alert(`✅ Atendiendo ${mesa}.`);
-      }
-    };
-
-    window.enviarDatosPago = async function(id, mesa) {
-      try {
-        await updateDoc(doc(db, "alertas", id), { atendido: true, datosEnviados: true });
-        alert(`📲 Datos de transferencia bancaria enviados a la pantalla de la ${mesa}.`);
-      } catch (e) {
-        alert(`📲 Datos enviados a ${mesa}.`);
-      }
-    };
-
-    window.entregarPedido = async function(id, mesa) {
-      try {
-        await updateDoc(doc(db, "pedidos_cocina", id), { estado: "ENTREGADO" });
-        alert(`🍽️ Pedido marcado como entregado en ${mesa}.`);
-      } catch (e) {
-        alert(`🍽️ Entregado en ${mesa}.`);
-      }
-    };
-
-    window.volverInicio = function() {
-      window.location.href = 'index.html';
-    };
-  </script>
-</body>
-</html>
+              <div class
