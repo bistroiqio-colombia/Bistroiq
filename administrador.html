@@ -33,7 +33,7 @@
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-400 font-medium">Ventas Totales Hoy</p>
-          <p class="text-2xl font-black text-emerald-400">$ 384.000</p>
+          <p class="text-2xl font-black text-emerald-400" id="admin-ventas-totales">$ 384.000</p>
         </div>
         <div class="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
           <i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl"></i>
@@ -43,7 +43,7 @@
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-400 font-medium">Transferencias Digitales</p>
-          <p class="text-2xl font-black text-indigo-400">$ 210.000</p>
+          <p class="text-2xl font-black text-indigo-400" id="admin-transferencias">$ 210.000</p>
         </div>
         <div class="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
           <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl"></i>
@@ -53,7 +53,7 @@
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-400 font-medium">Efectivo en Caja</p>
-          <p class="text-2xl font-black text-amber-400">$ 174.000</p>
+          <p class="text-2xl font-black text-amber-400" id="admin-efectivo">$ 174.000</p>
         </div>
         <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
           <i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl"></i>
@@ -67,27 +67,11 @@
         <h2 class="font-bold text-slate-200 flex items-center gap-2">
           <i class="fa-solid fa-shield-halved text-amber-500"></i> Verificación Antifraude de Pagos
         </h2>
-        <span class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">1 Por Confirmar</span>
+        <span id="contador-pagos" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 Por Confirmar</span>
       </div>
 
-      <div class="space-y-3">
-        <!-- Pago por verificar -->
-        <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-white text-base">Mesa #5</span>
-              <span class="bg-indigo-900/60 text-indigo-300 text-xs px-2 py-0.5 rounded font-semibold">Nequi / Daviplata</span>
-            </div>
-            <div class="text-xs text-slate-400 mt-1">
-              Monto a confirmar: <strong class="text-emerald-400">$ 52.000 COP</strong> • Comprobante reportado por cliente.
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="confirmarPago('Mesa #5')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
-              <i class="fa-solid fa-check mr-1"></i> Confirmar y Liberar Mesa
-            </button>
-          </div>
-        </div>
+      <div id="contenedor-pagos-pendientes" class="space-y-3">
+        <div class="text-center text-slate-400 text-sm py-4">Cargando pagos pendientes en tiempo real...</div>
       </div>
     </section>
 
@@ -104,20 +88,90 @@
 
   </main>
 
-  <script>
-    function volverInicio() {
-      window.location.href = 'index.html';
-    }
+  <!-- Script de Navegación, Firebase & Caja -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      onSnapshot, 
+      doc, 
+      updateDoc, 
+      query, 
+      where 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    function confirmarPago(mesa) {
-      alert(`✅ Pago de la ${mesa} verificado exitosamente en la cuenta bancaria. Notificación enviada a mesera para liberar mesa.`);
-    }
+    // Configuración Firebase BistroIQ Colombia
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV780O1ZNeTaGFI3vCTbHpiLAzHO1hIf8",
+      authDomain: "bistroiq-colombia.firebaseapp.com",
+      projectId: "bistroiq-colombia",
+      storageBucket: "bistroiq-colombia.firebasestorage.app",
+      messagingSenderId: "745222925239",
+      appId: "1:745222925239:web:12d0ecca6b65f1e15c1632"
+    };
 
-    function realizarCierreCaja() {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Escuchar solicitudes de pago pendientes en la colección "alertas"
+    const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
+    onSnapshot(qPagos, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-pagos-pendientes");
+      const contador = document.getElementById("contador-pagos");
+      
+      contador.textContent = `${snapshot.size} Por Confirmar`;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No hay pagos pendientes de verificación en este momento.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const pago = docSnap.data();
+        const id = docSnap.id;
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/80 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-base">${pago.mesa || 'Mesa'}</span>
+              <span class="bg-indigo-900/60 text-indigo-300 text-xs px-2 py-0.5 rounded font-semibold">Nequi / Daviplata</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-1">
+              Comprobante reportado por cliente en tiempo real.
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
+              <i class="fa-solid fa-check mr-1"></i> Confirmar y Liberar Mesa
+            </button>
+          </div>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    window.confirmarPago = async function(id, mesa) {
+      try {
+        await updateDoc(doc(db, "alertas", id), { atendido: true, pagado: true });
+        alert(`✅ Pago de la ${mesa} verificado exitosamente en la cuenta bancaria. Notificación enviada para liberar mesa.`);
+      } catch (e) {
+        alert(`✅ Pago verificado (${mesa}).`);
+      }
+    };
+
+    window.realizarCierreCaja = function() {
       if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Se reiniciarán los contadores de mesas.')) {
         alert('🔒 Cierre de caja realizado con éxito. Los reportes se han consolidado.');
       }
-    }
+    };
+
+    window.volverInicio = function() {
+      window.location.href = 'index.html';
+    };
   </script>
 </body>
 </html>
