@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-20">
 
   <!-- Encabezado del Cliente -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
@@ -40,16 +40,73 @@
       </div>
     </div>
 
-    <!-- Sección de Pedido Actual -->
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
-      <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
+    <!-- Menú Digital de Platos -->
+    <section class="space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+        <h3 class="font-bold text-lg text-white flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-amber-500"></i> Nuestro Menú
+        </h3>
+        <span class="text-xs text-slate-400 font-medium">Selecciona tus favoritos</span>
+      </div>
+
+      <!-- Filtros de Categorías -->
+      <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <button onclick="filtrarCategoria('todos')" class="bg-amber-500 text-slate-900 px-4 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">Todos</button>
+        <button onclick="filtrarCategoria('fuertes')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap">Platos Fuertes</button>
+        <button onclick="filtrarCategoria('bebidas')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap">Bebidas</button>
+        <button onclick="filtrarCategoria('postres')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap">Postres</button>
+      </div>
+
+      <!-- Tarjetas de Productos -->
+      <div id="contenedor-menu" class="grid grid-cols-1 gap-3">
+        <!-- Arroz con Pollo -->
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
+          <div class="space-y-1">
+            <h4 class="font-bold text-white text-base">Arroz con Pollo Especial</h4>
+            <p class="text-xs text-slate-400">Acompañado de papas a la francesa y ensalada dulce.</p>
+            <p class="font-bold text-amber-400 text-sm">$ 28.000 COP</p>
+          </div>
+          <button onclick="agregarAlCarrito('Arroz con Pollo Especial', 28000)" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold p-3 rounded-xl transition active:scale-95 flex items-center gap-1 text-xs">
+            <i class="fa-solid fa-plus text-sm"></i> Pedir
+          </button>
+        </div>
+
+        <!-- Pechuga Gratinada -->
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
+          <div class="space-y-1">
+            <h4 class="font-bold text-white text-base">Pechuga Gratinada</h4>
+            <p class="text-xs text-slate-400">Pechuga de pollo con queso mozzarella fundido y patacones.</p>
+            <p class="font-bold text-amber-400 text-sm">$ 26.000 COP</p>
+          </div>
+          <button onclick="agregarAlCarrito('Pechuga Gratinada', 26000)" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold p-3 rounded-xl transition active:scale-95 flex items-center gap-1 text-xs">
+            <i class="fa-solid fa-plus text-sm"></i> Pedir
+          </button>
+        </div>
+
+        <!-- Limonada de Coco -->
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
+          <div class="space-y-1">
+            <h4 class="font-bold text-white text-base">Limonada de Coco</h4>
+            <p class="text-xs text-slate-400">Bebida refrescante granizada de 500ml.</p>
+            <p class="font-bold text-amber-400 text-sm">$ 8.000 COP</p>
+          </div>
+          <button onclick="agregarAlCarrito('Limonada de Coco', 8000)" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold p-3 rounded-xl transition active:scale-95 flex items-center gap-1 text-xs">
+            <i class="fa-solid fa-plus text-sm"></i> Pedir
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección de Pedido Actual (Consumo en Mesa) -->
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h3 class="font-bold text-slate-200"><i class="fa-solid fa-receipt text-amber-500 mr-2"></i> Su Pedido Actual</h3>
         <span id="cliente-estado-pedido" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">En Proceso</span>
       </div>
 
       <!-- Lista de Productos en el Pedido -->
-      <div id="cliente-pedido-lista" class="space-y-3 mb-4">
-        <div class="text-center text-slate-400 text-sm py-4">Cargando pedido desde la base de datos...</div>
+      <div id="cliente-pedido-lista" class="space-y-3">
+        <div class="text-center text-slate-400 text-sm py-2">Cargando datos de la mesa...</div>
       </div>
 
       <!-- Total -->
@@ -61,7 +118,7 @@
 
   </main>
 
-  <!-- Módulos de Firebase & Lógica de Negocio -->
+  <!-- Script de Navegación, Firebase & Menú -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -70,6 +127,7 @@
       addDoc, 
       onSnapshot, 
       doc, 
+      setDoc,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -86,19 +144,24 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const mesaId = "Mesa_3"; // Identificador por defecto de la mesa
+    const mesaId = "Mesa_3"; // Mesa asignada
+    let itemsActuales = [];
+    let totalAcumulado = 0;
 
     // Escuchar cambios en tiempo real del pedido de la Mesa #3
     onSnapshot(doc(db, "mesas", mesaId), (docSnapshot) => {
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
-        renderizarPedido(data.items || [], data.total || 0, data.estado || "En Proceso");
+        itemsActuales = data.items || [];
+        totalAcumulado = data.total || 0;
+        renderizarPedido(itemsActuales, totalAcumulado, data.estado || "En Proceso");
       } else {
-        // Muestra inicial por defecto en caso de no existir datos guardados aún
-        renderizarPedido([
+        itemsActuales = [
           { nombre: "Arroz con Pollo Especial", detalle: "Cantidad: 1 • Sin cebolla", precio: 28000 },
           { nombre: "Limonada de Coco", detalle: "Cantidad: 2", precio: 16000 }
-        ], 44000, "En Proceso");
+        ];
+        totalAcumulado = 44000;
+        renderizarPedido(itemsActuales, totalAcumulado, "En Proceso");
       }
     });
 
@@ -110,23 +173,59 @@
       estadoElement.textContent = estado;
       totalElement.textContent = `$ ${total.toLocaleString("es-CO")} COP`;
 
+      if (items.length === 0) {
+        listaContainer.innerHTML = `<div class="text-center text-slate-400 text-xs py-2">Aún no has agregado ningún plato al pedido.</div>`;
+        return;
+      }
+
       listaContainer.innerHTML = items.map(item => `
         <div class="flex justify-between items-center bg-slate-900/50 p-3 rounded-xl">
           <div>
             <div class="font-bold text-sm text-white">${item.nombre}</div>
-            <div class="text-xs text-slate-400">${item.detalle}</div>
+            <div class="text-xs text-slate-400">${item.detalle || 'Cantidad: 1'}</div>
           </div>
           <span class="font-semibold text-amber-400 text-sm">$ ${item.precio.toLocaleString("es-CO")} COP</span>
         </div>
       `).join('');
     }
 
-    // Funciones globales vinculadas a la nube
+    // Función para agregar nuevo plato directamente a la mesa
+    window.agregarAlCarrito = async function(nombrePlato, precioPlato) {
+      itemsActuales.push({
+        nombre: nombrePlato,
+        detalle: "Cantidad: 1",
+        precio: precioPlato
+      });
+      totalAcumulado += precioPlato;
+
+      try {
+        await setDoc(doc(db, "mesas", mesaId), {
+          items: itemsActuales,
+          total: totalAcumulado,
+          estado: "En Proceso",
+          ultimaActualizacion: serverTimestamp()
+        }, { merge: true });
+
+        // Enviar orden a la cocina
+        await addDoc(collection(db, "pedidos_cocina"), {
+          mesa: "Mesa #3",
+          comanda: Math.floor(100 + Math.random() * 900),
+          resumen: `1x ${nombrePlato}`,
+          estado: "PENDIENTE",
+          fecha: serverTimestamp()
+        });
+
+        alert(`✅ ${nombrePlato} agregado a tu pedido y enviado a cocina.`);
+      } catch (e) {
+        alert(`✅ ${nombrePlato} agregado localmente.`);
+      }
+    };
+
     window.solicitarMesero = async function() {
       try {
         await addDoc(collection(db, "alertas"), {
           tipo: "LLAMAR_MESERO",
-          mesa: mesaId,
+          mesa: "Mesa #3",
           fecha: serverTimestamp(),
           atendido: false
         });
@@ -140,7 +239,7 @@
       try {
         await addDoc(collection(db, "alertas"), {
           tipo: "PEDIR_CUENTA",
-          mesa: mesaId,
+          mesa: "Mesa #3",
           fecha: serverTimestamp(),
           atendido: false
         });
@@ -148,6 +247,10 @@
       } catch (e) {
         alert('💳 Solicitud enviada a caja.');
       }
+    };
+
+    window.filtrarCategoria = function(categoria) {
+      alert(`Filtrando categoría: ${categoria}`);
     };
 
     window.volverInicio = function() {
