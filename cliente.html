@@ -38,54 +38,18 @@
       </div>
     </div>
 
-    <!-- Menú Digital de Platos -->
+    <!-- Menú Digital de Platos Sincronizado con Cocina -->
     <section class="space-y-4">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2">
         <h2 class="font-bold text-lg text-white flex items-center gap-2">
           <i class="fa-solid fa-book-open text-amber-500" aria-hidden="true"></i> Nuestro Menú
         </h2>
-        <span class="text-xs text-slate-400 font-medium">Arma tu pedido</span>
+        <span class="text-xs text-slate-400 font-medium">Arma tu pedido en tiempo real</span>
       </div>
 
-      <!-- Tarjetas de Productos con Botón Único de Agregar -->
-      <div id="contenedor-menu" class="grid grid-cols-1 gap-3">
-        
-        <!-- Producto 1: Pasta a la Boloñesa -->
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
-          <div class="space-y-1 pr-2">
-            <h3 class="font-bold text-white text-base">Pasta a la Boloñesa</h3>
-            <p class="text-xs text-slate-400">Pasta artesanal con salsa boloñesa de la casa y queso parmesano.</p>
-            <p class="font-bold text-amber-400 text-sm">$ 24.000 COP</p>
-          </div>
-          <button onclick="modificarSeleccion('Pasta a la Boloñesa', 24000, 1)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 shrink-0">
-            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-          </button>
-        </div>
-
-        <!-- Producto 2: Arroz con Pollo -->
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
-          <div class="space-y-1 pr-2">
-            <h3 class="font-bold text-white text-base">Arroz con Pollo Especial</h3>
-            <p class="text-xs text-slate-400">Acompañado de papas a la francesa y ensalada dulce.</p>
-            <p class="font-bold text-amber-400 text-sm">$ 28.000 COP</p>
-          </div>
-          <button onclick="modificarSeleccion('Arroz con Pollo Especial', 28000, 1)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 shrink-0">
-            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-          </button>
-        </div>
-
-        <!-- Producto 3: Limonada de Coco -->
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
-          <div class="space-y-1 pr-2">
-            <h3 class="font-bold text-white text-base">Limonada de Coco</h3>
-            <p class="text-xs text-slate-400">Bebida refrescante granizada de 500ml.</p>
-            <p class="font-bold text-amber-400 text-sm">$ 8.000 COP</p>
-          </div>
-          <button onclick="modificarSeleccion('Limonada de Coco', 8000, 1)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 shrink-0">
-            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
-          </button>
-        </div>
-
+      <!-- Contenedor Dinámico del Menú -->
+      <div id="contenedor-menu-cliente" class="grid grid-cols-1 gap-3">
+        <div class="text-center text-slate-400 text-xs py-6">Sincronizando menú y disponibilidad con cocina...</div>
       </div>
     </section>
 
@@ -116,13 +80,14 @@
     </div>
   </div>
 
-  <!-- Lógica del Cliente -->
+  <!-- Lógica del Cliente con Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getFirestore, 
       collection, 
       addDoc, 
+      onSnapshot,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -139,6 +104,61 @@
     const db = getFirestore(app);
 
     let carritoBorrador = {}; 
+
+    // Catálogo base con los mismos IDs configurados en la cocina
+    const menuBase = [
+      { id: 'arroz_pollo', nombre: 'Arroz con Pollo Especial', precio: 28000, desc: 'Acompañado de papas a la francesa y ensalada dulce.' },
+      { id: 'pasta_bolonesa', nombre: 'Pasta a la Boloñesa', precio: 24000, desc: 'Pasta artesanal con salsa boloñesa de la casa y queso parmesano.' },
+      { id: 'pechuga_gratinada', nombre: 'Pechuga Gratinada', precio: 26000, desc: 'Filete con queso gratinado y patacones.' },
+      { id: 'limonada_coco', nombre: 'Limonada de Coco', precio: 8000, desc: 'Bebida refrescante granizada de 500ml.' },
+      { id: 'cerveza_aguila', nombre: 'Cerveza Águila Light', precio: 6000, desc: 'Botella helada 330ml.' }
+    ];
+
+    // Escuchar el inventario de insumos en tiempo real para bloquear platos agotados
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      const contenedorMenu = document.getElementById("contenedor-menu-cliente");
+      let estadosMap = {};
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        estadosMap[docSnap.id] = data.disponible;
+      });
+
+      contenedorMenu.innerHTML = menuBase.map(plato => {
+        const estaDisponible = estadosMap[plato.id] !== undefined ? estadosMap[plato.id] : true;
+
+        if (estaDisponible) {
+          return `
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-md">
+              <div class="space-y-1 pr-2">
+                <h3 class="font-bold text-white text-base">${plato.nombre}</h3>
+                <p class="text-xs text-slate-400">${plato.desc}</p>
+                <p class="font-bold text-amber-400 text-sm">$ ${plato.precio.toLocaleString("es-CO")} COP</p>
+              </div>
+              <button onclick="modificarSeleccion('${plato.nombre}', ${plato.precio}, 1)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i> Agregar
+              </button>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl flex justify-between items-center shadow-sm opacity-60">
+              <div class="space-y-1 pr-2">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-slate-400 text-base line-through">${plato.nombre}</h3>
+                  <span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] px-2.5 py-0.5 rounded font-bold">Agotado</span>
+                </div>
+                <p class="text-xs text-slate-500">${plato.desc}</p>
+                <p class="font-bold text-slate-500 text-sm">$ ${plato.precio.toLocaleString("es-CO")} COP</p>
+              </div>
+              <button disabled class="bg-slate-800 text-slate-500 font-bold px-4 py-2.5 rounded-xl text-xs cursor-not-allowed flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-ban text-xs" aria-hidden="true"></i> Agotado
+              </button>
+            </div>
+          `;
+        }
+      }).join('');
+    });
 
     window.modificarSeleccion = function(nombre, precio, cambio) {
       if (!carritoBorrador[nombre]) {
@@ -197,11 +217,7 @@
       const itemsEnviar = Object.values(carritoBorrador);
       if (itemsEnviar.length === 0) return;
 
-      let subtotal = 0;
-      let resumenTexto = itemsEnviar.map(i => {
-        subtotal += i.precio * i.cantidad;
-        return `${i.cantidad}x ${i.nombre}`;
-      }).join(", ");
+      let resumenTexto = itemsEnviar.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
 
       try {
         await addDoc(collection(db, "pedidos_cocina"), {
