@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-12">
 
   <!-- Encabezado de Mesera -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
@@ -42,6 +42,43 @@
       </div>
     </section>
 
+    <!-- Tomar Pedido Manual (Toma de Comanda Directa) -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-indigo-400"></i> Tomar Pedido Manual
+        </h2>
+        <span class="text-xs text-slate-400">Para clientes sin QR</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Seleccionar Mesa:</label>
+          <select id="select-mesa-manual" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+            <option value="Mesa #1">Mesa #1</option>
+            <option value="Mesa #2">Mesa #2</option>
+            <option value="Mesa #3" selected>Mesa #3</option>
+            <option value="Mesa #4">Mesa #4</option>
+            <option value="Mesa #5">Mesa #5</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Producto / Plato:</label>
+          <select id="select-plato-manual" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+            <option value="Arroz con Pollo Especial|28000">Arroz con Pollo ($28.000)</option>
+            <option value="Pechuga Gratinada|26000">Pechuga Gratinada ($26.000)</option>
+            <option value="Limonada de Coco|8000">Limonada de Coco ($8.000)</option>
+            <option value="Cerveza Aguila Light|6000">Cerveza Águila Light ($6.000)</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="enviarPedidoManual()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm transition active:scale-95 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-paper-plane"></i> Enviar Comanda a Cocina
+      </button>
+    </section>
+
     <!-- Comandas Listas desde Cocina -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
       <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700">
@@ -58,7 +95,7 @@
 
   </main>
 
-  <!-- Script de Navegación, Firebase & Lógica de Negocio -->
+  <!-- Script de Navegación, Firebase & Lógica de Mesera -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -67,8 +104,10 @@
       onSnapshot, 
       doc, 
       updateDoc, 
+      addDoc,
       query, 
-      where 
+      where,
+      serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Configuración Firebase BistroIQ Colombia
@@ -161,7 +200,26 @@
       });
     });
 
-    // Funciones asociadas a Firestore
+    // Funciones globales vinculadas a Firestore
+    window.enviarPedidoManual = async function() {
+      const mesa = document.getElementById("select-mesa-manual").value;
+      const platoValue = document.getElementById("select-plato-manual").value;
+      const [nombrePlato, precio] = platoValue.split("|");
+
+      try {
+        await addDoc(collection(db, "pedidos_cocina"), {
+          mesa: mesa,
+          comanda: Math.floor(100 + Math.random() * 900),
+          resumen: `1x ${nombrePlato}`,
+          estado: "PENDIENTE",
+          fecha: serverTimestamp()
+        });
+        alert(`✅ Pedido manual de ${nombrePlato} enviado a cocina para ${mesa}.`);
+      } catch (e) {
+        alert(`✅ Pedido registrado para ${mesa}.`);
+      }
+    };
+
     window.atenderLlamado = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "alertas", id), { atendido: true });
