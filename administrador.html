@@ -61,6 +61,35 @@
       </div>
     </div>
 
+    <!-- NUEVA SECCIÓN: Gestión de Seguridad y PINs de Acceso (Control del Administrador) -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-key text-amber-400" aria-hidden="true"></i> Gestión de Seguridad y PINs de Acceso
+        </h2>
+        <span class="text-xs text-amber-300 font-medium">Control Comercial</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">PIN Administrador:</label>
+          <input type="text" id="pin-admin" placeholder="Ej. 9999" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500 font-medium">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">PIN Cocina (KDS):</label>
+          <input type="text" id="pin-cocina" placeholder="Ej. 5678" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500 font-medium">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">PIN Mesera:</label>
+          <input type="text" id="pin-mesera" placeholder="Ej. 1234" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-purple-500 font-medium">
+        </div>
+      </div>
+
+      <button onclick="guardarPinesSistema()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Guardar Nuevos PINs en el Sistema
+      </button>
+    </section>
+
     <!-- Verificación de Pagos Pendientes (Control Antifraude) -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
@@ -142,6 +171,7 @@
       collection, 
       onSnapshot, 
       doc, 
+      getDoc,
       updateDoc, 
       setDoc,
       deleteDoc,
@@ -161,6 +191,51 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // Cargar PINs actuales al abrir el panel de Administrador
+    async function cargarPinesActuales() {
+      try {
+        const docRef = doc(db, "configuracion", "claves_sistema");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("pin-admin").value = data.pinAdmin || "9999";
+          document.getElementById("pin-cocina").value = data.pinCocina || "5678";
+          document.getElementById("pin-mesera").value = data.pinMesera || "1234";
+        } else {
+          document.getElementById("pin-admin").value = "9999";
+          document.getElementById("pin-cocina").value = "5678";
+          document.getElementById("pin-mesera").value = "1234";
+        }
+      } catch (e) {
+        console.error("Error al cargar PINs:", e);
+      }
+    }
+    cargarPinesActuales();
+
+    // Guardar PINs modificados por el Administrador en Firestore
+    window.guardarPinesSistema = async function() {
+      const pinAdmin = document.getElementById("pin-admin").value.trim();
+      const pinCocina = document.getElementById("pin-cocina").value.trim();
+      const pinMesera = document.getElementById("pin-mesera").value.trim();
+
+      if (!pinAdmin || !pinCocina || !pinMesera) {
+        alert("⚠️ Por favor completa todos los campos de PIN.");
+        return;
+      }
+
+      try {
+        await setDoc(doc(db, "configuracion", "claves_sistema"), {
+          pinAdmin,
+          pinCocina,
+          pinMesera
+        });
+        alert("🔒 ¡Claves de acceso actualizadas con éxito! Los nuevos PINs ya están activos para todo el sistema.");
+      } catch (e) {
+        console.error("Error al guardar PINs:", e);
+        alert("⚠️ Hubo un error al guardar los PINs en Firebase.");
+      }
+    };
 
     // 1. Escuchar solicitudes de pago pendientes en la colección "alertas"
     const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
@@ -270,7 +345,7 @@
       }
     };
 
-    // Función para editar precio en tiempo real
+    // Funktion para editar precio en tiempo real
     window.editarPrecioFirebase = async function(id, nombre, precioActual) {
       const nuevoPrecio = prompt(`Ingrese el nuevo precio en COP para ${nombre}:`, precioActual);
       if (nuevoPrecio && !isNaN(nuevoPrecio)) {
@@ -283,7 +358,7 @@
       }
     };
 
-    // Función para eliminar plato (CORREGIDA Y FUNCIONAL)
+    // Función para eliminar plato
     window.eliminarPlatoFirebase = async function(id, nombre) {
       if (confirm(`¿Estás seguro de eliminar "${nombre}" del menú? Se quitará de las pantallas del cliente, mesera y cocina.`)) {
         try {
