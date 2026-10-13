@@ -95,7 +95,7 @@
       </div>
     </section>
 
-    <!-- Única Sección: Tu Selección Actual (Borrador Local con Papelera) -->
+    <!-- Tu Selección Actual (Borrador Local con Papelera) -->
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h3 class="font-bold text-slate-200"><i class="fa-solid fa-cart-shopping text-amber-500 mr-2" aria-hidden="true"></i> Tu Selección Actual</h3>
@@ -122,15 +122,13 @@
     </div>
   </div>
 
-  <!-- Lógica Limpia (Sin rastro de datos viejos de Firebase en la vista) -->
+  <!-- Lógica del Cliente -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getFirestore, 
       collection, 
       addDoc, 
-      doc, 
-      setDoc,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -146,7 +144,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const mesaId = "Mesa_3"; 
     let carritoBorrador = {}; 
 
     function obtenerIdSlug(nombre) {
@@ -155,7 +152,6 @@
         .replace(/\s+/g, '-');
     }
 
-    // Modificar selección local (+ / -)
     window.modificarSeleccion = function(nombre, precio, cambio) {
       if (!carritoBorrador[nombre]) {
         carritoBorrador[nombre] = { nombre, precio, cantidad: 0 };
@@ -175,7 +171,6 @@
       actualizarVistaBorrador();
     };
 
-    // Botón de papelera para eliminar ítem del borrador
     window.eliminarItemBorrador = function(nombre) {
       if (carritoBorrador[nombre]) {
         delete carritoBorrador[nombre];
@@ -224,7 +219,6 @@
       barra.classList.remove("translate-y-full");
     }
 
-    // Enviar pedido a la cocina y limpiar borrador
     window.enviarPedidoACocina = async function() {
       const itemsEnviar = Object.values(carritoBorrador);
       if (itemsEnviar.length === 0) return;
@@ -243,13 +237,6 @@
           estado: "PENDIENTE",
           fecha: serverTimestamp()
         });
-
-        await setDoc(doc(db, "mesas", mesaId), {
-          items: itemsEnviar,
-          total: subtotal,
-          estado: "En Proceso",
-          ultimaActualizacion: serverTimestamp()
-        }, { merge: true });
 
         carritoBorrador = {};
         document.querySelectorAll('[id^="cant-"]').forEach(el => el.textContent = 0);
