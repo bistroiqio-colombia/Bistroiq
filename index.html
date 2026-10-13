@@ -12,7 +12,7 @@
   <!-- Encabezado Principal -->
   <div class="text-center mb-8">
     <div class="flex items-center justify-center gap-3 mb-2">
-      <i class="fa-solid fa-utensils text-amber-500 text-4xl"></i>
+      <i class="fa-solid fa-utensils text-amber-500 text-4xl" aria-hidden="true"></i>
       <h1 class="text-4xl font-extrabold tracking-tight text-white">BistroIQ</h1>
     </div>
     <p class="text-slate-400 text-sm font-medium">Sistema Inteligente de Gestión de Restaurantes</p>
@@ -25,56 +25,56 @@
     <button onclick="accederCliente()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-5 rounded-2xl flex items-center justify-between shadow-lg transition duration-200 active:scale-95">
       <div class="flex items-center gap-4">
         <div class="bg-emerald-700/50 p-3 rounded-xl">
-          <i class="fa-solid fa-qrcode text-2xl"></i>
+          <i class="fa-solid fa-qrcode text-2xl" aria-hidden="true"></i>
         </div>
         <div class="text-left">
           <div class="font-bold text-lg">Soy Cliente</div>
           <div class="text-xs text-emerald-200">Ver menú digital y hacer pedido</div>
         </div>
       </div>
-      <i class="fa-solid fa-chevron-right text-emerald-300"></i>
+      <i class="fa-solid fa-chevron-right text-emerald-300" aria-hidden="true"></i>
     </button>
 
     <!-- Botón Mesera (Con PIN) -->
     <button onclick="abrirModalPIN('mesera')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white p-5 rounded-2xl flex items-center justify-between shadow-lg transition duration-200 active:scale-95">
       <div class="flex items-center gap-4">
         <div class="bg-indigo-700/50 p-3 rounded-xl">
-          <i class="fa-solid fa-user-ninja text-2xl"></i>
+          <i class="fa-solid fa-user-ninja text-2xl" aria-hidden="true"></i>
         </div>
         <div class="text-left">
           <div class="font-bold text-lg">Soy Mesera</div>
           <div class="text-xs text-indigo-200">Gestionar mesas y comandas</div>
         </div>
       </div>
-      <i class="fa-solid fa-lock text-indigo-300"></i>
+      <i class="fa-solid fa-lock text-indigo-300" aria-hidden="true"></i>
     </button>
 
     <!-- Botón Cocina (Con PIN) -->
     <button onclick="abrirModalPIN('cocina')" class="w-full bg-amber-600 hover:bg-amber-500 text-white p-5 rounded-2xl flex items-center justify-between shadow-lg transition duration-200 active:scale-95">
       <div class="flex items-center gap-4">
         <div class="bg-amber-700/50 p-3 rounded-xl">
-          <i class="fa-solid fa-fire text-2xl"></i>
+          <i class="fa-solid fa-fire text-2xl" aria-hidden="true"></i>
         </div>
         <div class="text-left">
           <div class="font-bold text-lg">Soy Cocina</div>
           <div class="text-xs text-amber-200">Pantalla de pedidos e insumos</div>
         </div>
       </div>
-      <i class="fa-solid fa-lock text-amber-300"></i>
+      <i class="fa-solid fa-lock text-amber-300" aria-hidden="true"></i>
     </button>
 
     <!-- Botón Administrador / Caja (Con PIN) -->
     <button onclick="abrirModalPIN('administrador')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 p-5 rounded-2xl flex items-center justify-between shadow-lg transition duration-200 active:scale-95">
       <div class="flex items-center gap-4">
         <div class="bg-slate-900/50 p-3 rounded-xl">
-          <i class="fa-solid fa-chart-line text-2xl text-amber-500"></i>
+          <i class="fa-solid fa-chart-line text-2xl text-amber-500" aria-hidden="true"></i>
         </div>
         <div class="text-left">
           <div class="font-bold text-lg">Administrador / Caja</div>
           <div class="text-xs text-slate-400">Reportes, métricas y control</div>
         </div>
       </div>
-      <i class="fa-solid fa-shield-halved text-slate-500"></i>
+      <i class="fa-solid fa-shield-halved text-slate-500" aria-hidden="true"></i>
     </button>
 
   </div>
@@ -84,7 +84,7 @@
     <div class="bg-slate-800 border border-slate-700 w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center">
       <div class="flex justify-between items-center mb-4">
         <h3 id="tituloRol" class="text-lg font-bold text-slate-200">Ingresar PIN</h3>
-        <button onclick="cerrarModalPIN()" class="text-slate-400 hover:text-white text-xl p-1">&times;</button>
+        <button onclick="cerrarModalPIN()" class="text-slate-400 hover:text-white text-xl p-1" aria-label="Cerrar modal">&times;</button>
       </div>
 
       <!-- Display de PIN (Puntos) -->
@@ -108,9 +108,9 @@
         <button onclick="ingresarNumero('7')" class="bg-slate-700 hover:bg-slate-600 text-xl font-bold py-3 rounded-xl active:bg-slate-500 transition">7</button>
         <button onclick="ingresarNumero('8')" class="bg-slate-700 hover:bg-slate-600 text-xl font-bold py-3 rounded-xl active:bg-slate-500 transition">8</button>
         <button onclick="ingresarNumero('9')" class="bg-slate-700 hover:bg-slate-600 text-xl font-bold py-3 rounded-xl active:bg-slate-500 transition">9</button>
-        <button onclick="borrarNumero()" class="bg-slate-700 text-amber-500 text-lg font-bold py-3 rounded-xl active:bg-slate-600 transition"><i class="fa-solid fa-backspace"></i></button>
+        <button onclick="borrarNumero()" class="bg-slate-700 text-amber-500 text-lg font-bold py-3 rounded-xl active:bg-slate-600 transition" aria-label="Borrar número"><i class="fa-solid fa-backspace" aria-hidden="true"></i></button>
         <button onclick="ingresarNumero('0')" class="bg-slate-700 hover:bg-slate-600 text-xl font-bold py-3 rounded-xl active:bg-slate-500 transition">0</button>
-        <button onclick="validarPIN()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold py-3 rounded-xl active:bg-emerald-700 transition"><i class="fa-solid fa-check"></i></button>
+        <button onclick="validarPIN()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold py-3 rounded-xl active:bg-emerald-700 transition" aria-label="Validar PIN"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>
@@ -131,7 +131,7 @@
     let rolSeleccionado = '';
 
     function accederCliente() {
-      window.location.href = 'Cliente.html';
+      window.location.href = 'cliente.html';
     }
 
     function abrirModalPIN(rol) {
