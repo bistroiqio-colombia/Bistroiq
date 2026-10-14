@@ -151,6 +151,8 @@
       snapshot.forEach((docSnap) => {
         const item = docSnap.data();
         const id = docSnap.id;
+        // Escapar comillas simples para evitar errores de sintaxis en la llamada de onclick
+        const resumenLimpio = (item.resumen || '').replace(/'/g, "\\'");
 
         const card = document.createElement("div");
         card.className = "bg-slate-800 border border-amber-500/40 rounded-2xl p-4 space-y-3 shadow-lg flex flex-col justify-between";
@@ -162,7 +164,7 @@
             </div>
             <p class="text-sm font-bold text-white leading-relaxed">${item.resumen}</p>
           </div>
-          <button onclick="marcarComandaLista('${id}', '${item.mesa}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition active:scale-95 flex items-center justify-center gap-2">
+          <button onclick="marcarComandaLista('${id}', '${item.mesa}', '${resumenLimpio}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition active:scale-95 flex items-center justify-center gap-2">
             <i class="fa-solid fa-check"></i> Plato Listo para Servir
           </button>
         `;
@@ -170,12 +172,13 @@
       });
     });
 
-    window.marcarComandaLista = async function(id, mesa) {
+    window.marcarComandaLista = async function(id, mesa, resumen) {
       try {
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
         await addDoc(collection(db, "alertas"), {
           mesa: mesa,
-          mensaje: `${mesa} • Orden lista para servir`,
+          resumen: resumen || "Orden completa",
+          mensaje: `${mesa} • ${resumen || 'Orden lista para servir'}`,
           tipo: "PEDIDO_LISTO",
           atendido: false,
           fecha: new Date().toISOString()
