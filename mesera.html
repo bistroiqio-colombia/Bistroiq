@@ -20,7 +20,7 @@
         <p class="text-xs text-indigo-300 font-medium">Panel de Mesera • BistroIQ</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir al inicio">
+    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95" aria-label="Salir al inicio">
       <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
     </button>
   </header>
@@ -28,11 +28,24 @@
   <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-4xl mx-auto w-full space-y-6">
 
-    <!-- Notificaciones / Llamados de Clientes en Tiempo Real -->
+    <!-- Sección 1: Avisos de Cocina (Comandas Listas para Servir) -->
+    <section class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-5 shadow-lg space-y-3">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-emerald-400 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-bell-concierge animate-bounce" aria-hidden="true"></i> Platos Listos para Recoger en Cocina
+        </h2>
+        <span id="contador-pedidos-listos" class="bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Listos</span>
+      </div>
+      <div id="contenedor-pedidos-listos" class="space-y-2">
+        <div class="text-center text-slate-400 text-xs py-3">No hay platos listos para entregar en este momento.</div>
+      </div>
+    </section>
+
+    <!-- Sección 2: Llamados de Clientes en Tiempo Real -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-3">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
-          <i class="fa-solid fa-bell text-amber-400 animate-bounce" aria-hidden="true"></i> Solicitudes de Mesas
+          <i class="fa-solid fa-bell text-amber-400" aria-hidden="true"></i> Llamados de Clientes (Mesas)
         </h2>
         <span id="contador-alertas-mesera" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Llamados</span>
       </div>
@@ -43,7 +56,7 @@
 
     <!-- Selector de Mesa Activa -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-3">
-      <label class="text-xs font-bold text-slate-300 block">Selecciona la Mesa a Atender:</label>
+      <label class="text-xs font-bold text-slate-300 block">Selecciona la Mesa a Atender (Para clientes sin celular o adultos mayores):</label>
       <div class="grid grid-cols-4 sm:grid-cols-6 gap-2" id="grid-mesas-selector">
         <button onclick="seleccionarMesa('Mesa #1')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition">Mesa 1</button>
         <button onclick="seleccionarMesa('Mesa #2')" class="btn-mesa bg-slate-900 border border-slate-700 hover:border-indigo-500 p-2.5 rounded-xl text-xs font-bold text-center text-slate-200 transition">Mesa 2</button>
@@ -54,7 +67,7 @@
       </div>
     </section>
 
-    <!-- Catálogo de Productos Dinámicos (Sincronizado con Admin y Cocina) -->
+    <!-- Catálogo de Productos Dinámicos (Para tomar pedidos manuales) -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
@@ -93,6 +106,7 @@
       addDoc,
       doc,
       updateDoc,
+      deleteDoc,
       query,
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -145,7 +159,40 @@
       });
     });
 
-    // 2. Escuchar Menú Dinámico desde "inventario_insumos"
+    // 2. Escuchar Alertas de Cocina (Platos Listos para Servir)
+    const qListos = query(collection(db, "alertas"), where("tipo", "==", "PEDIDO_LISTO"), where("atendido", "==", false));
+    onSnapshot(qListos, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-pedidos-listos");
+      const contador = document.getElementById("contador-pedidos-listos");
+
+      contador.textContent = `${snapshot.size} Listos`;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-xs py-3">No hay platos listos para entregar en este momento.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const alerta = docSnap.data();
+        const id = docSnap.id;
+
+        const card = document.createElement("div");
+        card.className = "bg-emerald-950/30 border border-emerald-500/40 p-3.5 rounded-xl flex items-center justify-between gap-3";
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-base animate-pulse"></i>
+            <span class="font-bold text-white text-xs">${alerta.mensaje || `${alerta.mesa} lista`}</span>
+          </div>
+          <button onclick="marcarPedidoEntregado('${id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow">
+            Entregado
+          </button>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    // 3. Escuchar Menú Dinámico desde "inventario_insumos"
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       const contenedorMenu = document.getElementById("contenedor-menu-mesera");
 
@@ -197,7 +244,6 @@
       document.getElementById("mesa-seleccionada-label").textContent = `Atendiendo: ${mesaActual}`;
       document.getElementById("resumen-mesa-pie").textContent = `${mesaActual} • Items acumulados`;
       
-      // Resaltar botón de mesa seleccionada
       document.querySelectorAll('.btn-mesa').forEach(btn => {
         btn.classList.remove('border-indigo-500', 'bg-indigo-950/40');
         if (btn.textContent.trim() === nombreMesa.replace(' #', ' ')) {
@@ -236,6 +282,7 @@
             mesa: mesaActual,
             comanda: Math.floor(100 + Math.random() * 900),
             resumen: resumen,
+            total: total,
             estado: "PENDIENTE",
             fecha: new Date().toISOString()
           });
@@ -255,6 +302,14 @@
         await updateDoc(doc(db, "alertas", id), { atendido: true });
       } catch (e) {
         console.error("Error al marcar alerta:", e);
+      }
+    };
+
+    window.marcarPedidoEntregado = async function(id) {
+      try {
+        await updateDoc(doc(db, "alertas", id), { atendido: true });
+      } catch (e) {
+        console.error("Error al marcar pedido entregado:", e);
       }
     };
 
