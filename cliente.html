@@ -27,9 +27,16 @@
         </p>
       </div>
     </div>
-    <button onclick="solicitarMesera()" class="bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
-      <i class="fa-solid fa-bell" aria-hidden="true"></i> Llama a Mesera
-    </button>
+    
+    <!-- Botones de Acción Superior (Mesera y Cuenta) -->
+    <div class="flex items-center gap-2">
+      <button onclick="solicitarMesera()" class="bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
+        <i class="fa-solid fa-bell" aria-hidden="true"></i> Mesera
+      </button>
+      <button onclick="abrirModalPedirCuenta()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
+        <i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i> Cuenta
+      </button>
+    </div>
   </header>
 
   <!-- Contenido Principal -->
@@ -79,7 +86,7 @@
 
   </main>
 
-  <!-- Barra Flotante Inferior de Pedido / Carrito (Sin montos globales acumulados) -->
+  <!-- Barra Flotante Inferior de Pedido / Carrito -->
   <footer id="barra-pedido-flotante" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-3.5 shadow-2xl z-40 hidden">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
       
@@ -126,6 +133,46 @@
 
       <button onclick="cerrarModalTipoPedido()" class="w-full text-slate-400 hover:text-slate-200 text-xs text-center pt-1 font-semibold block">
         Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE PEDIR LA CUENTA (Efectivo / Transferencia) -->
+  <div id="modal-pedir-cuenta" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
+      <div class="text-center space-y-1">
+        <h3 class="font-bold text-white text-base flex items-center justify-center gap-2">
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Solicitar la Cuenta
+        </h3>
+        <p class="text-xs text-slate-400">Elige tu método de pago preferido</p>
+      </div>
+
+      <div class="space-y-2.5">
+        <!-- Opción Efectivo -->
+        <button onclick="enviarSolicitudCuenta('EFECTIVO')" class="w-full bg-slate-700 hover:bg-slate-600 border border-emerald-500/40 text-white p-3.5 rounded-xl font-bold text-xs transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">💵 Pagar en Efectivo</span>
+          <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">La mesera lleva cambio</span>
+        </button>
+
+        <!-- Opción Transferencia -->
+        <button onclick="mostrarDatosTransferencia()" class="w-full bg-slate-700 hover:bg-slate-600 border border-indigo-500/40 text-indigo-300 p-3.5 rounded-xl font-bold text-xs transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">📲 Transferencia (Nequi / DaviPlata)</span>
+          <span class="text-[10px] text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded">Ver cuentas / QR</span>
+        </button>
+      </div>
+
+      <div id="info-transferencia-oculta" class="hidden bg-slate-900/90 p-3 rounded-xl border border-indigo-500/30 space-y-2 text-xs">
+        <p class="font-bold text-white text-center">Datos Oficiales del Restaurante:</p>
+        <p class="text-slate-300"><strong>Nequi / DaviPlata:</strong> 300 000 0000</p>
+        <p class="text-slate-300"><strong>Bancolombia (Ahorros):</strong> 123-456789-00</p>
+        <p class="text-[11px] text-amber-300 italic text-center">Muestra el comprobante de pago a la mesera al recibir tu cuenta.</p>
+        <button onclick="enviarSolicitudCuenta('TRANSFERENCIA')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg font-bold mt-1">
+          Avisar a la Mesera (Pago por Transferencia)
+        </button>
+      </div>
+
+      <button onclick="cerrarModalPedirCuenta()" class="w-full text-slate-400 hover:text-slate-200 text-xs text-center pt-1 font-semibold block">
+        Volver al Menú
       </button>
     </div>
   </div>
@@ -432,6 +479,39 @@
       } catch (e) {
         console.error("Error enviando pedido:", e);
         alert("⚠️ Hubo un detalle al enviar el pedido.");
+      }
+    };
+
+    // Funciones para Pedir la Cuenta
+    window.abrirModalPedirCuenta = function() {
+      document.getElementById("info-transferencia-oculta").classList.add("hidden");
+      document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
+    };
+
+    window.cerrarModalPedirCuenta = function() {
+      document.getElementById("modal-pedir-cuenta").classList.add("hidden");
+    };
+
+    window.mostrarDatosTransferencia = function() {
+      document.getElementById("info-transferencia-oculta").classList.remove("hidden");
+    };
+
+    window.enviarSolicitudCuenta = async function(metodoPago) {
+      try {
+        await addDoc(collection(db, "alertas"), {
+          mesa: mesaParam,
+          tipo: "PEDIR_CUENTA",
+          metodo: metodoPago,
+          mensaje: `💳 ${mesaParam} solicita la cuenta (${metodoPago})`,
+          atendido: false,
+          fecha: new Date().toISOString()
+        });
+
+        alert(`✅ Solicitud enviada. La mesera se acercará con la cuenta (${metodoPago}).`);
+        cerrarModalPedirCuenta();
+      } catch (e) {
+        console.error("Error al pedir la cuenta:", e);
+        alert("⚠️ Hubo un error al solicitar la cuenta.");
       }
     };
 
