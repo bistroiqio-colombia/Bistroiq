@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-12">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-12" onclick="desbloquearAudioGeneral()">
 
   <!-- Encabezado Cocina -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
@@ -21,8 +21,8 @@
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button id="btn-sonido" onclick="activarSonidoCocina()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 shadow flex items-center gap-1.5">
-        <i class="fa-solid fa-volume-high"></i> Activar Sonido
+      <button id="btn-sonido" onclick="activarSonidoCocina(event)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 shadow flex items-center gap-1.5">
+        <i class="fa-solid fa-volume-xmark"></i> Activar Sonido
       </button>
       <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95">
         <i class="fa-solid fa-house"></i> Salir
@@ -73,38 +73,62 @@
     let sonidoHabilitado = false;
     let primeraCarga = true;
 
-    window.activarSonidoCocina = function() {
+    window.desbloquearAudioGeneral = function() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      sonidoHabilitado = true;
-      const btn = document.getElementById("btn-sonido");
-      btn.className = "bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5";
-      btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> Sonido Listo`;
-      reproducirTimbreAlert();
     };
 
-    function reproducirTimbreAlert() {
-      if (!audioCtx || !sonidoHabilitado) return;
-      try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Tono de campana 880Hz
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.8);
-      } catch (e) {
-        console.error(e);
+    window.activarSonidoCocina = function(e) {
+      if (e) e.stopPropagation();
+      window.desbloquearAudioGeneral();
+      sonidoHabilitado = true;
+      actualizarBotonSonido(true);
+      reproducirAlarmaCocina();
+    };
+
+    function actualizarBotonSonido(activo) {
+      const btn = document.getElementById("btn-sonido");
+      if (activo) {
+        btn.className = "bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5";
+        btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> Sonido Activo`;
       }
     }
 
+    // Alarma Potente Doble para Cocina (Buzzer de Comanda)
+    function reproducirAlarmaCocina() {
+      window.desbloquearAudioGeneral();
+      if (!audioCtx) return;
+
+      try {
+        const emitirBeep = (frecuencia, inicio, duracion) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'square'; // Onda cuadrada para un sonido más penetrante tipo comanda
+          osc.frequency.setValueAtTime(frecuencia, audioCtx.currentTime + inicio);
+          
+          gain.gain.setValueAtTime(0.4, audioCtx.currentTime + inicio);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + inicio + duracion);
+          
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          
+          osc.start(audioCtx.currentTime + inicio);
+          osc.stop(audioCtx.currentTime + inicio + duracion);
+        };
+
+        // Doble beep penetrante (Llegada de Comanda)
+        emitirBeep(987.77, 0.0, 0.25); // Nota B5
+        emitirBeep(1318.51, 0.3, 0.40); // Nota E6
+      } catch (e) {
+        console.error("Error reproduciendo audio:", e);
+      }
+    }
+
+    // Listener Firebase en Tiempo Real
     const qComandas = query(collection(db, "pedidos_cocina"), where("estado", "==", "PENDIENTE"));
     onSnapshot(qComandas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-comandas");
@@ -112,8 +136,9 @@
 
       contador.textContent = `${snapshot.size} Pendientes`;
 
+      // Si entra un nuevo pedido después de la carga inicial
       if (!primeraCarga && snapshot.docChanges().some(change => change.type === 'added')) {
-        reproducirTimbreAlert();
+        reproducirAlarmaCocina();
       }
       primeraCarga = false;
 
