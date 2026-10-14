@@ -3,63 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BistroIQ - Monitor de Cocina (KDS)</title>
+  <title>BistroIQ - Panel de Cocina (KDS)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-12">
 
-  <!-- Encabezado de Cocina -->
+  <!-- Encabezado Cocina -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
       <div class="bg-amber-500/20 p-2 rounded-xl border border-amber-500/30">
-        <i class="fa-solid fa-fire text-amber-500 text-xl" aria-hidden="true"></i>
+        <i class="fa-solid fa-fire text-amber-400 text-xl" aria-hidden="true"></i>
       </div>
       <div>
-        <h1 class="font-bold text-lg text-white">Monitor de Cocina (KDS)</h1>
-        <p class="text-xs text-amber-300 font-medium">Gestión de Comandas e Insumos en Tiempo Real</p>
+        <h1 class="font-bold text-lg text-white">Cocina & Comandas (KDS)</h1>
+        <p class="text-xs text-amber-300 font-medium">BistroIQ Colombia</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95" aria-label="Salir al portal">
-      <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
-    </button>
+    <div class="flex items-center gap-2">
+      <button id="btn-sonido" onclick="activarSonidoCocina()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 shadow flex items-center gap-1.5">
+        <i class="fa-solid fa-volume-high"></i> Activar Sonido
+      </button>
+      <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95">
+        <i class="fa-solid fa-house"></i> Salir
+      </button>
+    </div>
   </header>
 
   <!-- Contenido Principal -->
-  <main class="flex-1 p-4 max-w-4xl mx-auto w-full space-y-6">
+  <main class="flex-1 p-4 max-w-5xl mx-auto w-full space-y-4">
+    <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+      <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+        <i class="fa-solid fa-list-check text-amber-400"></i> Comandas Pendientes por Preparar
+      </h2>
+      <span id="contador-comandas" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Pendientes</span>
+    </div>
 
-    <!-- Comandas Entrantes desde Clientes y Mesera -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
-        <h2 class="font-bold text-slate-200 flex items-center gap-2">
-          <i class="fa-solid fa-receipt text-amber-500" aria-hidden="true"></i> Comandas Activas en Cocina
-        </h2>
-        <span id="contador-comandas" class="bg-amber-500/20 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">0 Pendientes</span>
-      </div>
-
-      <div id="contenedor-comandas-cocina" class="space-y-3">
-        <div class="text-center text-slate-400 text-sm py-4">Cargando comandas en tiempo real...</div>
-      </div>
-    </section>
-
-    <!-- Control de Inventario y Disponibilidad (Sincronizado con Administrador) -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
-        <div>
-          <h2 class="font-bold text-slate-200 flex items-center gap-2">
-            <i class="fa-solid fa-boxes-stacked text-indigo-400" aria-hidden="true"></i> Control Rápido de Disponibilidad de Platos
-          </h2>
-          <p class="text-xs text-slate-400 mt-0.5">Toca para marcar agotado/disponible en tiempo real</p>
-        </div>
-        <span id="contador-insumos" class="text-xs text-indigo-300 font-semibold bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">0 Platos</span>
-      </div>
-
-      <!-- Los platos creados en el Administrador se cargan dinámicamente aquí -->
-      <div id="contenedor-control-insumos" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div class="text-center text-slate-400 text-xs py-4 col-span-full">Cargando catálogo de platos...</div>
-      </div>
-    </section>
-
+    <div id="contenedor-comandas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="text-center text-slate-400 text-sm py-8 col-span-full">Esperando nuevas comandas en tiempo real...</div>
+    </div>
   </main>
 
   <script type="module">
@@ -68,11 +50,10 @@
       getFirestore, 
       collection, 
       onSnapshot, 
-      doc, 
-      updateDoc,
-      deleteDoc,
-      addDoc,
-      query,
+      addDoc, 
+      updateDoc, 
+      doc,
+      query, 
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -88,153 +69,94 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. Escuchar Comandas de Cocina Activas (PENDIENTE o EN_PREPARACION)
-    const qCocina = query(collection(db, "pedidos_cocina"), where("estado", "in", ["PENDIENTE", "EN_PREPARACION"]));
-    onSnapshot(qCocina, (snapshot) => {
-      const contenedor = document.getElementById("contenedor-comandas-cocina");
+    let audioCtx = null;
+    let sonidoHabilitado = false;
+    let primeraCarga = true;
+
+    window.activarSonidoCocina = function() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      sonidoHabilitado = true;
+      const btn = document.getElementById("btn-sonido");
+      btn.className = "bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5";
+      btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> Sonido Listo`;
+      reproducirTimbreAlert();
+    };
+
+    function reproducirTimbreAlert() {
+      if (!audioCtx || !sonidoHabilitado) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Tono de campana 880Hz
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.8);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const qComandas = query(collection(db, "pedidos_cocina"), where("estado", "==", "PENDIENTE"));
+    onSnapshot(qComandas, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-comandas");
       const contador = document.getElementById("contador-comandas");
-      
+
       contador.textContent = `${snapshot.size} Pendientes`;
 
+      if (!primeraCarga && snapshot.docChanges().some(change => change.type === 'added')) {
+        reproducirTimbreAlert();
+      }
+      primeraCarga = false;
+
       if (snapshot.empty) {
-        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-6">No hay comandas pendientes en este momento.</div>`;
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-8 col-span-full">No hay comandas pendientes. ¡Cocina al día!</div>`;
         return;
       }
 
       contenedor.innerHTML = "";
       snapshot.forEach((docSnap) => {
-        const pedido = docSnap.data();
+        const item = docSnap.data();
         const id = docSnap.id;
 
         const card = document.createElement("div");
-        card.className = "bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm";
-        
+        card.className = "bg-slate-800 border border-amber-500/40 rounded-2xl p-4 space-y-3 shadow-lg flex flex-col justify-between";
         card.innerHTML = `
-          <div class="space-y-1.5">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-extrabold text-white text-base">${pedido.mesa || 'Mesa'} — Comanda #${pedido.comanda || '00'}</span>
-              <span class="text-[11px] px-2.5 py-0.5 rounded-md font-bold ${
-                pedido.estado === 'EN_PREPARACION' 
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse' 
-                  : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-              }">
-                ${pedido.estado === 'EN_PREPARACION' ? '🍳 En Preparación' : '⏳ Pendiente'}
-              </span>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+              <span class="font-black text-amber-400 text-base">${item.mesa || 'Mesa'}</span>
+              <span class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-0.5 rounded-full font-bold">#${item.comanda || '101'}</span>
             </div>
-            
-            <!-- Resumen de Platos con formato resaltado -->
-            <div class="text-sm font-semibold text-amber-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
-              ${pedido.resumen || 'Sin especificar'}
-            </div>
+            <p class="text-sm font-bold text-white leading-relaxed">${item.resumen}</p>
           </div>
-
-          <!-- Acciones de Estado -->
-          <div class="flex items-center gap-2 shrink-0">
-            ${
-              pedido.estado !== 'EN_PREPARACION'
-                ? `<button onclick="cambiarEstadoPedido('${id}', 'EN_PREPARACION')" class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow">
-                    🍳 Preparar
-                   </button>`
-                : ''
-            }
-            <button onclick="marcarPedidoListo('${id}', '${pedido.mesa || 'Mesa'}', '${pedido.comanda || ''}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow">
-              🔔 ¡Listo!
-            </button>
-            <button onclick="eliminarComandaIndividual('${id}', '${pedido.mesa || 'Mesa'}')" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 p-2.5 rounded-xl border border-rose-900/30 text-xs transition active:scale-95" title="Eliminar esta comanda">
-              <i class="fa-solid fa-trash" aria-hidden="true"></i>
-            </button>
-          </div>
+          <button onclick="marcarComandaLista('${id}', '${item.mesa}')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-check"></i> Plato Listo para Servir
+          </button>
         `;
         contenedor.appendChild(card);
       });
     });
 
-    // 2. Escuchar Catálogo Completo desde "inventario_insumos" para Control de Stock
-    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
-      const contenedorInsumos = document.getElementById("contenedor-control-insumos");
-      const contadorInsumos = document.getElementById("contador-insumos");
-
-      contadorInsumos.textContent = `${snapshot.size} Platos`;
-
-      if (snapshot.empty) {
-        contenedorInsumos.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay platos registrados. Agrégalos desde el panel de Administrador.</div>`;
-        return;
-      }
-
-      contenedorInsumos.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const item = docSnap.data();
-        const id = docSnap.id;
-        const disponible = item.disponible !== undefined ? item.disponible : true;
-
-        const btn = document.createElement("button");
-        btn.onclick = () => toggleDisponibilidadCocina(id, disponible);
-        btn.className = `p-3.5 rounded-xl border flex items-center justify-between text-left transition active:scale-95 font-semibold text-xs ${
-          disponible 
-            ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/40' 
-            : 'bg-rose-950/30 border-rose-500/40 text-rose-300 hover:bg-rose-900/40'
-        }`;
-
-        btn.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full ${disponible ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}"></span>
-            <span class="truncate">${item.nombre}</span>
-          </div>
-          <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold shrink-0 ${
-            disponible ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'
-          }">
-            ${disponible ? 'Disponible' : 'Agotado'}
-          </span>
-        `;
-        contenedorInsumos.appendChild(btn);
-      });
-    });
-
-    // Cambiar estado a EN_PREPARACION
-    window.cambiarEstadoPedido = async function(id, nuevoEstado) {
+    window.marcarComandaLista = async function(id, mesa) {
       try {
-        await updateDoc(doc(db, "pedidos_cocina", id), { estado: nuevoEstado });
-      } catch (e) {
-        console.error("Error al actualizar pedido", e);
-      }
-    };
-
-    // Marcar Listo y Notificar a la Mesera
-    window.marcarPedidoListo = async function(id, mesa, comanda) {
-      try {
-        // Actualizar estado a LISTO en la cocina
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
-
-        // Enviar alerta a la mesera
         await addDoc(collection(db, "alertas"), {
           mesa: mesa,
+          mensaje: `${mesa} • Orden lista para servir`,
           tipo: "PEDIDO_LISTO",
-          mensaje: `🔔 ¡Comanda #${comanda} lista para entregar!`,
           atendido: false,
           fecha: new Date().toISOString()
         });
       } catch (e) {
-        console.error("Error al marcar como listo:", e);
-      }
-    };
-
-    window.toggleDisponibilidadCocina = async function(id, estadoActual) {
-      try {
-        await updateDoc(doc(db, "inventario_insumos", id), { disponible: !estadoActual });
-      } catch (e) {
-        console.error("Error al cambiar estado de producto", e);
-      }
-    };
-
-    // Eliminar una comanda individualmente
-    window.eliminarComandaIndividual = async function(id, mesa) {
-      if (confirm(`¿Deseas eliminar la comanda de la ${mesa}?`)) {
-        try {
-          await deleteDoc(doc(db, "pedidos_cocina", id));
-        } catch (e) {
-          console.error("Error al eliminar la comanda:", e);
-          alert("⚠️ Ocurrió un error al intentar eliminar la comanda.");
-        }
+        console.error("Error al actualizar comanda:", e);
       }
     };
 
