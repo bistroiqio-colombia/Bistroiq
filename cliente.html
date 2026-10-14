@@ -79,7 +79,7 @@
 
   </main>
 
-  <!-- Barra Flotante Inferior de Pedido / Carrito (Sin montos de dinero) -->
+  <!-- Barra Flotante Inferior de Pedido / Carrito (Sin montos globales acumulados) -->
   <footer id="barra-pedido-flotante" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-3.5 shadow-2xl z-40 hidden">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
       
@@ -103,6 +103,32 @@
 
     </div>
   </footer>
+
+  <!-- MODAL DE SELECCIÓN TIPO DE PEDIDO (Comer Aquí / Para Llevar) -->
+  <div id="modal-tipo-pedido" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
+      <div class="text-center space-y-1">
+        <h3 class="font-bold text-white text-base" id="modal-tipo-titulo">Selecciona una opción</h3>
+        <p class="text-xs text-slate-400">¿Cómo deseas disfrutar tu plato?</p>
+      </div>
+
+      <div class="space-y-2.5">
+        <button onclick="confirmarAgregarAlCarrito(false)" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white p-3.5 rounded-xl font-bold text-xs transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">🍽️ Para Comer Aquí</span>
+          <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Sin recargo</span>
+        </button>
+
+        <button onclick="confirmarAgregarAlCarrito(true)" class="w-full bg-slate-700 hover:bg-slate-600 border border-amber-500/40 text-amber-300 p-3.5 rounded-xl font-bold text-xs transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">🛍️ Para Llevar</span>
+          <span class="text-[10px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded">+ $1.000 COP empaque</span>
+        </button>
+      </div>
+
+      <button onclick="cerrarModalTipoPedido()" class="w-full text-slate-400 hover:text-slate-200 text-xs text-center pt-1 font-semibold block">
+        Cancelar
+      </button>
+    </div>
+  </div>
 
   <!-- MODAL / VENTANA EMERGENTE DEL CARRITO (Ver, editar y borrar platos) -->
   <div id="modal-carrito" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
@@ -166,6 +192,7 @@
     let carrito = [];
     let menuCompleto = [];
     let categoriaSeleccionada = 'sencillos'; // Pestaña por defecto
+    let platoTemporalSeleccionado = null;
 
     // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
     const params = new URLSearchParams(window.location.search);
@@ -228,15 +255,20 @@
             <p class="text-xs text-slate-400 mt-1">${plato.desc || 'Sin descripción'}</p>
           </div>
 
-          <div class="flex justify-between items-center pt-2 border-t border-slate-700/50">
-            <span class="font-extrabold text-emerald-400 text-sm">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</span>
-            ${
-              estaDisponible 
-                ? `<button onclick="agregarAlCarrito('${plato.id}', '${plato.nombre}',${plato.precio})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 flex items-center gap-1">
-                    <i class="fa-solid fa-plus"></i> Agregar
-                   </button>`
-                : `<span class="text-[11px] text-rose-400 font-semibold italic">Agotado</span>`
-            }
+          <div class="space-y-2 pt-2 border-t border-slate-700/50">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-emerald-400 text-sm">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</span>
+              ${
+                estaDisponible 
+                  ? `<button onclick="solicitarTipoPedido('${plato.id}', '${plato.nombre}',${plato.precio})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 flex items-center gap-1">
+                      <i class="fa-solid fa-plus"></i> Agregar
+                     </button>`
+                  : `<span class="text-[11px] text-rose-400 font-semibold italic">Agotado</span>`
+              }
+            </div>
+            <p class="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+              <i class="fa-solid fa-bag-shopping text-amber-400/80"></i> Para llevar: +$1.000 COP empaque
+            </p>
           </div>
         `;
         contenedorMenu.appendChild(card);
@@ -253,31 +285,59 @@
       renderizarMenu();
     };
 
-    // Lógica del Carrito Agrupado
-    window.agregarAlCarrito = function(id, nombre, precio) {
-      const existe = carrito.find(item => item.id === id);
+    // Modal para Elegir "Comer Aquí" o "Para Llevar"
+    window.solicitarTipoPedido = function(id, nombre, precio) {
+      platoTemporalSeleccionado = { id, nombre, precio };
+      document.getElementById("modal-tipo-titulo").textContent = nombre;
+      document.getElementById("modal-tipo-pedido").classList.remove("hidden");
+    };
+
+    window.cerrarModalTipoPedido = function() {
+      document.getElementById("modal-tipo-pedido").classList.add("hidden");
+      platoTemporalSeleccionado = null;
+    };
+
+    window.confirmarAgregarAlCarrito = function(esParaLlevar) {
+      if (!platoTemporalSeleccionado) return;
+
+      const { id, nombre, precio } = platoTemporalSeleccionado;
+      const recargo = esParaLlevar ? 1000 : 0;
+      const precioFinal = precio + recargo;
+      const etiquetaLlevar = esParaLlevar ? " (Para Llevar)" : " (Comer Aquí)";
+      const itemKey = `${id}_${esParaLlevar ? 'llevar' : 'aqui'}`;
+
+      const existe = carrito.find(item => item.key === itemKey);
       if (existe) {
         existe.cantidad += 1;
       } else {
-        carrito.push({ id, nombre, precio, cantidad: 1 });
+        carrito.push({
+          key: itemKey,
+          id,
+          nombre: `${nombre}${etiquetaLlevar}`,
+          precio: precioFinal,
+          esParaLlevar,
+          cantidad: 1
+        });
       }
+
+      cerrarModalTipoPedido();
       actualizarBarraCarrito();
     };
 
-    window.cambiarCantidad = function(id, cambio) {
-      const item = carrito.find(i => i.id === id);
+    window.cambiarCantidad = function(key, cambio) {
+      const item = carrito.find(i => i.key === key);
       if (item) {
         item.cantidad += cambio;
         if (item.cantidad <= 0) {
-          carrito = carrito.filter(i => i.id !== id);
+          carrito = carrito.filter(i => i.key !== key);
         }
       }
       actualizarBarraCarrito();
       renderizarModalCarrito();
     };
 
-    window.eliminarDelCarrito = function(id) {
-      carrito = carrito.filter(i => i.id !== id);
+    window.eliminarDelCarrito = function(key) {
+      carrito = carrito.filter(i => i.key !== key);
       actualizarBarraCarrito();
       renderizarModalCarrito();
     };
@@ -324,16 +384,18 @@
         row.innerHTML = `
           <div class="overflow-hidden space-y-0.5">
             <h4 class="font-bold text-xs text-white truncate">${item.nombre}</h4>
-            <p class="text-[11px] text-slate-400">Plato seleccionado</p>
+            <p class="text-[11px] ${item.esParaLlevar ? 'text-amber-400' : 'text-emerald-400'} font-medium">
+              ${item.esParaLlevar ? '🛍️ Para Llevar (+ $1.000 empaque)' : '🍽️ Para Comer Aquí'}
+            </p>
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
             <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 gap-2">
-              <button onclick="cambiarCantidad('${item.id}', -1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold text-slate-200 flex items-center justify-center">-</button>
+              <button onclick="cambiarCantidad('${item.key}', -1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold text-slate-200 flex items-center justify-center">-</button>
               <span class="text-xs font-bold text-white px-1">${item.cantidad}</span>
-              <button onclick="cambiarCantidad('${item.id}', 1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold text-slate-200 flex items-center justify-center">+</button>
+              <button onclick="cambiarCantidad('${item.key}', 1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold text-slate-200 flex items-center justify-center">+</button>
             </div>
-            <button onclick="eliminarDelCarrito('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-950/40 border border-rose-900/30 text-xs" title="Borrar este plato">
+            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-950/40 border border-rose-900/30 text-xs" title="Borrar este plato">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
