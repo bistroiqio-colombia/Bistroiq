@@ -20,7 +20,7 @@
       <p class="text-xs text-slate-400">Sistema Inteligente de Gestión de Restaurantes</p>
     </div>
 
-    <!-- Módulos con el diseño original y seguridad por PIN dinámico -->
+    <!-- Módulos -->
     <div class="space-y-3.5 text-left">
 
       <!-- Soy Cliente (Verde - Libre sin PIN) -->
@@ -37,8 +37,8 @@
         <i class="fa-solid fa-chevron-right text-emerald-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
       </a>
 
-      <!-- Soy Mesera (Azul - Protegido por PIN) -->
-      <button onclick="verificarAcceso('mesera.html', 'mesera')" class="w-full bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group text-white cursor-pointer text-left">
+      <!-- Soy Mesera (Azul - Acceso libre para demostración) -->
+      <a href="mesera.html" class="bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
         <div class="flex items-center gap-3.5">
           <div class="bg-black/10 p-3 rounded-xl text-white">
             <i class="fa-solid fa-user-tie text-lg" aria-hidden="true"></i>
@@ -48,14 +48,11 @@
             <p class="text-xs text-indigo-100">Gestionar mesas y comandas</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-lock text-indigo-200 text-xs" aria-hidden="true"></i>
-          <i class="fa-solid fa-chevron-right text-indigo-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
-        </div>
-      </button>
+        <i class="fa-solid fa-chevron-right text-indigo-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+      </a>
 
-      <!-- Soy Cocina (Naranja - Protegido por PIN) -->
-      <button onclick="verificarAcceso('Cocina.html', 'cocina')" class="w-full bg-amber-600 hover:bg-amber-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group text-white cursor-pointer text-left">
+      <!-- Soy Cocina (Naranja - Acceso libre para demostración) -->
+      <a href="Cocina.html" class="bg-amber-600 hover:bg-amber-500 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group block text-white">
         <div class="flex items-center gap-3.5">
           <div class="bg-black/10 p-3 rounded-xl text-white">
             <i class="fa-solid fa-fire text-lg" aria-hidden="true"></i>
@@ -65,11 +62,8 @@
             <p class="text-xs text-amber-100">Pantalla de pedidos e insumos</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-lock text-amber-200 text-xs" aria-hidden="true"></i>
-          <i class="fa-solid fa-chevron-right text-amber-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
-        </div>
-      </button>
+        <i class="fa-solid fa-chevron-right text-amber-200 group-hover:translate-x-1 transition" aria-hidden="true"></i>
+      </a>
 
       <!-- Administrador / Caja (Oscuro - Protegido por PIN) -->
       <button onclick="verificarAcceso('administrador.html', 'admin')" class="w-full bg-slate-800 hover:bg-slate-700/80 border border-slate-700 p-4 rounded-2xl flex items-center justify-between shadow-lg transition group text-white cursor-pointer text-left">
@@ -96,7 +90,7 @@
 
   </div>
 
-  <!-- Lógica de Verificación de PIN conectada a Firebase -->
+  <!-- Lógica de Verificación de PIN solo para Administrador con Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -115,7 +109,7 @@
     const db = getFirestore(app);
 
     window.verificarAcceso = async function(paginaDestino, tipoModulo) {
-      const pinIngresado = prompt(`🔒 Ingrese el PIN de seguridad para acceder:`);
+      const pinIngresado = prompt(`🔒 Ingrese el PIN de seguridad del Administrador:`);
       
       if (pinIngresado === null) return; // Si el usuario cancela
 
@@ -123,29 +117,21 @@
         const docRef = doc(db, "configuracion", "claves_sistema");
         const docSnap = await getDoc(docRef);
 
-        // PINs por defecto maestros por si acaso
-        let pinEsperado = "9999";
-        let nombreModulo = "Administrador";
-
-        if (tipoModulo === 'mesera') {
-          pinEsperado = docSnap.exists() && docSnap.data().pinMesera ? docSnap.data().pinMesera : "1234";
-          nombreModulo = "Mesera";
-        } else if (tipoModulo === 'cocina') {
-          pinEsperado = docSnap.exists() && docSnap.data().pinCocina ? docSnap.data().pinCocina : "5678";
-          nombreModulo = "Cocina";
-        } else if (tipoModulo === 'admin') {
-          pinEsperado = docSnap.exists() && docSnap.data().pinAdmin ? docSnap.data().pinAdmin : "9999";
-          nombreModulo = "Administrador";
-        }
+        let pinEsperado = docSnap.exists() && docSnap.data().pinAdmin ? docSnap.data().pinAdmin : "9999";
 
         if (pinIngresado.trim() === pinEsperado) {
           window.location.href = paginaDestino;
         } else {
-          alert(`❌ PIN incorrecto para el módulo de ${nombreModulo}. Acceso denegado.`);
+          alert(`❌ PIN incorrecto. Acceso denegado al módulo de Administrador.`);
         }
       } catch (e) {
         console.error("Error verificando PIN:", e);
-        alert("⚠️ Error de conexión al validar el PIN. Intente nuevamente.");
+        // Respaldo offline por si falla Firebase en la demo
+        if (pinIngresado.trim() === "9999") {
+          window.location.href = paginaDestino;
+        } else {
+          alert("⚠️ PIN incorrecto o error de conexión.");
+        }
       }
     };
   </script>
