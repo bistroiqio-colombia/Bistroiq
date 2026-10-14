@@ -31,17 +31,36 @@
   </header>
 
   <!-- Contenido Principal -->
-  <main class="flex-1 p-4 max-w-5xl mx-auto w-full space-y-4">
-    <div class="flex justify-between items-center pb-2 border-b border-slate-700">
-      <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
-        <i class="fa-solid fa-list-check text-amber-400"></i> Comandas Pendientes por Preparar
-      </h2>
-      <span id="contador-comandas" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Pendientes</span>
+  <main class="flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
+    
+    <!-- Sección de Comandas Pendientes -->
+    <div class="space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-amber-400"></i> Comandas Pendientes por Preparar
+        </h2>
+        <span id="contador-comandas" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Pendientes</span>
+      </div>
+
+      <div id="contenedor-comandas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="text-center text-slate-400 text-sm py-8 col-span-full">Esperando nuevas comandas en tiempo real...</div>
+      </div>
     </div>
 
-    <div id="contenedor-comandas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div class="text-center text-slate-400 text-sm py-8 col-span-full">Esperando nuevas comandas en tiempo real...</div>
-    </div>
+    <!-- Sección de Control de Menú (Platos Disponibles / Agotados) -->
+    <section class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-utensils text-indigo-400"></i> Control de Menú (Platos Disponibles / Agotados)
+        </h2>
+        <span class="text-xs text-slate-400">Pulsa para cambiar estado</span>
+      </div>
+
+      <div id="contenedor-control-menu" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="text-center text-slate-400 text-xs py-4 col-span-full">Cargando inventario de platillos...</div>
+      </div>
+    </section>
+
   </main>
 
   <script type="module">
@@ -128,7 +147,7 @@
       }
     }
 
-    // Listener Firebase en Tiempo Real
+    // 1. Listener Firebase en Tiempo Real para Comandas Pendientes
     const qComandas = query(collection(db, "pedidos_cocina"), where("estado", "==", "PENDIENTE"));
     onSnapshot(qComandas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-comandas");
@@ -136,7 +155,6 @@
 
       contador.textContent = `${snapshot.size} Pendientes`;
 
-      // Si entra un nuevo pedido después de la carga inicial
       if (!primeraCarga && snapshot.docChanges().some(change => change.type === 'added')) {
         reproducirAlarmaCocina();
       }
@@ -151,7 +169,6 @@
       snapshot.forEach((docSnap) => {
         const item = docSnap.data();
         const id = docSnap.id;
-        // Escapar comillas simples para evitar errores de sintaxis en la llamada de onclick
         const resumenLimpio = (item.resumen || '').replace(/'/g, "\\'");
 
         const card = document.createElement("div");
@@ -171,6 +188,59 @@
         contenedor.appendChild(card);
       });
     });
+
+    // 2. Listener Firebase para el Inventario / Menú (Control de Agotados)
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      const contenedorMenu = document.getElementById("contenedor-control-menu");
+
+      if (snapshot.empty) {
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay productos registrados en el inventario.</div>`;
+        return;
+      }
+
+      contenedorMenu.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const plato = docSnap.data();
+        const id = docSnap.id;
+        const disponible = plato.disponible !== undefined ? plato.disponible : true;
+
+        const card = document.createElement("div");
+        card.className = `bg-slate-900 border rounded-xl p-3 flex justify-between items-center space-x-2 transition w-full ${
+          disponible ? 'border-slate-700 shadow-sm' : 'border-rose-900/50 bg-rose-950/10'
+        }`;
+
+        card.innerHTML = `
+          <div class="space-y-0.5 overflow-hidden min-w-0">
+            <h3 class="font-bold text-xs text-white truncate">${plato.nombre}</h3>
+            <p class="text-[10px] font-semibold ${disponible ? 'text-emerald-400' : 'text-rose-400'}">
+              ${disponible ? '● Disponible' : '✕ Agotado'}
+            </p>
+          </div>
+          <div class="shrink-0">
+            <button onclick="toggleDisponibilidad('${id}', ${disponible})" class="${
+              disponible 
+                ? 'bg-rose-600 hover:bg-rose-500 text-white' 
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+            } px-3 py-1.5 rounded-lg text-xs font-bold transition active:scale-95 shadow">
+              ${disponible ? 'Marcar Agotado' : 'Marcar Disponible'}
+            </button>
+          </div>
+        `;
+        contenedorMenu.appendChild(card);
+      });
+    });
+
+    // Función para alternar disponibilidad del plato
+    window.toggleDisponibilidad = async function(id, estadoActual) {
+      try {
+        await updateDoc(doc(db, "inventario_insumos", id), {
+          disponible: !estadoActual
+        });
+      } catch (e) {
+        console.error("Error al actualizar disponibilidad:", e);
+        alert("⚠️ No se pudo actualizar el estado del plato.");
+      }
+    };
 
     window.marcarComandaLista = async function(id, mesa, resumen) {
       try {
