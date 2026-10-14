@@ -42,7 +42,7 @@
       </div>
       <div class="text-xs text-slate-300 leading-relaxed">
         <p class="font-bold text-white mb-0.5">¿Cómo hacer tu pedido?</p>
-        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista, cambiar cantidades o <span class="text-rose-400 font-bold">borrar ítems</span>.
+        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista, cambiar cantidades o <span class="text-rose-400 font-bold">borrar platos</span>.
       </div>
     </div>
 
@@ -55,12 +55,9 @@
         <span class="text-xs text-slate-400" id="contador-platos-filtrados">Cargando...</span>
       </div>
 
-      <!-- Barra de Pestañas (Tabs) Actualizadas -->
+      <!-- Barra de Pestañas (Inicia en Sencillos) -->
       <div class="flex gap-2 overflow-x-auto no-scrollbar py-1 text-xs font-bold text-slate-300">
-        <button onclick="filtrarCategoria('todos', this)" class="btn-cat bg-emerald-600 text-white px-4 py-2 rounded-xl shrink-0 transition shadow-sm border border-emerald-500/30">
-          ✨ Todos
-        </button>
-        <button onclick="filtrarCategoria('sencillos', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
+        <button onclick="filtrarCategoria('sencillos', this)" class="btn-cat bg-emerald-600 text-white px-4 py-2 rounded-xl shrink-0 transition shadow-sm border border-emerald-500/30 font-bold">
           🍲 Sencillos
         </button>
         <button onclick="filtrarCategoria('asados', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
@@ -82,12 +79,12 @@
 
   </main>
 
-  <!-- Barra Flotante Inferior de Pedido / Carrito Mejorada -->
+  <!-- Barra Flotante Inferior de Pedido / Carrito (Sin montos de dinero) -->
   <footer id="barra-pedido-flotante" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-3.5 shadow-2xl z-40 hidden">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
       
       <!-- Zona para abrir el detalle y eliminar platos -->
-      <button onclick="abrirModalCarrito()" class="flex items-center gap-2.5 bg-slate-900/90 hover:bg-slate-900 border border-emerald-500/40 px-3.5 py-2 rounded-2xl text-left transition group active:scale-95">
+      <button onclick="abrirModalCarrito()" class="flex items-center gap-2.5 bg-slate-900/90 hover:bg-slate-900 border border-emerald-500/40 px-3.5 py-2.5 rounded-2xl text-left transition group active:scale-95">
         <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-xl">
           <i class="fa-solid fa-cart-shopping text-sm"></i>
         </div>
@@ -95,7 +92,7 @@
           <p class="text-[11px] font-bold text-emerald-400 flex items-center gap-1 group-hover:underline">
             Ver / Editar mi Pedido <i class="fa-solid fa-chevron-up text-[9px] animate-bounce"></i>
           </p>
-          <p class="text-xs font-black text-white" id="total-pedido-flotante">$ 0 COP (0 items)</p>
+          <p class="text-xs font-black text-white" id="total-pedido-flotante">0 platos seleccionados</p>
         </div>
       </button>
 
@@ -107,7 +104,7 @@
     </div>
   </footer>
 
-  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO (Ver, editar y eliminar platos) -->
+  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO (Ver, editar y borrar platos) -->
   <div id="modal-carrito" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col">
       
@@ -117,25 +114,20 @@
           <h3 class="font-bold text-white text-base flex items-center gap-2">
             <i class="fa-solid fa-cart-shopping text-emerald-400"></i> Tu Pedido Seleccionado
           </h3>
-          <p class="text-[11px] text-slate-400">Ajusta cantidades o elimina platillos si te equivocaste.</p>
+          <p class="text-[11px] text-slate-400">Ajusta cantidades o borra platos si te equivocaste.</p>
         </div>
         <button onclick="cerrarModalCarrito()" class="text-slate-400 hover:text-white p-1 rounded-lg text-lg">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <!-- Lista de Ítems Agregados con Botones para Modificar / Eliminar -->
+      <!-- Lista de Ítems Agregados con Botones para Modificar / Borrar -->
       <div id="lista-items-carrito" class="space-y-3 overflow-y-auto flex-1 pr-1">
         <!-- Ítems dinámicos aquí -->
       </div>
 
-      <!-- Resumen y Confirmación -->
+      <!-- Acciones de Cierre -->
       <div class="border-t border-slate-700 pt-3 space-y-3 shrink-0">
-        <div class="flex justify-between items-center text-sm font-bold text-white">
-          <span>Total acumulado:</span>
-          <span class="text-emerald-400 text-lg" id="modal-total-pago">$ 0 COP</span>
-        </div>
-
         <div class="grid grid-cols-2 gap-2">
           <button onclick="cerrarModalCarrito()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl text-xs font-bold transition">
             Seguir Pidiendo
@@ -173,7 +165,7 @@
 
     let carrito = [];
     let menuCompleto = [];
-    let categoriaSeleccionada = 'todos';
+    let categoriaSeleccionada = 'sencillos'; // Pestaña por defecto
 
     // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
     const params = new URLSearchParams(window.location.search);
@@ -195,11 +187,12 @@
       const contadorLabel = document.getElementById("contador-platos-filtrados");
 
       const platosFiltrados = menuCompleto.filter(plato => {
-        if (categoriaSeleccionada === 'todos') return true;
         const cat = (plato.categoria || '').toLowerCase();
         const nom = (plato.nombre || '').toLowerCase();
         
-        if (categoriaSeleccionada === 'sencillos') return cat.includes('sencillo') || nom.includes('sencillo') || nom.includes('sopa') || nom.includes('menu del dia') || nom.includes('albondiga') || nom.includes('higado') || nom.includes('cerdo');
+        if (categoriaSeleccionada === 'sencillos') {
+          return cat.includes('sencillo') || nom.includes('albondiga') || nom.includes('cerdo') || nom.includes('higado') || nom.includes('sopa') || nom.includes('corriente') || (!cat && !nom.includes('asado') && !nom.includes('jugo') && !nom.includes('gaseosa') && !nom.includes('papas'));
+        }
         if (categoriaSeleccionada === 'asados') return cat.includes('asado') || nom.includes('asado') || nom.includes('carne') || nom.includes('pollo') || nom.includes('churrasco');
         if (categoriaSeleccionada === 'bebidas') return cat.includes('bebida') || nom.includes('jugo') || nom.includes('gaseosa') || nom.includes('cerveza') || nom.includes('agua');
         if (categoriaSeleccionada === 'porciones') return cat.includes('porcion') || nom.includes('papas') || nom.includes('patacones') || nom.includes('yuca') || nom.includes('arroz');
@@ -296,8 +289,7 @@
       const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
       if (totalItems > 0) {
-        const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-        totalTexto.textContent = `$ ${total.toLocaleString("es-CO")} COP (${totalItems} items)`;
+        totalTexto.textContent = `${totalItems} ${totalItems === 1 ? 'plato seleccionado' : 'platos seleccionados'}`;
         barra.classList.remove("hidden");
       } else {
         barra.classList.add("hidden");
@@ -318,27 +310,21 @@
 
     function renderizarModalCarrito() {
       const lista = document.getElementById("lista-items-carrito");
-      const modalTotal = document.getElementById("modal-total-pago");
 
       if (carrito.length === 0) {
         lista.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Tu carrito está vacío.</div>`;
-        modalTotal.textContent = "$ 0 COP";
         return;
       }
 
       lista.innerHTML = "";
-      let total = 0;
 
       carrito.forEach((item) => {
-        const subtotal = item.precio * item.cantidad;
-        total += subtotal;
-
         const row = document.createElement("div");
         row.className = "bg-slate-900/80 p-3 rounded-xl border border-slate-700/80 flex items-center justify-between gap-2";
         row.innerHTML = `
           <div class="overflow-hidden space-y-0.5">
             <h4 class="font-bold text-xs text-white truncate">${item.nombre}</h4>
-            <p class="text-[11px] text-emerald-400 font-semibold">$ ${subtotal.toLocaleString("es-CO")} COP</p>
+            <p class="text-[11px] text-slate-400">Plato seleccionado</p>
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
@@ -354,8 +340,6 @@
         `;
         lista.appendChild(row);
       });
-
-      modalTotal.textContent = `$ ${total.toLocaleString("es-CO")} COP`;
     }
 
     // Confirmar Enviar Pedido a Cocina
