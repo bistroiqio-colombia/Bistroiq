@@ -6,61 +6,126 @@
   <title>BistroIQ - Menú Digital</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Ocultar barra de desplazamiento manteniendo la funcionalidad */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-24">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-28">
 
   <!-- Encabezado Cliente -->
-  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
+  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
       <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-500/30">
         <i class="fa-solid fa-utensils text-emerald-400 text-xl" aria-hidden="true"></i>
       </div>
       <div>
         <h1 class="font-bold text-lg text-white">BistroIQ Menu</h1>
-        <p class="text-xs text-emerald-400 font-medium flex items-center gap-1">
+        <p class="text-xs text-emerald-400 font-medium flex items-center gap-1" id="label-mesa-cliente">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Mesa #3 • Pedido en Línea
         </p>
       </div>
     </div>
-    <button onclick="solicitarMesera()" class="bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+    <button onclick="solicitarMesera()" class="bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
       <i class="fa-solid fa-bell" aria-hidden="true"></i> Llama a Mesera
     </button>
   </header>
 
   <!-- Contenido Principal -->
-  <main class="flex-1 p-4 max-w-3xl mx-auto w-full space-y-6">
+  <main class="flex-1 p-4 max-w-3xl mx-auto w-full space-y-5">
 
-    <!-- Sección de Categorías / Catálogo -->
-    <section class="space-y-4">
+    <!-- Categorías / Filtros Horizontalmente Deslizables -->
+    <div class="space-y-2">
       <div class="flex justify-between items-center">
         <h2 class="font-bold text-slate-200 text-base flex items-center gap-2">
           <i class="fa-solid fa-book-open text-emerald-400" aria-hidden="true"></i> Nuestro Menú Dinámico
         </h2>
-        <span class="text-xs text-slate-400">Platos disponibles</span>
+        <span class="text-xs text-slate-400" id="contador-platos-filtrados">Cargando...</span>
       </div>
 
-      <!-- Contenedor Dinámico del Menú -->
-      <div id="contenedor-menu-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="text-center text-slate-400 text-sm py-8 col-span-full">Cargando nuestro menú dinámico...</div>
+      <!-- Barra de Pestañas (Tabs) -->
+      <div class="flex gap-2 overflow-x-auto no-scrollbar py-1 text-xs font-bold text-slate-300">
+        <button onclick="filtrarCategoria('todos', this)" class="btn-cat bg-emerald-600 text-white px-4 py-2 rounded-xl shrink-0 transition shadow-sm border border-emerald-500/30">
+          ✨ Todos
+        </button>
+        <button onclick="filtrarCategoria('asados', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
+          🥩 Asados
+        </button>
+        <button onclick="filtrarCategoria('bebidas', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
+          🥤 Bebidas
+        </button>
+        <button onclick="filtrarCategoria('postres', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
+          🍰 Postres
+        </button>
+        <button onclick="filtrarCategoria('porciones', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
+          🍟 Porciones
+        </button>
       </div>
-    </section>
+    </div>
+
+    <!-- Contenedor Dinámico del Menú -->
+    <div id="contenedor-menu-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="text-center text-slate-400 text-sm py-8 col-span-full">Cargando nuestro menú dinámico...</div>
+    </div>
 
   </main>
 
   <!-- Barra Flotante Inferior de Pedido / Carrito -->
   <footer id="barra-pedido-flotante" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 shadow-2xl z-40 hidden">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
-      <div>
-        <p class="text-xs text-slate-400">Total acumulado</p>
+      <div onclick="abrirModalCarrito()" class="cursor-pointer group">
+        <p class="text-xs text-slate-400 group-hover:text-emerald-400 transition flex items-center gap-1">
+          Total acumulado <i class="fa-solid fa-chevron-up text-[10px]"></i>
+        </p>
         <p class="text-lg font-black text-emerald-400" id="total-pedido-flotante">$ 0 COP</p>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="verResumenPedido()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-lg active:scale-95 flex items-center gap-2">
+        <button onclick="abrirModalCarrito()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-lg active:scale-95 flex items-center gap-2">
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar Pedido a Cocina
         </button>
       </div>
     </div>
   </footer>
+
+  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO (Para ver, editar y eliminar platos) -->
+  <div id="modal-carrito" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 space-y-4 shadow-2xl max-h-[85vh] flex flex-col">
+      
+      <!-- Encabezado del Modal -->
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3 shrink-0">
+        <h3 class="font-bold text-white text-base flex items-center gap-2">
+          <i class="fa-solid fa-cart-shopping text-emerald-400"></i> Tu Pedido Seleccionado
+        </h3>
+        <button onclick="cerrarModalCarrito()" class="text-slate-400 hover:text-white p-1 rounded-lg text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Lista de Ítems Agregados con Botones para Modificar / Eliminar -->
+      <div id="lista-items-carrito" class="space-y-3 overflow-y-auto flex-1 pr-1">
+        <!-- Ítems dinámicos aquí -->
+      </div>
+
+      <!-- Resumen y Confirmación -->
+      <div class="border-t border-slate-700 pt-3 space-y-3 shrink-0">
+        <div class="flex justify-between items-center text-sm font-bold text-white">
+          <span>Total a pagar:</span>
+          <span class="text-emerald-400 text-lg" id="modal-total-pago">$ 0 COP</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="cerrarModalCarrito()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl text-xs font-bold transition">
+            Seguir Pidiendo
+          </button>
+          <button onclick="confirmarEnviarCocina()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl text-xs font-bold transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-check"></i> Confirmar Pedido
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Script Firebase y Lógica Integrada -->
   <script type="module">
@@ -69,9 +134,7 @@
       getFirestore, 
       collection, 
       onSnapshot, 
-      addDoc,
-      doc,
-      setDoc
+      addDoc 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -87,20 +150,49 @@
     const db = getFirestore(app);
 
     let carrito = [];
+    let menuCompleto = [];
+    let categoriaSeleccionada = 'todos';
+
+    // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
+    const params = new URLSearchParams(window.location.search);
+    const mesaParam = params.get('mesa') || "Mesa #3";
+    document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
 
     // Escuchar menú dinámico de "inventario_insumos"
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
-      const contenedorMenu = document.getElementById("contenedor-menu-cliente");
+      menuCompleto = [];
+      snapshot.forEach((docSnap) => {
+        menuCompleto.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      renderizarMenu();
+    });
 
-      if (snapshot.empty) {
-        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-sm py-8 col-span-full">El menú aún no se ha cargado. ¡Consulta con el personal!</div>`;
+    // Función para renderizar el menú aplicando el filtro de categoría
+    function renderizarMenu() {
+      const contenedorMenu = document.getElementById("contenedor-menu-cliente");
+      const contadorLabel = document.getElementById("contador-platos-filtrados");
+
+      const platosFiltrados = menuCompleto.filter(plato => {
+        if (categoriaSeleccionada === 'todos') return true;
+        const cat = (plato.categoria || '').toLowerCase();
+        const nom = (plato.nombre || '').toLowerCase();
+        
+        if (categoriaSeleccionada === 'asados') return cat.includes('asado') || nom.includes('asado') || nom.includes('carne') || nom.includes('pollo') || nom.includes('cerdo') || nom.includes('higado') || nom.includes('albondiga');
+        if (categoriaSeleccionada === 'bebidas') return cat.includes('bebida') || nom.includes('jugo') || nom.includes('gaseosa') || nom.includes('cerveza') || nom.includes('agua');
+        if (categoriaSeleccionada === 'postres') return cat.includes('postre') || nom.includes('helado') || nom.includes('torta') || nom.includes('flan');
+        if (categoriaSeleccionada === 'porciones') return cat.includes('porcion') || nom.includes('papas') || nom.includes('patacones') || nom.includes('yuca') || nom.includes('arroz');
+        return true;
+      });
+
+      contadorLabel.textContent = `${platosFiltrados.length} disponibles`;
+
+      if (platosFiltrados.length === 0) {
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-sm py-8 col-span-full">No hay platos disponibles en esta categoría.</div>`;
         return;
       }
 
       contenedorMenu.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const plato = docSnap.data();
-        const id = docSnap.id;
+      platosFiltrados.forEach((plato) => {
         const estaDisponible = plato.disponible !== undefined ? plato.disponible : true;
 
         const card = document.createElement("div");
@@ -125,7 +217,7 @@
             <span class="font-extrabold text-emerald-400 text-sm">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</span>
             ${
               estaDisponible 
-                ? `<button onclick="agregarAlCarrito('${id}', '${plato.nombre}',${plato.precio})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 flex items-center gap-1">
+                ? `<button onclick="agregarAlCarrito('${plato.id}', '${plato.nombre}',${plato.precio})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 flex items-center gap-1">
                     <i class="fa-solid fa-plus"></i> Agregar
                    </button>`
                 : `<span class="text-[11px] text-rose-400 font-semibold italic">Agotado</span>`
@@ -134,57 +226,147 @@
         `;
         contenedorMenu.appendChild(card);
       });
-    });
+    }
 
+    // Filtrar por Pestaña
+    window.filtrarCategoria = function(cat, elemento) {
+      categoriaSeleccionada = cat;
+      document.querySelectorAll('.btn-cat').forEach(btn => {
+        btn.className = 'btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-4 py-2 rounded-xl shrink-0 transition';
+      });
+      elemento.className = 'btn-cat bg-emerald-600 text-white border border-emerald-500/30 px-4 py-2 rounded-xl shrink-0 transition shadow-sm font-bold';
+      renderizarMenu();
+    };
+
+    // Lógica del Carrito Agrupado
     window.agregarAlCarrito = function(id, nombre, precio) {
-      carrito.push({ id, nombre, precio });
+      const existe = carrito.find(item => item.id === id);
+      if (existe) {
+        existe.cantidad += 1;
+      } else {
+        carrito.push({ id, nombre, precio, cantidad: 1 });
+      }
       actualizarBarraCarrito();
+    };
+
+    window.cambiarCantidad = function(id, cambio) {
+      const item = carrito.find(i => i.id === id);
+      if (item) {
+        item.cantidad += cambio;
+        if (item.cantidad <= 0) {
+          carrito = carrito.filter(i => i.id !== id);
+        }
+      }
+      actualizarBarraCarrito();
+      renderizarModalCarrito();
+    };
+
+    window.eliminarDelCarrito = function(id) {
+      carrito = carrito.filter(i => i.id !== id);
+      actualizarBarraCarrito();
+      renderizarModalCarrito();
     };
 
     function actualizarBarraCarrito() {
       const barra = document.getElementById("barra-pedido-flotante");
       const totalTexto = document.getElementById("total-pedido-flotante");
 
-      if (carrito.length > 0) {
-        const total = carrito.reduce((acc, item) => acc + item.precio, 0);
-        totalTexto.textContent = `$ ${total.toLocaleString("es-CO")} COP (${carrito.length} items)`;
+      const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+
+      if (totalItems > 0) {
+        const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+        totalTexto.textContent = `$ ${total.toLocaleString("es-CO")} COP (${totalItems} items)`;
         barra.classList.remove("hidden");
       } else {
         barra.classList.add("hidden");
+        cerrarModalCarrito();
       }
     }
 
-    window.verResumenPedido = async function() {
+    // Modal Carrito
+    window.abrirModalCarrito = function() {
+      if (carrito.length === 0) return;
+      renderizarModalCarrito();
+      document.getElementById("modal-carrito").classList.remove("hidden");
+    };
+
+    window.cerrarModalCarrito = function() {
+      document.getElementById("modal-carrito").classList.add("hidden");
+    };
+
+    function renderizarModalCarrito() {
+      const lista = document.getElementById("lista-items-carrito");
+      const modalTotal = document.getElementById("modal-total-pago");
+
+      if (carrito.length === 0) {
+        lista.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Tu carrito está vacío.</div>`;
+        modalTotal.textContent = "$ 0 COP";
+        return;
+      }
+
+      lista.innerHTML = "";
+      let total = 0;
+
+      carrito.forEach((item) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        const row = document.createElement("div");
+        row.className = "bg-slate-900/80 p-3 rounded-xl border border-slate-700/80 flex items-center justify-between gap-2";
+        row.innerHTML = `
+          <div class="overflow-hidden space-y-0.5">
+            <h4 class="font-bold text-xs text-white truncate">${item.nombre}</h4>
+            <p class="text-[11px] text-emerald-400 font-semibold">$ ${subtotal.toLocaleString("es-CO")} COP</p>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 gap-2">
+              <button onclick="cambiarCantidad('${item.id}', -1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold text-slate-200 flex items-center justify-center">-</button>
+              <span class="text-xs font-bold text-white px-1">${item.cantidad}</span>
+              <button onclick="cambiarCantidad('${item.id}', 1)" class="w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold text-slate-200 flex items-center justify-center">+</button>
+            </div>
+            <button onclick="eliminarDelCarrito('${item.id}')" class="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-950/40 border border-rose-900/30 text-xs">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        `;
+        lista.appendChild(row);
+      });
+
+      modalTotal.textContent = `$ ${total.toLocaleString("es-CO")} COP`;
+    }
+
+    // Confirmar Enviar Pedido a Cocina
+    window.confirmarEnviarCocina = async function() {
       if (carrito.length === 0) return;
 
-      const resumen = carrito.map(i => i.nombre).join(", ");
-      const total = carrito.reduce((acc, item) => acc + item.precio, 0);
+      const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
+      const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
-      if (confirm(`¿Deseas enviar este pedido a la cocina?\n\nItems: ${resumen}\nTotal: $${total.toLocaleString("es-CO")} COP`)) {
-        try {
-          // Registrar pedido a la cocina
-          await addDoc(collection(db, "pedidos_cocina"), {
-            mesa: "Mesa #3",
-            comanda: Math.floor(100 + Math.random() * 900),
-            resumen: resumen,
-            estado: "PENDIENTE",
-            fecha: new Date().toISOString()
-          });
+      try {
+        await addDoc(collection(db, "pedidos_cocina"), {
+          mesa: mesaParam,
+          comanda: Math.floor(100 + Math.random() * 900),
+          resumen: resumen,
+          total: total,
+          estado: "PENDIENTE",
+          fecha: new Date().toISOString()
+        });
 
-          alert("🚀 ¡Pedido enviado a la cocina con éxito!");
-          carrito = [];
-          actualizarBarraCarrito();
-        } catch (e) {
-          console.error("Error enviando pedido:", e);
-          alert("⚠️ Hubo un detalle al enviar el pedido.");
-        }
+        alert("🚀 ¡Pedido enviado a la cocina con éxito!");
+        carrito = [];
+        actualizarBarraCarrito();
+        cerrarModalCarrito();
+      } catch (e) {
+        console.error("Error enviando pedido:", e);
+        alert("⚠️ Hubo un detalle al enviar el pedido.");
       }
     };
 
     window.solicitarMesera = async function() {
       try {
         await addDoc(collection(db, "alertas"), {
-          mesa: "Mesa #3",
+          mesa: mesaParam,
           tipo: "LLAMAR_MESERA",
           atendido: false,
           fecha: new Date().toISOString()
