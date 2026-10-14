@@ -24,7 +24,7 @@
         <p class="text-sm text-purple-300 font-bold">Control Centralizado • BistroIQ</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95" aria-label="Salir al inicio">
+    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95">
       <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
     </button>
   </header>
@@ -40,17 +40,17 @@
           <p class="text-2xl font-black text-emerald-400 mt-1" id="admin-ventas-totales">$ 0 COP</p>
         </div>
         <div class="bg-emerald-500/10 p-3.5 rounded-2xl border border-emerald-500/20">
-          <i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl" aria-hidden="true"></i>
+          <i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl"></i>
         </div>
       </div>
 
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-md">
         <div>
-          <p class="text-xs text-slate-300 font-bold uppercase tracking-wider">Transferencias (Nequi/DaviPlata)</p>
+          <p class="text-xs text-slate-300 font-bold uppercase tracking-wider">Transferencias Digitales</p>
           <p class="text-2xl font-black text-indigo-400 mt-1" id="admin-transferencias">$ 0 COP</p>
         </div>
         <div class="bg-indigo-500/10 p-3.5 rounded-2xl border border-indigo-500/20">
-          <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl" aria-hidden="true"></i>
+          <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl"></i>
         </div>
       </div>
 
@@ -60,45 +60,16 @@
           <p class="text-2xl font-black text-amber-400 mt-1" id="admin-efectivo">$ 0 COP</p>
         </div>
         <div class="bg-amber-500/10 p-3.5 rounded-2xl border border-amber-500/20">
-          <i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl" aria-hidden="true"></i>
+          <i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl"></i>
         </div>
       </div>
     </div>
-
-    <!-- Gestión de Seguridad y PINs de Acceso -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-700">
-        <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-key text-amber-400 text-lg" aria-hidden="true"></i> Gestión de Claves y PINs de Acceso
-        </h2>
-        <span class="text-xs text-amber-300 font-bold">Seguridad del Negocio</span>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="text-sm font-bold text-slate-200 block mb-1.5">PIN Administrador:</label>
-          <input type="text" id="pin-admin" placeholder="Ej. 9999" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-bold">
-        </div>
-        <div>
-          <label class="text-sm font-bold text-slate-200 block mb-1.5">PIN Cocina (KDS):</label>
-          <input type="text" id="pin-cocina" placeholder="Ej. 5678" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-bold">
-        </div>
-        <div>
-          <label class="text-sm font-bold text-slate-200 block mb-1.5">PIN Mesera:</label>
-          <input type="text" id="pin-mesera" placeholder="Ej. 1234" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-bold">
-        </div>
-      </div>
-
-      <button onclick="guardarPinesSistema()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-shield-halved text-base" aria-hidden="true"></i> Guardar Nuevos PINs en el Sistema
-      </button>
-    </section>
 
     <!-- Verificación Antifraude de Pagos -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-amber-500 text-lg" aria-hidden="true"></i> Verificación Antifraude de Cuentas
+          <i class="fa-solid fa-shield-halved text-amber-500 text-lg"></i> Verificación Antifraude de Cuentas
         </h2>
         <span id="contador-pagos" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-bold">0 Por Confirmar</span>
       </div>
@@ -108,11 +79,11 @@
       </div>
     </section>
 
-    <!-- Agregar Nuevo Plato al Menú Real -->
+    <!-- Publicar Nuevo Plato al Menú Real -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-circle-plus text-purple-400 text-lg" aria-hidden="true"></i> Publicar Nuevo Plato al Menú
+          <i class="fa-solid fa-circle-plus text-purple-400 text-lg"></i> Publicar Nuevo Plato al Menú
         </h2>
         <span class="text-xs text-purple-300 font-bold">Visibilidad Inmediata</span>
       </div>
@@ -144,58 +115,24 @@
         </div>
 
         <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cloud-arrow-up text-base" aria-hidden="true"></i> Guardar y Publicar Plato al Menú
+          <i class="fa-solid fa-cloud-arrow-up text-base"></i> Guardar y Publicar Plato al Menú
         </button>
       </form>
-    </section>
-
-    <!-- Catálogo Activo del Menú por Categorías -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-700 gap-2">
-        <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-tags text-indigo-400 text-lg" aria-hidden="true"></i> Gestión de Menú por Categorías
-        </h2>
-        <span id="contador-menu-admin" class="text-xs text-indigo-300 font-bold">0 Productos</span>
-      </div>
-
-      <!-- Pestañas de Categoría para Filtrar Administración -->
-      <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-1 text-sm font-bold">
-        <button onclick="filtrarCategoriaAdmin('todas', this)" class="btn-cat-admin bg-purple-600 text-white px-4 py-2 rounded-xl shrink-0 transition">
-          📋 Todas
-        </button>
-        <button onclick="filtrarCategoriaAdmin('sencillos', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🍲 Sencillos
-        </button>
-        <button onclick="filtrarCategoriaAdmin('asados', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🥩 Asados
-        </button>
-        <button onclick="filtrarCategoriaAdmin('bebidas', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🥤 Bebidas
-        </button>
-        <button onclick="filtrarCategoriaAdmin('porciones', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🍟 Porciones
-        </button>
-      </div>
-
-      <div id="contenedor-menu-admin" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-        <div class="text-center text-slate-300 text-sm py-4 col-span-full">Cargando menú en tiempo real...</div>
-      </div>
     </section>
 
     <!-- Cierre de Caja Diario -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row justify-between items-center gap-4">
       <div>
         <h3 class="font-bold text-white text-base">Cierre de Caja Diario</h3>
-        <p class="text-xs text-slate-300 mt-0.5">Finaliza la jornada, liquida los totales y deja los registros listos para el próximo turno.</p>
+        <p class="text-xs text-slate-300 mt-0.5">Finaliza la jornada, liquida los totales y deja los registros en $0 para el próximo turno.</p>
       </div>
       <button onclick="realizarCierreCaja()" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-3 rounded-xl text-sm font-bold transition active:scale-95 w-full sm:w-auto flex items-center justify-center gap-2 shrink-0">
-        <i class="fa-solid fa-lock text-base" aria-hidden="true"></i> Ejecutar Cierre de Caja
+        <i class="fa-solid fa-lock text-base"></i> Ejecutar Cierre de Caja
       </button>
     </section>
 
   </main>
 
-  <!-- Script Firebase Integrado -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -203,10 +140,8 @@
       collection, 
       onSnapshot, 
       doc, 
-      getDoc,
       updateDoc, 
       setDoc,
-      deleteDoc,
       query, 
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -223,53 +158,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let menuAdminCompleto = [];
-    let filtroCatAdmin = 'todas';
-
-    // Cargar PINs
-    async function cargarPinesActuales() {
-      try {
-        const docRef = doc(db, "configuracion", "claves_sistema");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("pin-admin").value = data.pinAdmin || "9999";
-          document.getElementById("pin-cocina").value = data.pinCocina || "5678";
-          document.getElementById("pin-mesera").value = data.pinMesera || "1234";
-        } else {
-          document.getElementById("pin-admin").value = "9999";
-          document.getElementById("pin-cocina").value = "5678";
-          document.getElementById("pin-mesera").value = "1234";
-        }
-      } catch (e) {
-        console.error("Error al cargar PINs:", e);
-      }
-    }
-    cargarPinesActuales();
-
-    window.guardarPinesSistema = async function() {
-      const pinAdmin = document.getElementById("pin-admin").value.trim();
-      const pinCocina = document.getElementById("pin-cocina").value.trim();
-      const pinMesera = document.getElementById("pin-mesera").value.trim();
-
-      if (!pinAdmin || !pinCocina || !pinMesera) {
-        alert("⚠️ Por favor completa todos los campos de PIN.");
-        return;
-      }
-
-      try {
-        await setDoc(doc(db, "configuracion", "claves_sistema"), {
-          pinAdmin,
-          pinCocina,
-          pinMesera
-        });
-        alert("🔒 ¡PINs de acceso guardados exitosamente!");
-      } catch (e) {
-        console.error("Error al guardar PINs:", e);
-      }
-    };
-
-    // Escuchar ventas para la caja
+    // Escuchar todas las alertas de pedir cuenta para sumar en la caja
     onSnapshot(collection(db, "alertas"), (snapshot) => {
       let totalVentas = 0;
       let totalEfectivo = 0;
@@ -277,7 +166,7 @@
 
       snapshot.forEach((docSnap) => {
         const alerta = docSnap.data();
-        if (alerta.tipo === "PEDIR_CUENTA" && alerta.atendido === true) {
+        if (alerta.tipo === "PEDIR_CUENTA") {
           const monto = Number(alerta.total || 0);
           totalVentas += monto;
           if (alerta.metodo === "EFECTIVO") {
@@ -297,12 +186,10 @@
     const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
-      const contador = document.getElementById("contador-pagos");
-      
-      contador.textContent = `${snapshot.size} Por Confirmar`;
+      document.getElementById("contador-pagos").textContent = `${snapshot.size} Por Confirmar`;
 
       if (snapshot.empty) {
-        contenedor.innerHTML = `<div class="text-center text-slate-300 text-sm py-4">No hay pagos pendientes de verificación en este momento.</div>`;
+        contenedor.innerHTML = `<div class="text-center text-slate-300 text-sm py-4">No hay pagos pendientes por verificar.</div>`;
         return;
       }
 
@@ -322,88 +209,15 @@
                 ${esEfectivo ? '💵 Efectivo' : '📲 Transferencia'}
               </span>
             </div>
-            <div class="text-xs text-slate-300">
-              Solicitud recibida. Confirma el cobro para ingresarlo al reporte de caja.
-            </div>
+            <p class="text-sm font-black text-emerald-400">Total: $${Number(pago.total || 0).toLocaleString("es-CO")} COP</p>
           </div>
-          <div class="flex gap-2">
-            <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition active:scale-95">
-              <i class="fa-solid fa-check mr-1" aria-hidden="true"></i> Confirmar Cobro
-            </button>
-          </div>
+          <button onclick="confirmarPago('${id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition active:scale-95">
+            <i class="fa-solid fa-check mr-1"></i> Confirmar Cobro
+          </button>
         `;
         contenedor.appendChild(card);
       });
     });
-
-    // Escuchar el menú dinámico
-    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
-      menuAdminCompleto = [];
-      snapshot.forEach((docSnap) => {
-        menuAdminCompleto.push({ id: docSnap.id, ...docSnap.data() });
-      });
-      renderizarMenuAdmin();
-    });
-
-    function renderizarMenuAdmin() {
-      const contenedorMenu = document.getElementById("contenedor-menu-admin");
-      const contadorMenu = document.getElementById("contador-menu-admin");
-
-      const listaFiltrada = menuAdminCompleto.filter(item => {
-        if (filtroCatAdmin === 'todas') return true;
-        const cat = (item.categoria || '').toLowerCase();
-        return cat.includes(filtroCatAdmin);
-      });
-
-      contadorMenu.textContent = `${listaFiltrada.length} Productos`;
-
-      if (listaFiltrada.length === 0) {
-        contenedorMenu.innerHTML = `<div class="text-center text-slate-300 text-sm py-4 col-span-full">No hay productos en esta categoría.</div>`;
-        return;
-      }
-
-      contenedorMenu.innerHTML = "";
-      listaFiltrada.forEach((item) => {
-        const disponible = item.disponible !== undefined ? item.disponible : true;
-
-        const card = document.createElement("div");
-        card.className = "bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm gap-2";
-        
-        card.innerHTML = `
-          <div class="space-y-1 overflow-hidden">
-            <div class="flex items-center gap-2">
-              <h3 class="font-bold text-sm text-white truncate">${item.nombre}</h3>
-              <span class="text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${disponible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
-                ${disponible ? 'OK' : 'Agotado'}
-              </span>
-            </div>
-            <p class="text-xs text-indigo-300 font-bold capitalize">Categoría: ${item.categoria || 'Sencillos'}</p>
-            <p class="text-emerald-400 text-sm font-black">$ ${Number(item.precio || 0).toLocaleString("es-CO")} COP</p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button onclick="cambiarDisponibilidad('${item.id}', ${disponible})" class="p-2.5 rounded-lg text-xs font-bold transition ${disponible ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}" title="Agotar / Habilitar">
-              ${disponible ? 'Agotar' : 'Activar'}
-            </button>
-            <button onclick="editarPrecioFirebase('${item.id}', '${item.nombre}', ${item.precio})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-lg text-xs transition" title="Editar precio">
-              <i class="fa-solid fa-pen" aria-hidden="true"></i>
-            </button>
-            <button onclick="eliminarPlatoFirebase('${item.id}', '${item.nombre}')" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/40 p-2.5 rounded-lg text-xs transition" title="Eliminar del menú">
-              <i class="fa-solid fa-trash" aria-hidden="true"></i>
-            </button>
-          </div>
-        `;
-        contenedorMenu.appendChild(card);
-      });
-    }
-
-    window.filtrarCategoriaAdmin = function(cat, elemento) {
-      filtroCatAdmin = cat;
-      document.querySelectorAll('.btn-cat-admin').forEach(btn => {
-        btn.className = 'btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition';
-      });
-      elemento.className = 'btn-cat-admin bg-purple-600 text-white px-4 py-2 rounded-xl shrink-0 transition font-bold';
-      renderizarMenuAdmin();
-    };
 
     // Agregar plato
     window.agregarPlato = async function(event) {
@@ -425,64 +239,27 @@
         });
 
         document.getElementById("form-nuevo-plato").reset();
-        alert(`✅ ¡Plato "${nombre}" agregado a la categoría ${categoria.toUpperCase()}!`);
-      } catch (e) {
-        console.error("Error al agregar plato:", e);
-      }
-    };
-
-    // Cambiar estado Disponible / Agotado
-    window.cambiarDisponibilidad = async function(id, estadoActual) {
-      try {
-        await updateDoc(doc(db, "inventario_insumos", id), { disponible: !estadoActual });
-      } catch (e) {
-        console.error("Error al cambiar estado:", e);
-      }
-    };
-
-    // Editar precio
-    window.editarPrecioFirebase = async function(id, nombre, precioActual) {
-      const nuevoPrecio = prompt(`Ingrese el nuevo precio en COP para ${nombre}:`, precioActual);
-      if (nuevoPrecio && !isNaN(nuevoPrecio)) {
-        try {
-          await updateDoc(doc(db, "inventario_insumos", id), { precio: Number(nuevoPrecio) });
-          alert(`💲 Precio actualizado a $${Number(nuevoPrecio).toLocaleString("es-CO")} COP.`);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-
-    // Eliminar plato
-    window.eliminarPlatoFirebase = async function(id, nombre) {
-      if (confirm(`¿Eliminar "${nombre}" del menú?`)) {
-        try {
-          await deleteDoc(doc(db, "inventario_insumos", id));
-          alert(`🗑️ "${nombre}" eliminado.`);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-
-    // Confirmar pago
-    window.confirmarPago = async function(id, mesa) {
-      try {
-        await updateDoc(doc(db, "alertas", id), { atendido: true, pagado: true });
-        alert(`✅ Pago de ${mesa} verificado y registrado.`);
+        alert(`✅ ¡Plato "${nombre}" publicado exitosamente!`);
       } catch (e) {
         console.error(e);
       }
     };
 
-    // Cierre de caja
+    window.confirmarPago = async function(id) {
+      try {
+        await updateDoc(doc(db, "alertas", id), { atendido: true });
+        alert("✅ Pago confirmado en caja.");
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     window.realizarCierreCaja = function() {
       if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario?')) {
         document.getElementById("admin-ventas-totales").textContent = "$ 0 COP";
         document.getElementById("admin-transferencias").textContent = "$ 0 COP";
         document.getElementById("admin-efectivo").textContent = "$ 0 COP";
-
-        alert('🔒 Cierre de caja realizado con éxito.');
+        alert('🔒 Cierre de caja ejecutado.');
       }
     };
 
