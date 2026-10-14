@@ -7,108 +7,214 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
+    /* Ocultar barra de desplazamiento manteniendo la funcionalidad */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-28">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-32">
 
-  <!-- Encabezado -->
+  <!-- Encabezado Cliente -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
-      <div class="bg-indigo-600/30 p-2.5 rounded-xl border border-indigo-500/30">
-        <i class="fa-solid fa-utensils text-indigo-400 text-xl" aria-hidden="true"></i>
+      <div class="bg-emerald-500/20 p-2.5 rounded-xl border border-emerald-500/30">
+        <i class="fa-solid fa-utensils text-emerald-400 text-2xl" aria-hidden="true"></i>
       </div>
       <div>
-        <h1 class="font-black text-lg text-white tracking-wide">BistroIQ</h1>
-        <p class="text-xs text-indigo-300 font-bold" id="label-mesa-header">Mesa #3 • Menú Interactivo</p>
+        <h1 class="font-bold text-xl text-white">BistroIQ Menu</h1>
+        <p class="text-sm text-emerald-400 font-bold flex items-center gap-1.5" id="label-mesa-cliente">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Mesa #3 • Pedido en Línea
+        </p>
       </div>
     </div>
-    <button onclick="llamarMesera()" class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-xl text-xs font-black transition active:scale-95 flex items-center gap-1.5 shadow-md">
-      <i class="fa-solid fa-bell text-sm" aria-hidden="true"></i> Llamar Mesera
-    </button>
+    
+    <!-- Botones de Acción Superior (Mesera y Cuenta) -->
+    <div class="flex items-center gap-2">
+      <button onclick="solicitarMesera()" class="bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 px-3.5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 active:scale-95">
+        <i class="fa-solid fa-bell text-base" aria-hidden="true"></i> Mesera
+      </button>
+      <button onclick="abrirModalPedirCuenta()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 px-3.5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 active:scale-95">
+        <i class="fa-solid fa-file-invoice-dollar text-base" aria-hidden="true"></i> Cuenta
+      </button>
+    </div>
   </header>
 
-  <!-- Categorías / Pestañas -->
-  <nav class="bg-slate-800/90 backdrop-blur-md border-b border-slate-700 p-3 sticky top-[69px] z-30">
-    <div class="flex gap-2 overflow-x-auto no-scrollbar max-w-4xl mx-auto">
-      <button onclick="filtrarCategoria('todas', this)" class="btn-cat bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-black shrink-0 transition">
-        📋 Todas
-      </button>
-      <button onclick="filtrarCategoria('sencillos', this)" class="btn-cat bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-xs font-black shrink-0 transition">
-        🍲 Sencillos
-      </button>
-      <button onclick="filtrarCategoria('asados', this)" class="btn-cat bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-xs font-black shrink-0 transition">
-        🥩 Asados
-      </button>
-      <button onclick="filtrarCategoria('bebidas', this)" class="btn-cat bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-xs font-black shrink-0 transition">
-        🥤 Bebidas
-      </button>
-      <button onclick="filtrarCategoria('porciones', this)" class="btn-cat bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-xs font-black shrink-0 transition">
-        🍟 Porciones
-      </button>
-    </div>
-  </nav>
-
   <!-- Contenido Principal -->
-  <main class="flex-1 p-4 max-w-4xl mx-auto w-full space-y-4">
-    <div id="contenedor-menu" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-      <div class="text-center text-slate-300 text-sm py-8 col-span-full font-bold">Cargando menú delicioso...</div>
+  <main class="flex-1 p-4 max-w-3xl mx-auto w-full space-y-5">
+
+    <!-- Guía Informativa de Uso para el Cliente -->
+    <div class="bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-4 flex items-start gap-3.5 shadow-sm">
+      <div class="bg-emerald-500/20 p-2.5 rounded-xl text-emerald-400 shrink-0 mt-0.5">
+        <i class="fa-solid fa-circle-info text-xl"></i>
+      </div>
+      <div class="text-sm text-slate-200 leading-relaxed">
+        <p class="font-bold text-white text-base mb-0.5">¿Cómo hacer tu pedido?</p>
+        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista, cambiar cantidades o <span class="text-rose-400 font-bold">borrar platos</span>.
+      </div>
     </div>
+
+    <!-- Categorías / Filtros Horizontalmente Deslizables -->
+    <div class="space-y-2.5">
+      <div class="flex justify-between items-center">
+        <h2 class="font-bold text-slate-100 text-lg flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-emerald-400" aria-hidden="true"></i> Nuestro Menú
+        </h2>
+        <span class="text-sm text-slate-300 font-medium" id="contador-platos-filtrados">Cargando...</span>
+      </div>
+
+      <!-- Barra de Pestañas (Inicia en Sencillos) -->
+      <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-1 text-sm font-bold text-slate-200">
+        <button onclick="filtrarCategoria('sencillos', this)" class="btn-cat bg-emerald-600 text-white px-4.5 py-2.5 rounded-xl shrink-0 transition shadow-sm border border-emerald-500/40 font-bold">
+          🍲 Sencillos
+        </button>
+        <button onclick="filtrarCategoria('asados', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">
+          🥩 Asados
+        </button>
+        <button onclick="filtrarCategoria('bebidas', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">
+          🥤 Bebidas
+        </button>
+        <button onclick="filtrarCategoria('porciones', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">
+          🍟 Porciones
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenedor Dinámico del Menú -->
+    <div id="contenedor-menu-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="text-center text-slate-300 text-base py-8 col-span-full">Cargando nuestro menú dinámico...</div>
+    </div>
+
   </main>
 
-  <!-- Barra Flotante de Carrito -->
-  <footer id="barra-pedido" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 shadow-2xl z-40 hidden">
-    <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
-      <div>
-        <p class="text-xs text-slate-300 font-bold" id="resumen-items-pie">0 productos agregados</p>
-        <p class="text-xl font-black text-emerald-400" id="total-pedido">$ 0 COP</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="abrirModalCuenta()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-black transition active:scale-95 shadow-lg flex items-center gap-1.5">
-          <i class="fa-solid fa-file-invoice-dollar text-sm"></i> Pedir Cuenta
-        </button>
-        <button onclick="enviarPedidoCocina()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black transition active:scale-95 shadow-lg flex items-center gap-1.5">
-          <i class="fa-solid fa-paper-plane text-sm"></i> Enviar Pedido
-        </button>
-      </div>
+  <!-- Barra Flotante Inferior de Pedido / Carrito -->
+  <footer id="barra-pedido-flotante" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 shadow-2xl z-40 hidden">
+    <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Zona para abrir el detalle y eliminar platos -->
+      <button onclick="abrirModalCarrito()" class="flex items-center gap-3 bg-slate-900/90 hover:bg-slate-900 border border-emerald-500/40 px-4 py-2.5 rounded-2xl text-left transition group active:scale-95">
+        <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl">
+          <i class="fa-solid fa-cart-shopping text-base"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-emerald-400 flex items-center gap-1 group-hover:underline">
+            Ver / Editar mi Pedido <i class="fa-solid fa-chevron-up text-xs animate-bounce"></i>
+          </p>
+          <p class="text-sm font-black text-white" id="total-pedido-flotante">0 platos seleccionados</p>
+        </div>
+      </button>
+
+      <!-- Botón directo para enviar a cocina -->
+      <button onclick="confirmarEnviarCocinaDirecto()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3.5 rounded-2xl text-sm font-bold transition shadow-lg active:scale-95 flex items-center gap-2 shrink-0">
+        <i class="fa-solid fa-paper-plane text-base" aria-hidden="true"></i> Enviar a Cocina
+      </button>
+
     </div>
   </footer>
 
-  <!-- Modal Pedir Cuenta -->
-  <div id="modal-cuenta" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
-        <h3 class="text-lg font-black text-white flex items-center gap-2">
-          <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Solicitar la Cuenta
-        </h3>
-        <button onclick="cerrarModalCuenta()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+  <!-- MODAL DE SELECCIÓN TIPO DE PEDIDO (Comer Aquí / Para Llevar) -->
+  <div id="modal-tipo-pedido" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
+      <div class="text-center space-y-1">
+        <h3 class="font-bold text-white text-lg" id="modal-tipo-titulo">Selecciona una opción</h3>
+        <p class="text-sm text-slate-300">¿Cómo deseas disfrutar tu plato?</p>
       </div>
-      <div>
-        <p class="text-xs text-slate-300 font-bold mb-1">Monto a pagar en mesa:</p>
-        <p class="text-2xl font-black text-emerald-400" id="modal-monto-total">$ 0 COP</p>
-      </div>
+
       <div class="space-y-3">
-        <p class="text-xs font-bold text-slate-300">Selecciona tu método de pago:</p>
-        <button onclick="confirmarPedirCuenta('EFECTIVO')" class="w-full bg-slate-900 border border-emerald-500/40 hover:border-emerald-500 p-3.5 rounded-xl text-left flex items-center justify-between transition group">
-          <div>
-            <p class="font-bold text-sm text-white group-hover:text-emerald-400">💵 Pago en Efectivo</p>
-            <p class="text-xs text-slate-400">La mesera se acercará a cobrarte</p>
-          </div>
-          <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+        <button onclick="confirmarAgregarAlCarrito(false)" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">🍽️ Para Comer Aquí</span>
+          <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded font-bold">Sin recargo</span>
         </button>
-        <button onclick="confirmarPedirCuenta('TRANSFERENCIA')" class="w-full bg-slate-900 border border-indigo-500/40 hover:border-indigo-500 p-3.5 rounded-xl text-left flex items-center justify-between transition group">
-          <div>
-            <p class="font-bold text-sm text-white group-hover:text-indigo-400">📲 Transferencia Digital</p>
-            <p class="text-xs text-slate-400">Nequi / DaviPlata (Muestra el comprobante)</p>
-          </div>
-          <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+
+        <button onclick="confirmarAgregarAlCarrito(true)" class="w-full bg-slate-700 hover:bg-slate-600 border border-amber-500/40 text-amber-300 p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">🛍️ Para Llevar</span>
+          <span class="text-xs text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded font-bold">+ $1.000 COP empaque</span>
         </button>
       </div>
+
+      <button onclick="cerrarModalTipoPedido()" class="w-full text-slate-300 hover:text-white text-sm text-center pt-1 font-bold block">
+        Cancelar
+      </button>
     </div>
   </div>
 
-  <!-- Script Firebase -->
+  <!-- MODAL DE PEDIR LA CUENTA (Efectivo / Transferencia) -->
+  <div id="modal-pedir-cuenta" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
+      <div class="text-center space-y-1">
+        <h3 class="font-bold text-white text-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-400 text-xl"></i> Solicitar la Cuenta
+        </h3>
+        <p class="text-sm text-slate-300">Elige tu método de pago preferido</p>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Opción Efectivo -->
+        <button onclick="enviarSolicitudCuenta('EFECTIVO')" class="w-full bg-slate-700 hover:bg-slate-600 border border-emerald-500/40 text-white p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">💵 Pagar en Efectivo</span>
+          <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded font-bold">Lleva devuelta</span>
+        </button>
+
+        <!-- Opción Transferencia -->
+        <button onclick="mostrarDatosTransferencia()" class="w-full bg-slate-700 hover:bg-slate-600 border border-indigo-500/40 text-indigo-300 p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span class="flex items-center gap-2">📲 Transferencia (Nequi/DaviPlata)</span>
+          <span class="text-xs text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded font-bold">Ver cuentas</span>
+        </button>
+      </div>
+
+      <div id="info-transferencia-oculta" class="hidden bg-slate-900/90 p-4 rounded-xl border border-indigo-500/30 space-y-2.5 text-sm">
+        <p class="font-bold text-white text-center text-base">Datos Oficiales del Restaurante:</p>
+        <p class="text-slate-200"><strong>Nequi / DaviPlata:</strong> 300 000 0000</p>
+        <p class="text-slate-200"><strong>Bancolombia:</strong> 123-456789-00</p>
+        <p class="text-xs text-amber-300 font-semibold text-center pt-1">Muestra el comprobante de pago a la mesera al recibir tu cuenta.</p>
+        <button onclick="enviarSolicitudCuenta('TRANSFERENCIA')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold mt-2 text-sm shadow">
+          Avisar a la Mesera (Transferencia)
+        </button>
+      </div>
+
+      <button onclick="cerrarModalPedirCuenta()" class="w-full text-slate-300 hover:text-white text-sm text-center pt-1 font-bold block">
+        Volver al Menú
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO (Ver, editar y borrar platos) -->
+  <div id="modal-carrito" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 space-y-5 shadow-2xl max-h-[85vh] flex flex-col">
+      
+      <!-- Encabezado del Modal -->
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3.5 shrink-0">
+        <div>
+          <h3 class="font-bold text-white text-lg flex items-center gap-2">
+            <i class="fa-solid fa-cart-shopping text-emerald-400"></i> Tu Pedido Seleccionado
+          </h3>
+          <p class="text-xs text-slate-300">Ajusta cantidades o borra platos si te equivocaste.</p>
+        </div>
+        <button onclick="cerrarModalCarrito()" class="text-slate-400 hover:text-white p-1 rounded-lg text-2xl">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Lista de Ítems Agregados con Botones para Modificar / Borrar -->
+      <div id="lista-items-carrito" class="space-y-3.5 overflow-y-auto flex-1 pr-1">
+        <!-- Ítems dinámicos aquí -->
+      </div>
+
+      <!-- Acciones de Cierre -->
+      <div class="border-t border-slate-700 pt-3.5 space-y-3 shrink-0">
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="cerrarModalCarrito()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-3.5 rounded-xl text-sm font-bold transition">
+            Seguir Pidiendo
+          </button>
+          <button onclick="confirmarEnviarCocina()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl text-sm font-bold transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-check"></i> Confirmar Pedido
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Script Firebase y Lógica Integrada -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -130,11 +236,17 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const mesaActual = "Mesa #3";
     let carrito = [];
     let menuCompleto = [];
-    let filtroCat = "todas";
+    let categoriaSeleccionada = 'sencillos'; // Pestaña por defecto
+    let platoTemporalSeleccionado = null;
 
+    // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
+    const params = new URLSearchParams(window.location.search);
+    const mesaParam = params.get('mesa') || "Mesa #3";
+    document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
+
+    // Escuchar menú dinámico de "inventario_insumos"
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       menuCompleto = [];
       snapshot.forEach((docSnap) => {
@@ -143,137 +255,277 @@
       renderizarMenu();
     });
 
+    // Función para renderizar el menú aplicando el filtro de categoría
     function renderizarMenu() {
-      const contenedor = document.getElementById("contenedor-menu");
-      const lista = menuCompleto.filter(item => {
-        if (filtroCat === "todas") return true;
-        return (item.categoria || "").toLowerCase().includes(filtroCat);
+      const contenedorMenu = document.getElementById("contenedor-menu-cliente");
+      const contadorLabel = document.getElementById("contador-platos-filtrados");
+
+      const platosFiltrados = menuCompleto.filter(plato => {
+        const cat = (plato.categoria || '').toLowerCase();
+        const nom = (plato.nombre || '').toLowerCase();
+        
+        if (categoriaSeleccionada === 'sencillos') {
+          return cat.includes('sencillo') || nom.includes('albondiga') || nom.includes('cerdo') || nom.includes('higado') || nom.includes('sopa') || nom.includes('corriente') || (!cat && !nom.includes('asado') && !nom.includes('jugo') && !nom.includes('gaseosa') && !nom.includes('papas'));
+        }
+        if (categoriaSeleccionada === 'asados') return cat.includes('asado') || nom.includes('asado') || nom.includes('carne') || nom.includes('pollo') || nom.includes('churrasco');
+        if (categoriaSeleccionada === 'bebidas') return cat.includes('bebida') || nom.includes('jugo') || nom.includes('gaseosa') || nom.includes('cerveza') || nom.includes('agua');
+        if (categoriaSeleccionada === 'porciones') return cat.includes('porcion') || nom.includes('papas') || nom.includes('patacones') || nom.includes('yuca') || nom.includes('arroz');
+        return true;
       });
 
-      if (lista.length === 0) {
-        contenedor.innerHTML = `<div class="text-center text-slate-300 text-sm py-8 col-span-full font-bold">No hay platillos en esta sección.</div>`;
+      contadorLabel.textContent = `${platosFiltrados.length} disponibles`;
+
+      if (platosFiltrados.length === 0) {
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-300 text-base py-8 col-span-full">No hay platos disponibles en esta categoría.</div>`;
         return;
       }
 
-      contenedor.innerHTML = "";
-      lista.forEach((item) => {
-        const disponible = item.disponible !== undefined ? item.disponible : true;
+      contenedorMenu.innerHTML = "";
+      platosFiltrados.forEach((plato) => {
+        const estaDisponible = plato.disponible !== undefined ? plato.disponible : true;
+
         const card = document.createElement("div");
-        card.className = `bg-slate-800 border rounded-2xl p-4 flex justify-between items-center space-x-3 transition ${
-          disponible ? 'border-slate-700 shadow-md' : 'border-rose-900/30 opacity-60'
+        card.className = `bg-slate-800 border rounded-2xl p-4.5 flex flex-col justify-between space-y-3.5 transition ${
+          estaDisponible ? 'border-slate-700/80 shadow-md' : 'border-rose-900/30 opacity-60'
         }`;
 
         card.innerHTML = `
-          <div class="space-y-1 overflow-hidden">
-            <h3 class="font-extrabold text-sm text-white truncate">${item.nombre}</h3>
-            <p class="text-xs text-slate-300 line-clamp-2">${item.desc || 'Preparación especial del chef.'}</p>
-            <p class="text-emerald-400 text-sm font-black">$ ${Number(item.precio || 0).toLocaleString("es-CO")} COP</p>
+          <div>
+            <div class="flex justify-between items-start gap-2">
+              <h3 class="font-bold text-base text-white">${plato.nombre}</h3>
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded shrink-0 ${
+                estaDisponible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+              }">
+                ${estaDisponible ? 'Disponible' : 'Agotado'}
+              </span>
+            </div>
+            <p class="text-sm text-slate-300 mt-1">${plato.desc || 'Sin descripción'}</p>
           </div>
-          <div class="shrink-0">
-            ${disponible 
-              ? `<button onclick="agregarAlCarrito('${item.id}', '${item.nombre}',${item.precio})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-black transition active:scale-95 flex items-center gap-1 shadow">
-                  <i class="fa-solid fa-plus"></i> Añadir
-                </button>`
-              : `<span class="text-xs text-rose-400 font-bold italic">Agotado</span>`
-            }
+
+          <div class="space-y-2 pt-2 border-t border-slate-700/50">
+            <div class="flex justify-between items-center">
+              <span class="font-extrabold text-emerald-400 text-base">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</span>
+              ${
+                estaDisponible 
+                  ? `<button onclick="solicitarTipoPedido('${plato.id}', '${plato.nombre}',${plato.precio})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95 flex items-center gap-1.5">
+                      <i class="fa-solid fa-plus"></i> Agregar
+                     </button>`
+                  : `<span class="text-xs text-rose-400 font-semibold italic">Agotado</span>`
+              }
+            </div>
+            <p class="text-xs text-slate-300 font-medium flex items-center gap-1">
+              <i class="fa-solid fa-bag-shopping text-amber-400"></i> Para llevar: +$1.000 COP empaque
+            </p>
           </div>
         `;
-        contenedor.appendChild(card);
+        contenedorMenu.appendChild(card);
       });
     }
 
+    // Filtrar por Pestaña
     window.filtrarCategoria = function(cat, elemento) {
-      filtroCat = cat;
+      categoriaSeleccionada = cat;
       document.querySelectorAll('.btn-cat').forEach(btn => {
-        btn.className = 'btn-cat bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl text-xs font-black shrink-0 transition';
+        btn.className = 'btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4.5 py-2.5 rounded-xl shrink-0 transition';
       });
-      elemento.className = 'btn-cat bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-black shrink-0 transition';
+      elemento.className = 'btn-cat bg-emerald-600 text-white border border-emerald-500/40 px-4.5 py-2.5 rounded-xl shrink-0 transition shadow-sm font-bold';
       renderizarMenu();
     };
 
-    window.agregarAlCarrito = function(id, nombre, precio) {
-      carrito.push({ id, nombre, precio });
-      actualizarBarra();
+    // Modal para Elegir "Comer Aquí" o "Para Llevar"
+    window.solicitarTipoPedido = function(id, nombre, precio) {
+      platoTemporalSeleccionado = { id, nombre, precio };
+      document.getElementById("modal-tipo-titulo").textContent = nombre;
+      document.getElementById("modal-tipo-pedido").classList.remove("hidden");
     };
 
-    function actualizarBarra() {
-      const barra = document.getElementById("barra-pedido");
-      const resumenText = document.getElementById("resumen-items-pie");
-      const totalText = document.getElementById("total-pedido");
+    window.cerrarModalTipoPedido = function() {
+      document.getElementById("modal-tipo-pedido").classList.add("hidden");
+      platoTemporalSeleccionado = null;
+    };
 
-      if (carrito.length > 0) {
-        const total = carrito.reduce((acc, item) => acc + item.precio, 0);
-        resumenText.textContent = `${carrito.length} producto(s) en tu mesa`;
-        totalText.textContent = `$ ${total.toLocaleString("es-CO")} COP`;
-        document.getElementById("modal-monto-total").textContent = `$ ${total.toLocaleString("es-CO")} COP`;
+    window.confirmarAgregarAlCarrito = function(esParaLlevar) {
+      if (!platoTemporalSeleccionado) return;
+
+      const { id, nombre, precio } = platoTemporalSeleccionado;
+      const recargo = esParaLlevar ? 1000 : 0;
+      const precioFinal = precio + recargo;
+      const etiquetaLlevar = esParaLlevar ? " (Para Llevar)" : " (Comer Aquí)";
+      const itemKey = `${id}_${esParaLlevar ? 'llevar' : 'aqui'}`;
+
+      const existe = carrito.find(item => item.key === itemKey);
+      if (existe) {
+        existe.cantidad += 1;
+      } else {
+        carrito.push({
+          key: itemKey,
+          id,
+          nombre: `${nombre}${etiquetaLlevar}`,
+          precio: precioFinal,
+          esParaLlevar,
+          cantidad: 1
+        });
+      }
+
+      cerrarModalTipoPedido();
+      actualizarBarraCarrito();
+    };
+
+    window.cambiarCantidad = function(key, cambio) {
+      const item = carrito.find(i => i.key === key);
+      if (item) {
+        item.cantidad += cambio;
+        if (item.cantidad <= 0) {
+          carrito = carrito.filter(i => i.key !== key);
+        }
+      }
+      actualizarBarraCarrito();
+      renderizarModalCarrito();
+    };
+
+    window.eliminarDelCarrito = function(key) {
+      carrito = carrito.filter(i => i.key !== key);
+      actualizarBarraCarrito();
+      renderizarModalCarrito();
+    };
+
+    function actualizarBarraCarrito() {
+      const barra = document.getElementById("barra-pedido-flotante");
+      const totalTexto = document.getElementById("total-pedido-flotante");
+
+      const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+
+      if (totalItems > 0) {
+        totalTexto.textContent = `${totalItems} ${totalItems === 1 ? 'plato seleccionado' : 'platos seleccionados'}`;
         barra.classList.remove("hidden");
       } else {
         barra.classList.add("hidden");
+        cerrarModalCarrito();
       }
     }
 
-    window.enviarPedidoCocina = async function() {
+    // Modal Carrito
+    window.abrirModalCarrito = function() {
+      if (carrito.length === 0) return;
+      renderizarModalCarrito();
+      document.getElementById("modal-carrito").classList.remove("hidden");
+    };
+
+    window.cerrarModalCarrito = function() {
+      document.getElementById("modal-carrito").classList.add("hidden");
+    };
+
+    function renderizarModalCarrito() {
+      const lista = document.getElementById("lista-items-carrito");
+
+      if (carrito.length === 0) {
+        lista.innerHTML = `<div class="text-center text-slate-300 py-6 text-sm">Tu carrito está vacío.</div>`;
+        return;
+      }
+
+      lista.innerHTML = "";
+
+      carrito.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "bg-slate-900/90 p-3.5 rounded-xl border border-slate-700 flex items-center justify-between gap-3";
+        row.innerHTML = `
+          <div class="overflow-hidden space-y-0.5">
+            <h4 class="font-bold text-sm text-white truncate">${item.nombre}</h4>
+            <p class="text-xs ${item.esParaLlevar ? 'text-amber-300' : 'text-emerald-400'} font-semibold">
+              ${item.esParaLlevar ? '🛍️ Para Llevar (+ $1.000 empaque)' : '🍽️ Para Comer Aquí'}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 gap-2">
+              <button onclick="cambiarCantidad('${item.key}', -1)" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold text-slate-100 flex items-center justify-center">-</button>
+              <span class="text-sm font-bold text-white px-1">${item.cantidad}</span>
+              <button onclick="cambiarCantidad('${item.key}', 1)" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold text-slate-100 flex items-center justify-center">+</button>
+            </div>
+            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-950/50 border border-rose-900/40 text-sm" title="Borrar este plato">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        `;
+        lista.appendChild(row);
+      });
+    }
+
+    // Confirmar Enviar Pedido a Cocina
+    window.confirmarEnviarCocinaDirecto = function() {
+      abrirModalCarrito();
+    };
+
+    window.confirmarEnviarCocina = async function() {
       if (carrito.length === 0) return;
 
-      const resumen = carrito.map(i => i.nombre).join(", ");
-      const total = carrito.reduce((acc, item) => acc + item.precio, 0);
+      const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
+      const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
-      if (confirm(`¿Enviar tu pedido a Cocina?\n\nTotal: $${total.toLocaleString("es-CO")} COP`)) {
-        try {
-          await addDoc(collection(db, "pedidos_cocina"), {
-            mesa: mesaActual,
-            comanda: Math.floor(100 + Math.random() * 900),
-            resumen: resumen,
-            total: total,
-            estado: "PENDIENTE",
-            fecha: new Date().toISOString()
-          });
+      try {
+        await addDoc(collection(db, "pedidos_cocina"), {
+          mesa: mesaParam,
+          comanda: Math.floor(100 + Math.random() * 900),
+          resumen: resumen,
+          total: total,
+          estado: "PENDIENTE",
+          fecha: new Date().toISOString()
+        });
 
-          alert("🚀 ¡Tu pedido ha sido enviado a la Cocina!");
-        } catch (e) {
-          console.error("Error al enviar pedido:", e);
-        }
+        alert("🚀 ¡Pedido enviado a la cocina con éxito!");
+        carrito = [];
+        actualizarBarraCarrito();
+        cerrarModalCarrito();
+      } catch (e) {
+        console.error("Error enviando pedido:", e);
+        alert("⚠️ Hubo un detalle al enviar el pedido.");
       }
     };
 
-    window.llamarMesera = async function() {
+    // Funciones para Pedir la Cuenta
+    window.abrirModalPedirCuenta = function() {
+      document.getElementById("info-transferencia-oculta").classList.add("hidden");
+      document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
+    };
+
+    window.cerrarModalPedirCuenta = function() {
+      document.getElementById("modal-pedir-cuenta").classList.add("hidden");
+    };
+
+    window.mostrarDatosTransferencia = function() {
+      document.getElementById("info-transferencia-oculta").classList.remove("hidden");
+    };
+
+    window.enviarSolicitudCuenta = async function(metodoPago) {
       try {
         await addDoc(collection(db, "alertas"), {
-          mesa: mesaActual,
+          mesa: mesaParam,
+          tipo: "PEDIR_CUENTA",
+          metodo: metodoPago,
+          mensaje: `💳 ${mesaParam} solicita la cuenta (${metodoPago})`,
+          atendido: false,
+          fecha: new Date().toISOString()
+        });
+
+        alert(`✅ Solicitud enviada. La mesera se acercará con la cuenta (${metodoPago}).`);
+        cerrarModalPedirCuenta();
+      } catch (e) {
+        console.error("Error al pedir la cuenta:", e);
+        alert("⚠️ Hubo un error al solicitar la cuenta.");
+      }
+    };
+
+    window.solicitarMesera = async function() {
+      try {
+        await addDoc(collection(db, "alertas"), {
+          mesa: mesaParam,
           tipo: "LLAMAR_MESERA",
           atendido: false,
           fecha: new Date().toISOString()
         });
-        alert("🔔 Solicitud enviada. Un mesero vendrá a tu mesa en breve.");
+        alert("🔔 Se ha notificado a la mesera. En breve te atenderá.");
       } catch (e) {
-        console.error("Error al llamar mesera:", e);
-      }
-    };
-
-    window.abrirModalCuenta = function() {
-      document.getElementById("modal-cuenta").classList.remove("hidden");
-    };
-
-    window.cerrarModalCuenta = function() {
-      document.getElementById("modal-cuenta").classList.add("hidden");
-    };
-
-    window.confirmarPedirCuenta = async function(metodo) {
-      const total = carrito.reduce((acc, item) => acc + item.precio, 0);
-      try {
-        await addDoc(collection(db, "alertas"), {
-          mesa: mesaActual,
-          tipo: "PEDIR_CUENTA",
-          metodo: metodo,
-          total: total,
-          atendido: false,
-          fecha: new Date().toISOString()
-        });
-
-        cerrarModalCuenta();
-        alert(`📄 Cuenta solicitada (${metodo}). La mesera/caja ya registraron tu solicitud.`);
-      } catch (e) {
-        console.error("Error al solicitar cuenta:", e);
+        console.error(e);
       }
     };
   </script>
