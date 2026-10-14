@@ -28,20 +28,33 @@
   <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-4xl mx-auto w-full space-y-6">
 
-    <!-- Sección 1: Avisos de Cocina (Comandas Listas para Servir) -->
+    <!-- Sección 1: Solicitudes de Cuenta (Efectivo / Transferencia) -->
     <section class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-5 shadow-lg space-y-3">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-emerald-400 text-sm flex items-center gap-2">
-          <i class="fa-solid fa-bell-concierge animate-bounce" aria-hidden="true"></i> Platos Listos para Recoger en Cocina
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-400 animate-bounce" aria-hidden="true"></i> Solicitudes de Cuenta (Mesas)
         </h2>
-        <span id="contador-pedidos-listos" class="bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Listos</span>
+        <span id="contador-cuentas" class="bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Cuentas</span>
+      </div>
+      <div id="contenedor-cuentas-mesera" class="space-y-2">
+        <div class="text-center text-slate-400 text-xs py-3">No hay solicitudes de cuenta pendientes.</div>
+      </div>
+    </section>
+
+    <!-- Sección 2: Avisos de Cocina (Comandas Listas para Servir) -->
+    <section class="bg-slate-800 border border-amber-500/30 rounded-2xl p-5 shadow-lg space-y-3">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700">
+        <h2 class="font-bold text-amber-400 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-bell-concierge animate-pulse" aria-hidden="true"></i> Platos Listos para Recoger en Cocina
+        </h2>
+        <span id="contador-pedidos-listos" class="bg-amber-500/20 text-amber-300 text-xs px-2.5 py-1 rounded-full font-semibold">0 Listos</span>
       </div>
       <div id="contenedor-pedidos-listos" class="space-y-2">
         <div class="text-center text-slate-400 text-xs py-3">No hay platos listos para entregar en este momento.</div>
       </div>
     </section>
 
-    <!-- Sección 2: Llamados de Clientes en Tiempo Real -->
+    <!-- Sección 3: Llamados de Clientes en Tiempo Real -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-3">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
@@ -159,7 +172,48 @@
       });
     });
 
-    // 2. Escuchar Alertas de Cocina (Platos Listos para Servir)
+    // 2. Escuchar Solicitudes de Cuenta (Efectivo / Transferencia)
+    const qCuentas = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
+    onSnapshot(qCuentas, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-cuentas-mesera");
+      const contador = document.getElementById("contador-cuentas");
+
+      contador.textContent = `${snapshot.size} Cuentas`;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-xs py-3">No hay solicitudes de cuenta pendientes.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const cuenta = docSnap.data();
+        const id = docSnap.id;
+        const esEfectivo = cuenta.metodo === "EFECTIVO";
+
+        const card = document.createElement("div");
+        card.className = `p-3 rounded-xl border flex items-center justify-between gap-3 ${
+          esEfectivo ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-indigo-950/30 border-indigo-500/40'
+        }`;
+        card.innerHTML = `
+          <div class="space-y-0.5">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-file-invoice-dollar ${esEfectivo ? 'text-emerald-400' : 'text-indigo-400'} text-sm animate-pulse"></i>
+              <span class="font-bold text-white text-xs">${cuenta.mesa || 'Mesa'} pide la cuenta</span>
+            </div>
+            <p class="text-[11px] font-semibold ${esEfectivo ? 'text-emerald-300' : 'text-indigo-300'}">
+              Pago: ${esEfectivo ? '💵 EFECTIVO (Llevar cambio)' : '📲 TRANSFERENCIA (Verificar comprobante)'}
+            </p>
+          </div>
+          <button onclick="atenderLlamado('${id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition shrink-0">
+            Atendido
+          </button>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    // 3. Escuchar Alertas de Cocina (Platos Listos para Servir)
     const qListos = query(collection(db, "alertas"), where("tipo", "==", "PEDIDO_LISTO"), where("atendido", "==", false));
     onSnapshot(qListos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pedidos-listos");
@@ -192,7 +246,7 @@
       });
     });
 
-    // 3. Escuchar Menú Dinámico desde "inventario_insumos"
+    // 4. Escuchar Menú Dinámico desde "inventario_insumos"
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       const contenedorMenu = document.getElementById("contenedor-menu-mesera");
 
