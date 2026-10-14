@@ -20,7 +20,7 @@
         <p class="text-xs text-amber-300 font-medium">Gestión de Comandas e Insumos en Tiempo Real</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold transition" aria-label="Salir al portal">
+    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95" aria-label="Salir al portal">
       <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
     </button>
   </header>
@@ -71,6 +71,7 @@
       doc, 
       updateDoc,
       deleteDoc,
+      addDoc,
       query,
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -87,7 +88,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. Escuchar Comandas de Cocina
+    // 1. Escuchar Comandas de Cocina Activas (PENDIENTE o EN_PREPARACION)
     const qCocina = query(collection(db, "pedidos_cocina"), where("estado", "in", ["PENDIENTE", "EN_PREPARACION"]));
     onSnapshot(qCocina, (snapshot) => {
       const contenedor = document.getElementById("contenedor-comandas-cocina");
@@ -96,7 +97,7 @@
       contador.textContent = `${snapshot.size} Pendientes`;
 
       if (snapshot.empty) {
-        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">No hay comandas pendientes en este momento.</div>`;
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-sm py-6">No hay comandas pendientes en este momento.</div>`;
         return;
       }
 
@@ -106,26 +107,40 @@
         const id = docSnap.id;
 
         const card = document.createElement("div");
-        card.className = "bg-slate-900/80 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4";
+        card.className = "bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm";
         
         card.innerHTML = `
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-white text-base">${pedido.mesa || 'Mesa'} — Comanda #${pedido.comanda || '00'}</span>
-              <span class="text-xs px-2 py-0.5 rounded font-bold ${pedido.estado === 'EN_PREPARACION' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'}">
-                ${pedido.estado === 'EN_PREPARACION' ? 'En Preparación' : 'Pendiente'}
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-extrabold text-white text-base">${pedido.mesa || 'Mesa'} — Comanda #${pedido.comanda || '00'}</span>
+              <span class="text-[11px] px-2.5 py-0.5 rounded-md font-bold ${
+                pedido.estado === 'EN_PREPARACION' 
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse' 
+                  : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+              }">
+                ${pedido.estado === 'EN_PREPARACION' ? '🍳 En Preparación' : '⏳ Pendiente'}
               </span>
             </div>
-            <div class="text-sm font-semibold text-amber-400 mt-1">${pedido.resumen || 'Sin especificar'}</div>
+            
+            <!-- Resumen de Platos con formato resaltado -->
+            <div class="text-sm font-semibold text-amber-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
+              ${pedido.resumen || 'Sin especificar'}
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="cambiarEstadoPedido('${id}', 'EN_PREPARACION')" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition active:scale-95">
-              En Preparación
+
+          <!-- Acciones de Estado -->
+          <div class="flex items-center gap-2 shrink-0">
+            ${
+              pedido.estado !== 'EN_PREPARACION'
+                ? `<button onclick="cambiarEstadoPedido('${id}', 'EN_PREPARACION')" class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                    🍳 Preparar
+                   </button>`
+                : ''
+            }
+            <button onclick="marcarPedidoListo('${id}', '${pedido.mesa || 'Mesa'}', '${pedido.comanda || ''}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow">
+              🔔 ¡Listo!
             </button>
-            <button onclick="cambiarEstadoPedido('${id}', 'LISTO')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition active:scale-95">
-              ¡Listo!
-            </button>
-            <button onclick="eliminarComandaIndividual('${id}', '${pedido.mesa || 'Mesa'}')" class="bg-rose-900/30 hover:bg-rose-900/50 text-rose-300 p-2.5 rounded-xl text-xs transition" title="Eliminar esta comanda">
+            <button onclick="eliminarComandaIndividual('${id}', '${pedido.mesa || 'Mesa'}')" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 p-2.5 rounded-xl border border-rose-900/30 text-xs transition active:scale-95" title="Eliminar esta comanda">
               <i class="fa-solid fa-trash" aria-hidden="true"></i>
             </button>
           </div>
@@ -175,11 +190,31 @@
       });
     });
 
+    // Cambiar estado a EN_PREPARACION
     window.cambiarEstadoPedido = async function(id, nuevoEstado) {
       try {
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: nuevoEstado });
       } catch (e) {
         console.error("Error al actualizar pedido", e);
+      }
+    };
+
+    // Marcar Listo y Notificar a la Mesera
+    window.marcarPedidoListo = async function(id, mesa, comanda) {
+      try {
+        // Actualizar estado a LISTO en la cocina
+        await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
+
+        // Enviar alerta a la mesera
+        await addDoc(collection(db, "alertas"), {
+          mesa: mesa,
+          tipo: "PEDIDO_LISTO",
+          mensaje: `🔔 ¡Comanda #${comanda} lista para entregar!`,
+          atendido: false,
+          fecha: new Date().toISOString()
+        });
+      } catch (e) {
+        console.error("Error al marcar como listo:", e);
       }
     };
 
@@ -191,7 +226,7 @@
       }
     };
 
-    // Función para eliminar una comanda individualmente con su icono de papelera
+    // Eliminar una comanda individualmente
     window.eliminarComandaIndividual = async function(id, mesa) {
       if (confirm(`¿Deseas eliminar la comanda de la ${mesa}?`)) {
         try {
