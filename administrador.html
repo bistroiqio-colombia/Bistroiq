@@ -11,7 +11,7 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-20">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-20" onclick="desbloquearAudioAdmin()">
 
   <!-- Encabezado de Administrador -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
@@ -24,9 +24,14 @@
         <p class="text-sm text-purple-300 font-bold">Control Centralizado • BistroIQ</p>
       </div>
     </div>
-    <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95" aria-label="Salir al inicio">
-      <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
-    </button>
+    <div class="flex items-center gap-2">
+      <button id="btn-sonido-admin" onclick="activarSonidoAdmin(event)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow flex items-center gap-1.5">
+        <i class="fa-solid fa-volume-xmark"></i> Activar Sonido
+      </button>
+      <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95" aria-label="Salir al inicio">
+        <i class="fa-solid fa-house" aria-hidden="true"></i> Salir
+      </button>
+    </div>
   </header>
 
   <!-- Contenido Principal -->
@@ -195,7 +200,7 @@
 
   </main>
 
-  <!-- Script Firebase Integrado -->
+  <!-- Script Firebase Integrado y Audio Web -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -225,6 +230,58 @@
 
     let menuAdminCompleto = [];
     let filtroCatAdmin = 'todas';
+    let audioCtx = null;
+    let sonidoHabilitado = false;
+    let primeraCargaPagos = true;
+
+    window.desbloquearAudioAdmin = function() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    };
+
+    window.activarSonidoAdmin = function(e) {
+      if (e) e.stopPropagation();
+      window.desbloquearAudioAdmin();
+      sonidoHabilitado = true;
+      const btn = document.getElementById("btn-sonido-admin");
+      btn.className = "bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5";
+      btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> Sonido Activo`;
+      reproducirAlarmaCaja();
+    };
+
+    // Tono de Alarma de Caja (Pago Recibido / Solicitud de Cuenta)
+    function reproducirAlarmaCaja() {
+      window.desbloquearAudioAdmin();
+      if (!audioCtx) return;
+
+      try {
+        const emitirTono = (frecuencia, inicio, duracion) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle'; // Tono cálido estilo campana de caja
+          osc.frequency.setValueAtTime(frecuencia, audioCtx.currentTime + inicio);
+          
+          gain.gain.setValueAtTime(0.35, audioCtx.currentTime + inicio);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + inicio + duracion);
+          
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          
+          osc.start(audioCtx.currentTime + inicio);
+          osc.stop(audioCtx.currentTime + inicio + duracion);
+        };
+
+        // Secuencia de caja registradora
+        emitirTono(587.33, 0.0, 0.2); // D5
+        emitirTono(880.00, 0.25, 0.4); // A5
+      } catch (e) {
+        console.error("Error reproduciendo audio de caja:", e);
+      }
+    }
 
     // Cargar PINs
     async function cargarPinesActuales() {
@@ -293,13 +350,18 @@
       document.getElementById("admin-transferencias").textContent = `$ ${totalTransferencia.toLocaleString("es-CO")} COP`;
     });
 
-    // Escuchar solicitudes de pago pendientes
+    // Escuchar solicitudes de pago pendientes (Con Alerta Sonora)
     const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
       const contador = document.getElementById("contador-pagos");
       
       contador.textContent = `${snapshot.size} Por Confirmar`;
+
+      if (!primeraCargaPagos && snapshot.docChanges().some(change => change.type === 'added')) {
+        reproducirAlarmaCaja();
+      }
+      primeraCargaPagos = false;
 
       if (snapshot.empty) {
         contenedor.innerHTML = `<div class="text-center text-slate-300 text-sm py-4">No hay pagos pendientes de verificación en este momento.</div>`;
@@ -323,7 +385,7 @@
               </span>
             </div>
             <div class="text-xs text-slate-300">
-              Solicitud recibida. Confirma el cobro para ingresarlo al reporte de caja.
+              Solicitud de cuenta por $${Number(pago.total || 0).toLocaleString("es-CO")} COP. Confirma el cobro.
             </div>
           </div>
           <div class="flex gap-2">
