@@ -290,6 +290,7 @@
       }
     };
 
+    // Ajuste clave: Actualiza 'confirmado_en_caja: true' para sumar a caja y liberar automáticamente la mesa del cliente
     window.confirmarPago = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "alertas", id), { 
