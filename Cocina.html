@@ -247,6 +247,7 @@
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
         await addDoc(collection(db, "alertas"), {
           mesa: mesa,
+          pedido_id: id, // <-- VINCULACIÓN CLAVE PARA LA MESERA Y EL CLIENTE
           resumen: resumen || "Orden completa",
           mensaje: `${mesa} • ${resumen || 'Orden lista para servir'}`,
           tipo: "PEDIDO_LISTO",
