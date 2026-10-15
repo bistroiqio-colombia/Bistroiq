@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-12" onclick="desbloquearAudioGeneral()">
 
-  <!-- Encabezado Cocina -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
       <div class="bg-amber-500/20 p-2 rounded-xl border border-amber-500/30">
@@ -30,10 +29,7 @@
     </div>
   </header>
 
-  <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
-    
-    <!-- Sección de Comandas Pendientes -->
     <div class="space-y-4">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
@@ -47,7 +43,6 @@
       </div>
     </div>
 
-    <!-- Sección de Control de Menú -->
     <section class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
@@ -60,7 +55,6 @@
         <div class="text-center text-slate-400 text-xs py-4 col-span-full">Cargando inventario de platillos...</div>
       </div>
     </section>
-
   </main>
 
   <script type="module">
@@ -134,7 +128,6 @@
       } catch (e) { console.error(e); }
     }
 
-    // 1. Escuchar Comandas Pendientes
     const qComandas = query(collection(db, "pedidos_cocina"), where("estado", "==", "PENDIENTE"));
     onSnapshot(qComandas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-comandas");
@@ -176,7 +169,6 @@
       });
     });
 
-    // 2. Inventario
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       const contenedorMenu = document.getElementById("contenedor-control-menu");
       if (snapshot.empty) {
@@ -210,13 +202,10 @@
       try { await updateDoc(doc(db, "inventario_insumos", id), { disponible: !estadoActual }); } catch (e) { console.error(e); }
     };
 
-    // ENVÍO GARANTIZADO DE PLATO LISTO HACIA LA MESERA
     window.marcarComandaLista = async function(id, mesa, resumen) {
       try {
-        // A. Actualizamos el estado de la comanda principal a LISTO
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
 
-        // B. Enviamos la alerta explícita a la colección de alertas
         await addDoc(collection(db, "alertas"), {
           mesa: mesa,
           pedido_id: id,
