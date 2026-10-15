@@ -192,11 +192,12 @@
     let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
 
-    const claveStorage = `bistroiq_sesion_${window.location.search || 'mesa3'}`;
-    let totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
-
     const params = new URLSearchParams(window.location.search);
     const mesaParam = params.get('mesa') || "Mesa #3";
+    const claveStorage = `bistroiq_sesion_${mesaParam.replace(/[^a-zA-Z0-9]/g, '')}`;
+    
+    let totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
+
     document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
 
     // Escuchar si el Administrador libera la mesa en caja para limpiar automáticamente
@@ -384,6 +385,7 @@
       const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
       const subtotalPedido = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
+      // Sincronizamos y actualizamos el almacenamiento local de inmediato
       totalConsumidoSesion += subtotalPedido;
       localStorage.setItem(claveStorage, totalConsumidoSesion);
 
@@ -408,6 +410,9 @@
 
     window.abrirModalPedirCuenta = function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
+      
+      // Aseguramos leer siempre el valor fresco del almacenamiento local
+      totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
       const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
 
@@ -418,7 +423,9 @@
     window.cerrarModalPedirCuenta = function() { document.getElementById("modal-pedir-cuenta").classList.add("hidden"); };
     window.mostrarDatosTransferencia = function() { document.getElementById("info-transferencia-oculta").classList.remove("hidden"); };
 
+    // CORRECCIÓN CLAVE: Lee correctamente el monto total antes de validar y enviar la alerta
     window.enviarSolicitudCuenta = async function(metodoPago) {
+      totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
       const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
 
