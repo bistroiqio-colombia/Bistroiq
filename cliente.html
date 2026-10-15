@@ -137,14 +137,15 @@
     </div>
   </div>
 
-  <!-- MODAL DE PEDIR LA CUENTA (Efectivo / Transferencia) -->
+  <!-- MODAL DE PEDIR LA CUENTA (Efectivo / Transferencia con Cálculo Automático de Total) -->
   <div id="modal-pedir-cuenta" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
       <div class="text-center space-y-1">
         <h3 class="font-bold text-white text-lg flex items-center justify-center gap-2">
           <i class="fa-solid fa-file-invoice-dollar text-emerald-400 text-xl"></i> Solicitar la Cuenta
         </h3>
-        <p class="text-sm text-slate-300">Elige tu método de pago preferido</p>
+        <p class="text-xs text-slate-300">Resumen de consumos de tu mesa:</p>
+        <p class="text-2xl font-black text-emerald-400 mt-1" id="monto-total-cuenta">$ 0 COP</p>
       </div>
 
       <div class="space-y-3">
@@ -177,7 +178,7 @@
     </div>
   </div>
 
-  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO (Ver, editar y borrar platos) -->
+  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO -->
   <div id="modal-carrito" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 space-y-5 shadow-2xl max-h-[85vh] flex flex-col">
       
@@ -194,7 +195,7 @@
         </button>
       </div>
 
-      <!-- Lista de Ítems Agregados con Botones para Modificar / Borrar -->
+      <!-- Lista de Ítems Agregados -->
       <div id="lista-items-carrito" class="space-y-3.5 overflow-y-auto flex-1 pr-1">
         <!-- Ítems dinámicos aquí -->
       </div>
@@ -221,7 +222,10 @@
       getFirestore, 
       collection, 
       onSnapshot, 
-      addDoc 
+      addDoc,
+      getDocs,
+      query,
+      where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -238,8 +242,9 @@
 
     let carrito = [];
     let menuCompleto = [];
-    let categoriaSeleccionada = 'sencillos'; // Pestaña por defecto
+    let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
+    let totalConsumidoMesa = 0;
 
     // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
     const params = new URLSearchParams(window.location.search);
@@ -482,9 +487,28 @@
       }
     };
 
-    // Funciones para Pedir la Cuenta
-    window.abrirModalPedirCuenta = function() {
+    // Funciones para Pedir la Cuenta con Cálculo Automático de lo Consumido
+    window.abrirModalPedirCuenta = async function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
+      document.getElementById("monto-total-cuenta").textContent = "Calculando...";
+
+      // Sumar los pedidos enviados a cocina por esta mesa
+      try {
+        const qMesa = query(collection(db, "pedidos_cocina"), where("mesa", "==", mesaParam));
+        const snapshot = await getDocs(qMesa);
+
+        totalConsumidoMesa = 0;
+        snapshot.forEach((docSnap) => {
+          const ped = docSnap.data();
+          totalConsumidoMesa += Number(ped.total || ped.monto || ped.valor || 0);
+        });
+
+        document.getElementById("monto-total-cuenta").textContent = `$ ${totalConsumidoMesa.toLocaleString("es-CO")} COP`;
+      } catch (e) {
+        console.error("Error al calcular total consumido:", e);
+        document.getElementById("monto-total-cuenta").textContent = "$ 0 COP";
+      }
+
       document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
     };
 
@@ -502,12 +526,16 @@
           mesa: mesaParam,
           tipo: "PEDIR_CUENTA",
           metodo: metodoPago,
-          mensaje: `💳 ${mesaParam} solicita la cuenta (${metodoPago})`,
+          total: totalConsumidoMesa,
+          monto: totalConsumidoMesa,
+          valor: totalConsumidoMesa,
+          mensaje: `💳 ${mesaParam} solicita la cuenta ($${totalConsumidoMesa.toLocaleString("es-CO")} COP - ${metodoPago})`,
           atendido: false,
+          confirmado_en_caja: false,
           fecha: new Date().toISOString()
         });
 
-        alert(`✅ Solicitud enviada. La mesera se acercará con la cuenta (${metodoPago}).`);
+        alert(`✅ Solicitud enviada por $${totalConsumidoMesa.toLocaleString("es-CO")} COP. La mesera se acercará con la cuenta (${metodoPago}).`);
         cerrarModalPedirCuenta();
       } catch (e) {
         console.error("Error al pedir la cuenta:", e);
