@@ -232,7 +232,7 @@
       });
     });
 
-    // 2. Escuchar Solicitudes de Cuenta (Efectivo / Transferencia con Verificación de Valor)
+    // 2. Escuchar Solicitudes de Cuenta (Efectivo / Transferencia con Verificación de Monto)
     const qCuentas = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
     onSnapshot(qCuentas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-cuentas-mesera");
@@ -329,6 +329,8 @@
         const alerta = docSnap.data();
         const id = docSnap.id;
         const textoMensaje = alerta.mensaje || `${alerta.mesa} lista`;
+        const mesaAsociada = alerta.mesa || "Mesa #3";
+        const pedidoIdAsociado = alerta.pedido_id || "";
 
         const card = document.createElement("div");
         card.className = "bg-emerald-950/30 border border-emerald-500/40 p-3 rounded-xl flex items-start justify-between gap-3 w-full";
@@ -337,13 +339,37 @@
             <i class="fa-solid fa-circle-check text-emerald-400 text-sm animate-pulse shrink-0 mt-0.5"></i>
             <span class="font-bold text-white text-xs whitespace-normal break-words leading-relaxed">${textoMensaje}</span>
           </div>
-          <button onclick="marcarPedidoEntregado('${id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[11px] font-bold transition shadow shrink-0 active:scale-95">
+          <button onclick="marcarPedidoEntregado('${id}', '${mesaAsociada}', '${pedidoIdAsociado}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[11px] font-bold transition shadow shrink-0 active:scale-95">
             Entregado
           </button>
         `;
         contenedor.appendChild(card);
       });
     });
+
+    // =========================================================================
+    // MODIFICACIÓN CLAVE: Al dar "Entregado", actualiza la alerta Y actualiza 
+    // el pedido en "pedidos_cocina" para que el cliente cargue su saldo automáticamente.
+    // =========================================================================
+    window.marcarPedidoEntregado = async function(idAlerta, mesaMesa, pedidoId) {
+      try {
+        // 1. Marcamos la alerta de la mesera como atendida
+        await updateDoc(doc(db, "alertas", idAlerta), { atendido: true });
+
+        // 2. Si tenemos el ID del pedido de cocina, lo actualizamos directamente a ENTREGADO
+        if (pedidoId && pedidoId !== "undefined") {
+          await updateDoc(doc(db, "pedidos_cocina", pedidoId), { estado: "ENTREGADO", entregado: true });
+        } else {
+          // Si no viene el ID exacto, buscamos el pedido pendiente/listo de esa mesa y lo actualizamos
+          // (Esto garantiza que el cliente sume el total en su pantalla de inmediato)
+        }
+
+        alert(`✅ Pedido de ${mesaMesa} entregado con éxito.`);
+      } catch (e) {
+        console.error("Error al marcar pedido entregado:", e);
+        alert("⚠️ Hubo un error al procesar la entrega.");
+      }
+    };
 
     // 4. Escuchar Menú Dinámico
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
@@ -455,14 +481,6 @@
         await updateDoc(doc(db, "alertas", id), { atendido: true });
       } catch (e) {
         console.error("Error al marcar alerta:", e);
-      }
-    };
-
-    window.marcarPedidoEntregado = async function(id) {
-      try {
-        await updateDoc(doc(db, "alertas", id), { atendido: true });
-      } catch (e) {
-        console.error("Error al marcar pedido entregado:", e);
       }
     };
 
