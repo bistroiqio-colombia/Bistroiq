@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-24 overflow-x-hidden" onclick="desbloquearAudioMesera()">
 
-  <!-- Encabezado Mesera (Compacto y Responsivo) -->
+  <!-- Encabezado Mesera -->
   <header class="bg-slate-800 border-b border-slate-700 p-3 sticky top-0 z-50 flex justify-between items-center shadow-md w-full">
     <div class="flex items-center gap-2 overflow-hidden min-w-0">
       <div class="bg-indigo-500/20 p-2 rounded-xl border border-indigo-500/30 shrink-0">
@@ -21,12 +21,11 @@
       </div>
     </div>
     
-    <!-- Botones de Acción y Sonido -->
     <div class="flex items-center gap-1.5 shrink-0">
       <button id="btn-sonido-mesera" onclick="activarSonidoMesera(event)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition active:scale-95 shadow flex items-center gap-1">
         <i class="fa-solid fa-volume-xmark text-xs"></i> <span>Sonido</span>
       </button>
-      <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition active:scale-95 flex items-center gap-1" aria-label="Salir al inicio">
+      <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition active:scale-95 flex items-center gap-1">
         <i class="fa-solid fa-house text-xs"></i> Salir
       </button>
     </div>
@@ -35,11 +34,11 @@
   <!-- Contenido Principal -->
   <main class="flex-1 p-3.5 max-w-4xl mx-auto w-full space-y-5 overflow-x-hidden">
 
-    <!-- Sección 1: Solicitudes de Cuenta (Efectivo / Transferencia con Verificación de Monto) -->
+    <!-- Cuentas Solicitadas -->
     <section class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5 truncate">
-          <i class="fa-solid fa-file-invoice-dollar text-emerald-400 animate-bounce shrink-0" aria-hidden="true"></i> Cuentas (Mesas)
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-400 animate-bounce shrink-0"></i> Cuentas (Mesas)
         </h2>
         <span id="contador-cuentas" class="bg-emerald-500/20 text-emerald-300 text-[11px] px-2 py-0.5 rounded-full font-semibold shrink-0">0 Cuentas</span>
       </div>
@@ -48,11 +47,11 @@
       </div>
     </section>
 
-    <!-- Sección 2: Avisos de Cocina (Comandas Listas para Servir) -->
+    <!-- Avisos de Cocina (Platos Listos) -->
     <section class="bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-amber-400 text-xs sm:text-sm flex items-center gap-1.5 truncate">
-          <i class="fa-solid fa-bell-concierge animate-pulse shrink-0" aria-hidden="true"></i> Platos Listos en Cocina
+          <i class="fa-solid fa-bell-concierge animate-pulse shrink-0"></i> Platos Listos en Cocina
         </h2>
         <span id="contador-pedidos-listos" class="bg-amber-500/20 text-amber-300 text-[11px] px-2 py-0.5 rounded-full font-semibold shrink-0">0 Listos</span>
       </div>
@@ -61,11 +60,11 @@
       </div>
     </section>
 
-    <!-- Sección 3: Llamados de Clientes en Tiempo Real -->
+    <!-- Llamados de Clientes -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-slate-200 text-xs sm:text-sm flex items-center gap-1.5 truncate">
-          <i class="fa-solid fa-bell text-amber-400 shrink-0" aria-hidden="true"></i> Llamados de Clientes
+          <i class="fa-solid fa-bell text-amber-400 shrink-0"></i> Llamados de Clientes
         </h2>
         <span id="contador-alertas-mesera" class="bg-amber-500/20 text-amber-300 text-[11px] px-2 py-0.5 rounded-full font-semibold shrink-0">0 Llamados</span>
       </div>
@@ -74,7 +73,7 @@
       </div>
     </section>
 
-    <!-- Selector de Mesa Activa -->
+    <!-- Selector de Mesas -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <label class="text-xs font-bold text-slate-300 block">Selecciona Mesa a Atender:</label>
       <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="grid-mesas-selector">
@@ -87,11 +86,11 @@
       </div>
     </section>
 
-    <!-- Catálogo de Productos Dinámicos -->
+    <!-- Menú Dinámico -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-xs sm:text-sm flex items-center gap-1.5">
-          <i class="fa-solid fa-utensils text-indigo-400" aria-hidden="true"></i> Menú Dinámico
+          <i class="fa-solid fa-utensils text-indigo-400"></i> Menú Dinámico
         </h2>
         <span class="text-[11px] text-indigo-300 font-semibold truncate" id="mesa-seleccionada-label">Mesa #3</span>
       </div>
@@ -103,7 +102,7 @@
 
   </main>
 
-  <!-- Barra Flotante de Pedido Activo -->
+  <!-- Barra Flotante -->
   <footer id="barra-pedido-mesera" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-3 shadow-2xl z-40 hidden">
     <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
       <div class="overflow-hidden">
@@ -111,12 +110,11 @@
         <p class="text-base font-black text-emerald-400 truncate" id="total-pedido-mesera">$ 0 COP</p>
       </div>
       <button onclick="enviarComandaMesera()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-lg active:scale-95 flex items-center gap-1.5 shrink-0">
-        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar a Cocina
+        <i class="fa-solid fa-paper-plane"></i> Enviar a Cocina
       </button>
     </div>
   </footer>
 
-  <!-- Script Firebase Integrado y Audio Web -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -126,7 +124,6 @@
       addDoc,
       doc,
       updateDoc,
-      getDocs,
       query,
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -150,12 +147,8 @@
     let primeraCargaListos = true;
 
     window.desbloquearAudioMesera = function() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     };
 
     window.activarSonidoMesera = function(e) {
@@ -170,25 +163,268 @@
     function reproducirCampanaMesera() {
       window.desbloquearAudioMesera();
       if (!audioCtx) return;
-
       try {
         const emitirTono = (frecuencia, inicio, duracion) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(frecuencia, audioCtx.currentTime + inicio);
-          
           gain.gain.setValueAtTime(0.3, audioCtx.currentTime + inicio);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + inicio + duracion);
-          
           osc.connect(gain);
           gain.connect(audioCtx.destination);
-          
           osc.start(audioCtx.currentTime + inicio);
           osc.stop(audioCtx.currentTime + inicio + duracion);
         };
+        emitirTono(1046.50, 0.0, 0.3);
+        emitirTono(1318.51, 0.25, 0.4);
+      } catch (e) { console.error(e); }
+    }
 
-        emitirTono(1046.50, 0.0, 0.3); // C6
-        emitirTono(1318.51, 0.25, 0.4); // E6
+    // 1. Escuchar Llamados de Clientes
+    const qAlertas = query(collection(db, "alertas"), where("tipo", "==", "LLAMAR_MESERA"), where("atendido", "==", false));
+    onSnapshot(qAlertas, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-alertas-mesera");
+      const contador = document.getElementById("contador-alertas-mesera");
+      contador.textContent = `${snapshot.size} Llamados`;
+
+      if (!primeraCargaAlertas && snapshot.docChanges().some(change => change.type === 'added')) {
+        reproducirCampanaMesera();
+      }
+      primeraCargaAlertas = false;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-xs py-3">No hay llamadas pendientes de clientes.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const alerta = docSnap.data();
+        const id = docSnap.id;
+        const card = document.createElement("div");
+        card.className = "bg-amber-950/30 border border-amber-500/40 p-2.5 rounded-xl flex items-center justify-between gap-2 w-full";
+        card.innerHTML = `
+          <div class="flex items-center gap-2 overflow-hidden min-w-0">
+            <i class="fa-solid fa-bell text-amber-400 text-xs animate-pulse shrink-0"></i>
+            <span class="font-bold text-white text-xs truncate">${alerta.mesa || 'Mesa'} solicita atención</span>
+          </div>
+          <button onclick="atenderLlamado('${id}')" class="bg-amber-600 hover:bg-amber-500 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold transition shrink-0">Atendido</button>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    // 2. Escuchar Cuentas Solicitadas
+    const qCuentas = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
+    onSnapshot(qCuentas, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-cuentas-mesera");
+      const contador = document.getElementById("contador-cuentas");
+      contador.textContent = `${snapshot.size} Cuentas`;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-xs py-3">No hay solicitudes de cuenta pendientes.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const cuenta = docSnap.data();
+        const id = docSnap.id;
+        const montoActual = Number(cuenta.total || cuenta.monto || cuenta.valor || 0);
+        const esEfectivo = (cuenta.metodo || 'EFECTIVO').toUpperCase().includes("EFECTIVO");
+
+        const card = document.createElement("div");
+        card.className = `p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 w-full ${esEfectivo ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-indigo-950/30 border-indigo-500/40'}`;
+        card.innerHTML = `
+          <div class="space-y-1 min-w-0 overflow-hidden">
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-file-invoice-dollar ${esEfectivo ? 'text-emerald-400' : 'text-indigo-400'} text-xs animate-pulse shrink-0"></i>
+              <span class="font-bold text-white text-xs truncate">${cuenta.mesa || 'Mesa'} pide la cuenta</span>
+            </div>
+            <p class="text-[11px] font-bold truncate ${esEfectivo ? 'text-emerald-300' : 'text-indigo-300'}">
+              Pago: ${esEfectivo ? '💵 EFECTIVO' : '📲 TRANSFERENCIA'} • <span class="text-amber-400 font-black">${montoActual > 0 ? '$ ' + montoActual.toLocaleString("es-CO") + ' COP' : 'Monto por confirmar'}</span>
+            </p>
+          </div>
+          <button onclick="confirmarMontoYEnviar('${id}', '${cuenta.mesa}', ${montoActual})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition shadow active:scale-95 flex items-center gap-1 shrink-0">
+            <i class="fa-solid fa-paper-plane text-[10px]"></i> Enviar Cuenta
+          </button>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    window.confirmarMontoYEnviar = async function(id, mesa, montoActual) {
+      let valorFinal = montoActual;
+      if (valorFinal <= 0) {
+        const respuesta = prompt(`Ingrese el total consumido (COP) para ${mesa}:`, "35000");
+        if (!respuesta || isNaN(respuesta) || Number(respuesta) <= 0) {
+          alert("⚠️ Debe ingresar un monto válido.");
+          return;
+        }
+        valorFinal = Number(respuesta);
+      } else {
+        if (!confirm(`¿Confirmar y enviar cuenta de ${mesa} por $${valorFinal.toLocaleString("es-CO")} COP al Administrador?`)) return;
+      }
+
+      try {
+        await updateDoc(doc(db, "alertas", id), {
+          total: valorFinal,
+          monto: valorFinal,
+          atendido: true,
+          confirmado_en_caja: false
+        });
+        alert(`✅ Cuenta de ${mesa} enviada al Administrador.`);
+      } catch (e) { console.error(e); }
+    };
+
+    // 3. ESCUCHADOR DE PLATOS LISTOS (DIRECTO DE PEDIDOS_COCINA PARA GARANTIZAR RECEPCIÓN)
+    const qPedidosListosCocina = query(collection(db, "pedidos_cocina"), where("estado", "==", "LISTO"));
+    onSnapshot(qPedidosListosCocina, (snapshot) => {
+      const contenedor = document.getElementById("contenedor-pedidos-listos");
+      const contador = document.getElementById("contador-pedidos-listos");
+
+      contador.textContent = `${snapshot.size} Listos`;
+
+      if (!primeraCargaListos && snapshot.docChanges().some(change => change.type === 'added')) {
+        reproducirCampanaMesera();
+      }
+      primeraCargaListos = false;
+
+      if (snapshot.empty) {
+        contenedor.innerHTML = `<div class="text-center text-slate-400 text-xs py-3">No hay platos listos para entregar en este momento.</div>`;
+        return;
+      }
+
+      contenedor.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const pedido = docSnap.data();
+        const idPedido = docSnap.id;
+        const textoMensaje = `${pedido.mesa || 'Mesa'} • ${pedido.resumen || 'Orden lista'}`;
+
+        const card = document.createElement("div");
+        card.className = "bg-emerald-950/30 border border-emerald-500/40 p-3 rounded-xl flex items-start justify-between gap-3 w-full";
+        card.innerHTML = `
+          <div class="flex items-start gap-2 min-w-0 flex-1">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-sm animate-pulse shrink-0 mt-0.5"></i>
+            <span class="font-bold text-white text-xs whitespace-normal break-words leading-relaxed">${textoMensaje}</span>
+          </div>
+          <button onclick="marcarPedidoEntregadoDirecto('${idPedido}', '${pedido.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[11px] font-bold transition shadow shrink-0 active:scale-95">
+            Entregado
+          </button>
+        `;
+        contenedor.appendChild(card);
+      });
+    });
+
+    // FUNCIÓN DE ENTREGA QUE DISPARA EL SALDO DEL CLIENTE Y REGISTRO EN ADMIN
+    window.marcarPedidoEntregadoDirecto = async function(idPedido, mesaNombre) {
+      try {
+        // A. Actualizamos el pedido en pedidos_cocina a ENTREGADO
+        await updateDoc(doc(db, "pedidos_cocina", idPedido), { 
+          estado: "ENTREGADO", 
+          entregado: true 
+        });
+
+        // B. Notificamos en alertas que se entregó para limpiar notificaciones
+        await addDoc(collection(db, "alertas"), {
+          mesa: mesaNombre,
+          tipo: "PEDIDO_ENTREGADO",
+          atendido: true,
+          fecha: new Date().toISOString()
+        });
+
+        alert(`✅ Pedido de ${mesaNombre} entregado con éxito. Saldo cargado en la cuenta del cliente.`);
       } catch (e) {
-        console.error("Error al
+        console.error("Error al marcar pedido como entregado:", e);
+        alert("⚠️ Hubo un detalle al procesar la entrega.");
+      }
+    };
+
+    // 4. Menú y Envíos
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      const contenedorMenu = document.getElementById("contenedor-menu-mesera");
+      if (snapshot.empty) {
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay productos en el menú.</div>`;
+        return;
+      }
+      contenedorMenu.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const plato = docSnap.data();
+        const id = docSnap.id;
+        const disponible = plato.disponible !== undefined ? plato.disponible : true;
+
+        const card = document.createElement("div");
+        card.className = `bg-slate-900 border rounded-xl p-3 flex justify-between items-center space-x-2 transition w-full ${disponible ? 'border-slate-700/80 shadow-sm' : 'border-rose-900/30 opacity-60'}`;
+        card.innerHTML = `
+          <div class="space-y-0.5 overflow-hidden min-w-0">
+            <h3 class="font-bold text-xs text-white truncate">${plato.nombre}</h3>
+            <p class="text-emerald-400 text-xs font-semibold">$ ${Number(plato.precio || 0).toLocaleString("es-CO")}</p>
+          </div>
+          <div class="shrink-0">
+            ${disponible ? `<button onclick="agregarPlatoMesera('${id}', '${plato.nombre}',${plato.precio})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition active:scale-95"><i class="fa-solid fa-plus text-[10px]"></i> Añadir</button>` : `<span class="text-[10px] text-rose-400 font-semibold">Agotado</span>`}
+          </div>
+        `;
+        contenedorMenu.appendChild(card);
+      });
+    });
+
+    window.seleccionarMesa = function(nombreMesa) {
+      mesaActual = nombreMesa;
+      document.getElementById("mesa-seleccionada-label").textContent = `${mesaActual}`;
+      document.getElementById("resumen-mesa-pie").textContent = `${mesaActual} • Items acumulados`;
+      document.querySelectorAll('.btn-mesa').forEach(btn => {
+        btn.classList.remove('border-indigo-500', 'bg-indigo-950/40');
+        if (btn.textContent.trim() === nombreMesa.replace(' #', ' ')) {
+          btn.classList.add('border-indigo-500', 'bg-indigo-950/40');
+        }
+      });
+    };
+
+    window.agregarPlatoMesera = function(id, nombre, precio) {
+      pedidoActual.push({ id, nombre, precio });
+      actualizarBarraMesera();
+    };
+
+    function actualizarBarraMesera() {
+      const barra = document.getElementById("barra-pedido-mesera");
+      const totalTexto = document.getElementById("total-pedido-mesera");
+      if (pedidoActual.length > 0) {
+        const total = pedidoActual.reduce((acc, item) => acc + item.precio, 0);
+        totalTexto.textContent = `$ ${total.toLocaleString("es-CO")} (${pedidoActual.length})`;
+        barra.classList.remove("hidden");
+      } else {
+        barra.classList.add("hidden");
+      }
+    }
+
+    window.enviarComandaMesera = async function() {
+      if (pedidoActual.length === 0) return;
+      const resumen = pedidoActual.map(i => i.nombre).join(", ");
+      const total = pedidoActual.reduce((acc, item) => acc + item.precio, 0);
+
+      if (confirm(`¿Enviar comanda para ${mesaActual}?\nTotal: $${total.toLocaleString("es-CO")} COP`)) {
+        try {
+          await addDoc(collection(db, "pedidos_cocina"), {
+            mesa: mesaActual,
+            comanda: Math.floor(100 + Math.random() * 900),
+            resumen: resumen,
+            total: total,
+            estado: "PENDIENTE",
+            fecha: new Date().toISOString()
+          });
+          alert(`🚀 Comanda de ${mesaActual} enviada a Cocina.`);
+          pedidoActual = [];
+          actualizarBarraMesera();
+        } catch (e) { console.error(e); }
+      }
+    };
+
+    window.atenderLlamado = async function(id) {
+      try { await updateDoc(doc(db, "alertas", id), { atendido: true }); } catch (e) { console.error(e); }
+    };
+
+    window.volverInicio = function() { window.location.href = 'index.html'; };
+  </script>
+</body>
+</html>
