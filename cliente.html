@@ -222,10 +222,7 @@
       getFirestore, 
       collection, 
       onSnapshot, 
-      addDoc,
-      getDocs,
-      query,
-      where 
+      addDoc 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -244,7 +241,7 @@
     let menuCompleto = [];
     let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
-    let totalConsumidoMesa = 0;
+    let totalConsumidoMesa = 0; // Almacena estrictamente el valor de la comanda actual
 
     // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
     const params = new URLSearchParams(window.location.search);
@@ -456,7 +453,7 @@
       });
     }
 
-    // Confirmar Enviar Pedido a Cocina
+    // Confirmar Enviar Pedido a Cocina y Registrar Total Exacto
     window.confirmarEnviarCocinaDirecto = function() {
       abrirModalCarrito();
     };
@@ -467,6 +464,9 @@
       const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
       const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
+      // Guardamos estrictamente el consumo de esta comanda actual
+      totalConsumidoMesa = total;
+
       try {
         await addDoc(collection(db, "pedidos_cocina"), {
           mesa: mesaParam,
@@ -474,7 +474,6 @@
           resumen: resumen,
           total: total,
           estado: "PENDIENTE",
-          pagado: false, // Control para sumar solo consumos pendientes
           fecha: new Date().toISOString()
         });
 
@@ -488,33 +487,12 @@
       }
     };
 
-    // Funciones para Pedir la Cuenta con Cálculo Automático Estricto
-    window.abrirModalPedirCuenta = async function() {
+    // Funciones para Pedir la Cuenta con el Monto Real y Exacto
+    window.abrirModalPedirCuenta = function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
-      document.getElementById("monto-total-cuenta").textContent = "Calculando...";
 
-      // Sumar únicamente los pedidos activos/pendientes de esta mesa
-      try {
-        const qMesa = query(
-          collection(db, "pedidos_cocina"), 
-          where("mesa", "==", mesaParam)
-        );
-        const snapshot = await getDocs(qMesa);
-
-        totalConsumidoMesa = 0;
-        snapshot.forEach((docSnap) => {
-          const ped = docSnap.data();
-          if (!ped.pagado) {
-            totalConsumidoMesa += Number(ped.total || ped.monto || ped.valor || 0);
-          }
-        });
-
-        document.getElementById("monto-total-cuenta").textContent = `$ ${totalConsumidoMesa.toLocaleString("es-CO")} COP`;
-      } catch (e) {
-        console.error("Error al calcular total consumido:", e);
-        document.getElementById("monto-total-cuenta").textContent = "$ 0 COP";
-      }
-
+      // Muestra de forma limpia el monto exacto de la comanda actual (ej. 23.000 COP)
+      document.getElementById("monto-total-cuenta").textContent = `$ ${totalConsumidoMesa.toLocaleString("es-CO")} COP`;
       document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
     };
 
