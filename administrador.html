@@ -107,7 +107,7 @@
       </form>
     </section>
 
-    <!-- Gestión del Menú Actual (Para Borrar lo Viejo) -->
+    <!-- Gestión del Menú Actual (Para Borrar lo Viejo Directamente) -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
@@ -230,7 +230,6 @@
       });
     });
 
-    // Cargar y mostrar el menú actual para poder borrarlo
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       menuAdminCompleto = [];
       snapshot.forEach((docSnap) => {
@@ -251,7 +250,6 @@
 
       contenedorMenu.innerHTML = "";
       menuAdminCompleto.forEach((item) => {
-        const disponible = item.disponible !== undefined ? item.disponible : true;
         const card = document.createElement("div");
         card.className = "bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm gap-2";
         card.innerHTML = `
