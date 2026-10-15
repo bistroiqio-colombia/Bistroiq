@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
+    /* Ocultar barra de desplazamiento manteniendo la funcionalidad */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -27,6 +28,7 @@
       </div>
     </div>
     
+    <!-- Botones de Acción Superior (Mesera y Cuenta) -->
     <div class="flex items-center gap-2">
       <button onclick="solicitarMesera()" class="bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 px-3.5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 active:scale-95">
         <i class="fa-solid fa-bell text-base" aria-hidden="true"></i> Mesera
@@ -39,16 +41,19 @@
 
   <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-3xl mx-auto w-full space-y-5">
+
+    <!-- Guía Informativa de Uso para el Cliente -->
     <div class="bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-4 flex items-start gap-3.5 shadow-sm">
       <div class="bg-emerald-500/20 p-2.5 rounded-xl text-emerald-400 shrink-0 mt-0.5">
         <i class="fa-solid fa-circle-info text-xl"></i>
       </div>
       <div class="text-sm text-slate-200 leading-relaxed">
         <p class="font-bold text-white text-base mb-0.5">¿Cómo hacer tu pedido?</p>
-        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista o borrar platos.
+        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista, cambiar cantidades o <span class="text-rose-400 font-bold">borrar platos</span>.
       </div>
     </div>
 
+    <!-- Categorías / Filtros Horizontalmente Deslizables -->
     <div class="space-y-2.5">
       <div class="flex justify-between items-center">
         <h2 class="font-bold text-slate-100 text-lg flex items-center gap-2">
@@ -57,6 +62,7 @@
         <span class="text-sm text-slate-300 font-medium" id="contador-platos-filtrados">Cargando...</span>
       </div>
 
+      <!-- Barra de Pestañas (Inicia en Sencillos) -->
       <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-1 text-sm font-bold text-slate-200">
         <button onclick="filtrarCategoria('sencillos', this)" class="btn-cat bg-emerald-600 text-white px-4.5 py-2.5 rounded-xl shrink-0 transition shadow-sm border border-emerald-500/40 font-bold">
           🍲 Sencillos
@@ -73,14 +79,18 @@
       </div>
     </div>
 
+    <!-- Contenedor Dinámico del Menú -->
     <div id="contenedor-menu-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div class="text-center text-slate-300 text-base py-8 col-span-full">Cargando nuestro menú dinámico...</div>
     </div>
+
   </main>
 
-  <!-- Barra Flotante Inferior de Pedido -->
+  <!-- Barra Flotante Inferior de Pedido / Carrito -->
   <footer id="barra-pedido-flotante" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 shadow-2xl z-40 hidden">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Zona para abrir el detalle y eliminar platos -->
       <button onclick="abrirModalCarrito()" class="flex items-center gap-3 bg-slate-900/90 hover:bg-slate-900 border border-emerald-500/40 px-4 py-2.5 rounded-2xl text-left transition group active:scale-95">
         <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl">
           <i class="fa-solid fa-cart-shopping text-base"></i>
@@ -93,13 +103,15 @@
         </div>
       </button>
 
+      <!-- Botón directo para enviar a cocina -->
       <button onclick="confirmarEnviarCocinaDirecto()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3.5 rounded-2xl text-sm font-bold transition shadow-lg active:scale-95 flex items-center gap-2 shrink-0">
         <i class="fa-solid fa-paper-plane text-base" aria-hidden="true"></i> Enviar a Cocina
       </button>
+
     </div>
   </footer>
 
-  <!-- MODAL TIPO PEDIDO -->
+  <!-- MODAL DE SELECCIÓN TIPO DE PEDIDO (Comer Aquí / Para Llevar) -->
   <div id="modal-tipo-pedido" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
       <div class="text-center space-y-1">
@@ -125,7 +137,7 @@
     </div>
   </div>
 
-  <!-- MODAL PEDIR CUENTA -->
+  <!-- MODAL DE PEDIR LA CUENTA (Efectivo / Transferencia con Cálculo de Sesión Limpia) -->
   <div id="modal-pedir-cuenta" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
       <div class="text-center space-y-1">
@@ -137,11 +149,13 @@
       </div>
 
       <div class="space-y-3">
+        <!-- Opción Efectivo -->
         <button onclick="enviarSolicitudCuenta('EFECTIVO')" class="w-full bg-slate-700 hover:bg-slate-600 border border-emerald-500/40 text-white p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
           <span class="flex items-center gap-2">💵 Pagar en Efectivo</span>
           <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded font-bold">Lleva devuelta</span>
         </button>
 
+        <!-- Opción Transferencia -->
         <button onclick="mostrarDatosTransferencia()" class="w-full bg-slate-700 hover:bg-slate-600 border border-indigo-500/40 text-indigo-300 p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
           <span class="flex items-center gap-2">📲 Transferencia (Nequi/DaviPlata)</span>
           <span class="text-xs text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded font-bold">Ver cuentas</span>
@@ -164,9 +178,11 @@
     </div>
   </div>
 
-  <!-- MODAL CARRITO -->
+  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO -->
   <div id="modal-carrito" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 space-y-5 shadow-2xl max-h-[85vh] flex flex-col">
+      
+      <!-- Encabezado del Modal -->
       <div class="flex justify-between items-center border-b border-slate-700 pb-3.5 shrink-0">
         <div>
           <h3 class="font-bold text-white text-lg flex items-center gap-2">
@@ -179,8 +195,12 @@
         </button>
       </div>
 
-      <div id="lista-items-carrito" class="space-y-3.5 overflow-y-auto flex-1 pr-1"></div>
+      <!-- Lista de Ítems Agregados -->
+      <div id="lista-items-carrito" class="space-y-3.5 overflow-y-auto flex-1 pr-1">
+        <!-- Ítems dinámicos aquí -->
+      </div>
 
+      <!-- Acciones de Cierre -->
       <div class="border-t border-slate-700 pt-3.5 space-y-3 shrink-0">
         <div class="grid grid-cols-2 gap-3">
           <button onclick="cerrarModalCarrito()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-3.5 rounded-xl text-sm font-bold transition">
@@ -191,20 +211,18 @@
           </button>
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- Script Firebase -->
+  <!-- Script Firebase y Lógica Integrada -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getFirestore, 
       collection, 
       onSnapshot, 
-      addDoc,
-      getDocs,
-      query,
-      where 
+      addDoc 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -223,12 +241,16 @@
     let menuCompleto = [];
     let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
-    let totalConsumidoMesa = 0;
+    
+    // Mantiene estrictamente el total consumido acumulado en la sesión actual de esta mesa
+    let totalConsumidoSesion = 0;
 
+    // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
     const params = new URLSearchParams(window.location.search);
     const mesaParam = params.get('mesa') || "Mesa #3";
     document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
 
+    // Escuchar menú dinámico de "inventario_insumos"
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       menuCompleto = [];
       snapshot.forEach((docSnap) => {
@@ -237,6 +259,7 @@
       renderizarMenu();
     });
 
+    // Función para renderizar el menú aplicando el filtro de categoría
     function renderizarMenu() {
       const contenedorMenu = document.getElementById("contenedor-menu-cliente");
       const contadorLabel = document.getElementById("contador-platos-filtrados");
@@ -303,6 +326,7 @@
       });
     }
 
+    // Filtrar por Pestaña
     window.filtrarCategoria = function(cat, elemento) {
       categoriaSeleccionada = cat;
       document.querySelectorAll('.btn-cat').forEach(btn => {
@@ -312,6 +336,7 @@
       renderizarMenu();
     };
 
+    // Modal para Elegir "Comer Aquí" o "Para Llevar"
     window.solicitarTipoPedido = function(id, nombre, precio) {
       platoTemporalSeleccionado = { id, nombre, precio };
       document.getElementById("modal-tipo-titulo").textContent = nombre;
@@ -371,6 +396,7 @@
     function actualizarBarraCarrito() {
       const barra = document.getElementById("barra-pedido-flotante");
       const totalTexto = document.getElementById("total-pedido-flotante");
+
       const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
       if (totalItems > 0) {
@@ -382,6 +408,7 @@
       }
     }
 
+    // Modal Carrito
     window.abrirModalCarrito = function() {
       if (carrito.length === 0) return;
       renderizarModalCarrito();
@@ -394,11 +421,14 @@
 
     function renderizarModalCarrito() {
       const lista = document.getElementById("lista-items-carrito");
+
       if (carrito.length === 0) {
         lista.innerHTML = `<div class="text-center text-slate-300 py-6 text-sm">Tu carrito está vacío.</div>`;
         return;
       }
+
       lista.innerHTML = "";
+
       carrito.forEach((item) => {
         const row = document.createElement("div");
         row.className = "bg-slate-900/90 p-3.5 rounded-xl border border-slate-700 flex items-center justify-between gap-3";
@@ -409,13 +439,14 @@
               ${item.esParaLlevar ? '🛍️ Para Llevar (+ $1.000 empaque)' : '🍽️ Para Comer Aquí'}
             </p>
           </div>
+
           <div class="flex items-center gap-2 shrink-0">
             <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 gap-2">
               <button onclick="cambiarCantidad('${item.key}', -1)" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold text-slate-100 flex items-center justify-center">-</button>
               <span class="text-sm font-bold text-white px-1">${item.cantidad}</span>
               <button onclick="cambiarCantidad('${item.key}', 1)" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold text-slate-100 flex items-center justify-center">+</button>
             </div>
-            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-950/50 border border-rose-900/40 text-sm" title="Borrar">
+            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-950/50 border border-rose-900/40 text-sm" title="Borrar este plato">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
@@ -424,6 +455,7 @@
       });
     }
 
+    // Confirmar Enviar Pedido a Cocina
     window.confirmarEnviarCocinaDirecto = function() {
       abrirModalCarrito();
     };
@@ -432,16 +464,18 @@
       if (carrito.length === 0) return;
 
       const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
-      const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+      const subtotalPedido = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+
+      // Suma limpia e incremental a la sesión actual del cliente
+      totalConsumidoSesion += subtotalPedido;
 
       try {
         await addDoc(collection(db, "pedidos_cocina"), {
           mesa: mesaParam,
           comanda: Math.floor(100 + Math.random() * 900),
           resumen: resumen,
-          total: total,
+          total: subtotalPedido,
           estado: "PENDIENTE",
-          pagado: false, // Importante: marca que este consumo aún no ha sido pagado
           fecha: new Date().toISOString()
         });
 
@@ -455,33 +489,15 @@
       }
     };
 
-    // Funciones para Pedir la Cuenta (Consulta limpia y segura de los pedidos no pagados de esta mesa)
-    window.abrirModalPedirCuenta = async function() {
+    // Funciones para Pedir la Cuenta Basadas en la Sesión Actual Exacta
+    window.abrirModalPedirCuenta = function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
-      document.getElementById("monto-total-cuenta").textContent = "Calculando...";
 
-      try {
-        const qMesa = query(
-          collection(db, "pedidos_cocina"), 
-          where("mesa", "==", mesaParam)
-        );
-        const snapshot = await getDocs(qMesa);
+      // Si aún hay ítems en el carrito sin enviar a cocina, se suman al total
+      const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
 
-        totalConsumidoMesa = 0;
-        snapshot.forEach((docSnap) => {
-          const ped = docSnap.data();
-          // Suma únicamente los pedidos que NO estén marcados como pagados
-          if (ped.pagado !== true) {
-            totalConsumidoMesa += Number(ped.total || ped.monto || ped.valor || 0);
-          }
-        });
-
-        document.getElementById("monto-total-cuenta").textContent = `$ ${totalConsumidoMesa.toLocaleString("es-CO")} COP`;
-      } catch (e) {
-        console.error("Error al calcular total consumido:", e);
-        document.getElementById("monto-total-cuenta").textContent = "$ 0 COP";
-      }
-
+      document.getElementById("monto-total-cuenta").textContent = `$ ${montoTotalPagar.toLocaleString("es-CO")} COP`;
       document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
     };
 
@@ -494,8 +510,11 @@
     };
 
     window.enviarSolicitudCuenta = async function(metodoPago) {
-      if (totalConsumidoMesa <= 0) {
-        alert("⚠️ No tienes consumos pendientes por pagar.");
+      const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
+
+      if (montoTotalPagar <= 0) {
+        alert("⚠️ No tienes consumos registrados para pedir la cuenta.");
         return;
       }
 
@@ -504,16 +523,16 @@
           mesa: mesaParam,
           tipo: "PEDIR_CUENTA",
           metodo: metodoPago,
-          total: totalConsumidoMesa,
-          monto: totalConsumidoMesa,
-          valor: totalConsumidoMesa,
-          mensaje: `💳 ${mesaParam} solicita la cuenta ($${totalConsumidoMesa.toLocaleString("es-CO")} COP - ${metodoPago})`,
+          total: montoTotalPagar,
+          monto: montoTotalPagar,
+          valor: montoTotalPagar,
+          mensaje: `💳 ${mesaParam} solicita la cuenta ($${montoTotalPagar.toLocaleString("es-CO")} COP - ${metodoPago})`,
           atendido: false,
           confirmado_en_caja: false,
           fecha: new Date().toISOString()
         });
 
-        alert(`✅ Solicitud enviada por $${totalConsumidoMesa.toLocaleString("es-CO")} COP. La mesera se acercará con la cuenta (${metodoPago}).`);
+        alert(`✅ Solicitud enviada por $${montoTotalPagar.toLocaleString("es-CO")} COP. La mesera se acercará con la cuenta (${metodoPago}).`);
         cerrarModalPedirCuenta();
       } catch (e) {
         console.error("Error al pedir la cuenta:", e);
