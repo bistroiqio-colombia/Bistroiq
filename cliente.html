@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* Ocultar barra de desplazamiento manteniendo la funcionalidad */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -28,7 +27,6 @@
       </div>
     </div>
     
-    <!-- Botones de Acción Superior (Mesera y Cuenta) -->
     <div class="flex items-center gap-2">
       <button onclick="solicitarMesera()" class="bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 px-3.5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 active:scale-95">
         <i class="fa-solid fa-bell text-base" aria-hidden="true"></i> Mesera
@@ -41,19 +39,16 @@
 
   <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-3xl mx-auto w-full space-y-5">
-
-    <!-- Guía Informativa de Uso para el Cliente -->
     <div class="bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-4 flex items-start gap-3.5 shadow-sm">
       <div class="bg-emerald-500/20 p-2.5 rounded-xl text-emerald-400 shrink-0 mt-0.5">
         <i class="fa-solid fa-circle-info text-xl"></i>
       </div>
       <div class="text-sm text-slate-200 leading-relaxed">
         <p class="font-bold text-white text-base mb-0.5">¿Cómo hacer tu pedido?</p>
-        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista, cambiar cantidades o <span class="text-rose-400 font-bold">borrar platos</span>.
+        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista o cambiar cantidades.
       </div>
     </div>
 
-    <!-- Categorías / Filtros Horizontalmente Deslizables -->
     <div class="space-y-2.5">
       <div class="flex justify-between items-center">
         <h2 class="font-bold text-slate-100 text-lg flex items-center gap-2">
@@ -62,35 +57,21 @@
         <span class="text-sm text-slate-300 font-medium" id="contador-platos-filtrados">Cargando...</span>
       </div>
 
-      <!-- Barra de Pestañas (Inicia en Sencillos) -->
       <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-1 text-sm font-bold text-slate-200">
-        <button onclick="filtrarCategoria('sencillos', this)" class="btn-cat bg-emerald-600 text-white px-4.5 py-2.5 rounded-xl shrink-0 transition shadow-sm border border-emerald-500/40 font-bold">
-          🍲 Sencillos
-        </button>
-        <button onclick="filtrarCategoria('asados', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">
-          🥩 Asados
-        </button>
-        <button onclick="filtrarCategoria('bebidas', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">
-          🥤 Bebidas
-        </button>
-        <button onclick="filtrarCategoria('porciones', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">
-          🍟 Porciones
-        </button>
+        <button onclick="filtrarCategoria('sencillos', this)" class="btn-cat bg-emerald-600 text-white px-4.5 py-2.5 rounded-xl shrink-0 transition shadow-sm border border-emerald-500/40 font-bold">🍲 Sencillos</button>
+        <button onclick="filtrarCategoria('asados', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">🥩 Asados</button>
+        <button onclick="filtrarCategoria('bebidas', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">🥤 Bebidas</button>
+        <button onclick="filtrarCategoria('porciones', this)" class="btn-cat bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4.5 py-2.5 rounded-xl shrink-0 transition">🍟 Porciones</button>
       </div>
     </div>
 
-    <!-- Contenedor Dinámico del Menú -->
     <div id="contenedor-menu-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div class="text-center text-slate-300 text-base py-8 col-span-full">Cargando nuestro menú dinámico...</div>
     </div>
-
   </main>
 
-  <!-- Barra Flotante Inferior de Pedido / Carrito -->
   <footer id="barra-pedido-flotante" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-4 shadow-2xl z-40 hidden">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-3">
-      
-      <!-- Zona para abrir el detalle y eliminar platos -->
       <button onclick="abrirModalCarrito()" class="flex items-center gap-3 bg-slate-900/90 hover:bg-slate-900 border border-emerald-500/40 px-4 py-2.5 rounded-2xl text-left transition group active:scale-95">
         <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl">
           <i class="fa-solid fa-cart-shopping text-base"></i>
@@ -103,41 +84,34 @@
         </div>
       </button>
 
-      <!-- Botón directo para enviar a cocina -->
       <button onclick="confirmarEnviarCocinaDirecto()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3.5 rounded-2xl text-sm font-bold transition shadow-lg active:scale-95 flex items-center gap-2 shrink-0">
         <i class="fa-solid fa-paper-plane text-base" aria-hidden="true"></i> Enviar a Cocina
       </button>
-
     </div>
   </footer>
 
-  <!-- MODAL DE SELECCIÓN TIPO DE PEDIDO (Comer Aquí / Para Llevar) -->
+  <!-- MODAL TIPO PEDIDO -->
   <div id="modal-tipo-pedido" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
       <div class="text-center space-y-1">
         <h3 class="font-bold text-white text-lg" id="modal-tipo-titulo">Selecciona una opción</h3>
         <p class="text-sm text-slate-300">¿Cómo deseas disfrutar tu plato?</p>
       </div>
-
       <div class="space-y-3">
-        <button onclick="confirmarAgregarAlCarrito(false)" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-white p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
-          <span class="flex items-center gap-2">🍽️ Para Comer Aquí</span>
+        <button onclick="confirmarAgregarAlCarrito(false)" class="w-full bg-slate-700 hover:bg-slate-650 border border-slate-600 text-white p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span>🍽️ Para Comer Aquí</span>
           <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded font-bold">Sin recargo</span>
         </button>
-
-        <button onclick="confirmarAgregarAlCarrito(true)" class="w-full bg-slate-700 hover:bg-slate-600 border border-amber-500/40 text-amber-300 p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
-          <span class="flex items-center gap-2">🛍️ Para Llevar</span>
-          <span class="text-xs text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded font-bold">+ $1.000 COP empaque</span>
+        <button onclick="confirmarAgregarAlCarrito(true)" class="w-full bg-slate-700 hover:bg-slate-650 border border-amber-500/40 text-amber-300 p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span>🛍️ Para Llevar</span>
+          <span class="text-xs text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded font-bold">+ $1.000 empaque</span>
         </button>
       </div>
-
-      <button onclick="cerrarModalTipoPedido()" class="w-full text-slate-300 hover:text-white text-sm text-center pt-1 font-bold block">
-        Cancelar
-      </button>
+      <button onclick="cerrarModalTipoPedido()" class="w-full text-slate-300 hover:text-white text-sm text-center pt-1 font-bold block">Cancelar</button>
     </div>
   </div>
 
-  <!-- MODAL DE PEDIR LA CUENTA -->
+  <!-- MODAL PEDIR CUENTA -->
   <div id="modal-pedir-cuenta" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
       <div class="text-center space-y-1">
@@ -147,34 +121,24 @@
         <p class="text-xs text-slate-300">Resumen de consumos de tu mesa:</p>
         <p class="text-2xl font-black text-emerald-400 mt-1" id="monto-total-cuenta">$ 0 COP</p>
       </div>
-
       <div class="space-y-3">
-        <!-- Opción Efectivo -->
-        <button onclick="enviarSolicitudCuenta('EFECTIVO')" class="w-full bg-slate-700 hover:bg-slate-600 border border-emerald-500/40 text-white p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
-          <span class="flex items-center gap-2">💵 Pagar en Efectivo</span>
+        <button onclick="enviarSolicitudCuenta('EFECTIVO')" class="w-full bg-slate-700 hover:bg-slate-650 border border-emerald-500/40 text-white p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span>💵 Pagar en Efectivo</span>
           <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded font-bold">Lleva devuelta</span>
         </button>
-
-        <!-- Opción Transferencia -->
-        <button onclick="mostrarDatosTransferencia()" class="w-full bg-slate-700 hover:bg-slate-600 border border-indigo-500/40 text-indigo-300 p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
-          <span class="flex items-center gap-2">📲 Transferencia (Nequi/DaviPlata)</span>
+        <button onclick="mostrarDatosTransferencia()" class="w-full bg-slate-700 hover:bg-slate-650 border border-indigo-500/40 text-indigo-300 p-4 rounded-xl font-bold text-sm transition flex items-center justify-between active:scale-95">
+          <span>📲 Transferencia (Nequi/DaviPlata)</span>
           <span class="text-xs text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded font-bold">Ver cuentas</span>
         </button>
       </div>
-
       <div id="info-transferencia-oculta" class="hidden bg-slate-900/90 p-4 rounded-xl border border-indigo-500/30 space-y-2.5 text-sm">
-        <p class="font-bold text-white text-center text-base">Datos Oficiales del Restaurante:</p>
+        <p class="font-bold text-white text-center text-base">Datos Oficiales:</p>
         <p class="text-slate-200"><strong>Nequi / DaviPlata:</strong> 300 000 0000</p>
         <p class="text-slate-200"><strong>Bancolombia:</strong> 123-456789-00</p>
-        <p class="text-xs text-amber-300 font-semibold text-center pt-1">Muestra el comprobante de pago a la mesera al recibir tu cuenta.</p>
-        <button onclick="enviarSolicitudCuenta('TRANSFERENCIA')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold mt-2 text-sm shadow">
-          Avisar a la Mesera (Transferencia)
-        </button>
+        <p class="text-xs text-amber-300 font-semibold text-center pt-1">Muestra el comprobante de pago al recibir tu cuenta.</p>
+        <button onclick="enviarSolicitudCuenta('TRANSFERENCIA')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold mt-2 text-sm shadow">Avisar a la Mesera</button>
       </div>
-
-      <button onclick="cerrarModalPedirCuenta()" class="w-full text-slate-300 hover:text-white text-sm text-center pt-1 font-bold block">
-        Volver al Menú
-      </button>
+      <button onclick="cerrarModalPedirCuenta()" class="w-full text-slate-300 hover:text-white text-sm text-center pt-1 font-bold block">Volver al Menú</button>
     </div>
   </div>
 
@@ -188,34 +152,27 @@
           </h3>
           <p class="text-xs text-slate-300">Ajusta cantidades o borra platos si te equivocaste.</p>
         </div>
-        <button onclick="cerrarModalCarrito()" class="text-slate-400 hover:text-white p-1 rounded-lg text-2xl">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <button onclick="cerrarModalCarrito()" class="text-slate-400 hover:text-white p-1 rounded-lg text-2xl"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
       <div id="lista-items-carrito" class="space-y-3.5 overflow-y-auto flex-1 pr-1"></div>
-
       <div class="border-t border-slate-700 pt-3.5 space-y-3 shrink-0">
         <div class="grid grid-cols-2 gap-3">
-          <button onclick="cerrarModalCarrito()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-3.5 rounded-xl text-sm font-bold transition">
-            Seguir Pidiendo
-          </button>
-          <button onclick="confirmarEnviarCocina()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl text-sm font-bold transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-check"></i> Confirmar Pedido
-          </button>
+          <button onclick="cerrarModalCarrito()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-3.5 rounded-xl text-sm font-bold transition">Seguir Pidiendo</button>
+          <button onclick="confirmarEnviarCocina()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl text-sm font-bold transition shadow-lg active:scale-95 flex items-center justify-center gap-2"><i class="fa-solid fa-check"></i> Confirmar Pedido</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Script Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getFirestore, 
       collection, 
       onSnapshot, 
-      addDoc 
+      addDoc,
+      query,
+      where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -235,13 +192,24 @@
     let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
 
-    // Memoria de sesión estrictamente local para esta mesa y dispositivo
     const claveStorage = `bistroiq_sesion_${window.location.search || 'mesa3'}`;
     let totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
 
     const params = new URLSearchParams(window.location.search);
     const mesaParam = params.get('mesa') || "Mesa #3";
     document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
+
+    // Escuchar si el Administrador libera la mesa en caja para limpiar automáticamente
+    const qLiberacion = query(collection(db, "alertas"), where("mesa", "==", mesaParam), where("tipo", "==", "PEDIR_CUENTA"));
+    onSnapshot(qLiberacion, (snapshot) => {
+      snapshot.forEach((docSnap) => {
+        const alerta = docSnap.data();
+        if (alerta.confirmado_en_caja === true) {
+          localStorage.removeItem(claveStorage);
+          totalConsumidoSesion = 0;
+        }
+      });
+    });
 
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       menuCompleto = [];
@@ -278,39 +246,25 @@
       contenedorMenu.innerHTML = "";
       platosFiltrados.forEach((plato) => {
         const estaDisponible = plato.disponible !== undefined ? plato.disponible : true;
-
         const card = document.createElement("div");
-        card.className = `bg-slate-800 border rounded-2xl p-4.5 flex flex-col justify-between space-y-3.5 transition ${
-          estaDisponible ? 'border-slate-700/80 shadow-md' : 'border-rose-900/30 opacity-60'
-        }`;
+        card.className = `bg-slate-800 border rounded-2xl p-4.5 flex flex-col justify-between space-y-3.5 transition ${estaDisponible ? 'border-slate-700/80 shadow-md' : 'border-rose-900/30 opacity-60'}`;
 
         card.innerHTML = `
           <div>
             <div class="flex justify-between items-start gap-2">
               <h3 class="font-bold text-base text-white">${plato.nombre}</h3>
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded shrink-0 ${
-                estaDisponible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-              }">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded shrink-0 ${estaDisponible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
                 ${estaDisponible ? 'Disponible' : 'Agotado'}
               </span>
             </div>
             <p class="text-sm text-slate-300 mt-1">${plato.desc || 'Sin descripción'}</p>
           </div>
-
           <div class="space-y-2 pt-2 border-t border-slate-700/50">
             <div class="flex justify-between items-center">
               <span class="font-extrabold text-emerald-400 text-base">$ ${Number(plato.precio || 0).toLocaleString("es-CO")} COP</span>
-              ${
-                estaDisponible 
-                  ? `<button onclick="solicitarTipoPedido('${plato.id}', '${plato.nombre}',${plato.precio})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95 flex items-center gap-1.5">
-                      <i class="fa-solid fa-plus"></i> Agregar
-                     </button>`
-                  : `<span class="text-xs text-rose-400 font-semibold italic">Agotado</span>`
-              }
+              ${estaDisponible ? `<button onclick="solicitarTipoPedido('${plato.id}', '${plato.nombre}',${plato.precio})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition active:scale-95 flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Agregar</button>` : `<span class="text-xs text-rose-400 font-semibold italic">Agotado</span>`}
             </div>
-            <p class="text-xs text-slate-300 font-medium flex items-center gap-1">
-              <i class="fa-solid fa-bag-shopping text-amber-400"></i> Para llevar: +$1.000 COP empaque
-            </p>
+            <p class="text-xs text-slate-300 font-medium flex items-center gap-1"><i class="fa-solid fa-bag-shopping text-amber-400"></i> Para llevar: +$1.000 COP empaque</p>
           </div>
         `;
         contenedorMenu.appendChild(card);
@@ -339,7 +293,6 @@
 
     window.confirmarAgregarAlCarrito = function(esParaLlevar) {
       if (!platoTemporalSeleccionado) return;
-
       const { id, nombre, precio } = platoTemporalSeleccionado;
       const recargo = esParaLlevar ? 1000 : 0;
       const precioFinal = precio + recargo;
@@ -350,16 +303,8 @@
       if (existe) {
         existe.cantidad += 1;
       } else {
-        carrito.push({
-          key: itemKey,
-          id,
-          nombre: `${nombre}${etiquetaLlevar}`,
-          precio: precioFinal,
-          esParaLlevar,
-          cantidad: 1
-        });
+        carrito.push({ key: itemKey, id, nombre: `${nombre}${etiquetaLlevar}`, precio: precioFinal, esParaLlevar, cantidad: 1 });
       }
-
       cerrarModalTipoPedido();
       actualizarBarraCarrito();
     };
@@ -368,9 +313,7 @@
       const item = carrito.find(i => i.key === key);
       if (item) {
         item.cantidad += cambio;
-        if (item.cantidad <= 0) {
-          carrito = carrito.filter(i => i.key !== key);
-        }
+        if (item.cantidad <= 0) carrito = carrito.filter(i => i.key !== key);
       }
       actualizarBarraCarrito();
       renderizarModalCarrito();
@@ -419,9 +362,7 @@
         row.innerHTML = `
           <div class="overflow-hidden space-y-0.5">
             <h4 class="font-bold text-sm text-white truncate">${item.nombre}</h4>
-            <p class="text-xs ${item.esParaLlevar ? 'text-amber-300' : 'text-emerald-400'} font-semibold">
-              ${item.esParaLlevar ? '🛍️ Para Llevar (+ $1.000 empaque)' : '🍽️ Para Comer Aquí'}
-            </p>
+            <p class="text-xs ${item.esParaLlevar ? 'text-amber-300' : 'text-emerald-400'} font-semibold">${item.esParaLlevar ? '🛍️ Para Llevar (+ $1.000 empaque)' : '🍽️ Para Comer Aquí'}</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 gap-2">
@@ -429,26 +370,20 @@
               <span class="text-sm font-bold text-white px-1">${item.cantidad}</span>
               <button onclick="cambiarCantidad('${item.key}', 1)" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold text-slate-100 flex items-center justify-center">+</button>
             </div>
-            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-950/50 border border-rose-900/40 text-sm" title="Borrar">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-950/50 border border-rose-900/40 text-sm" title="Borrar"><i class="fa-solid fa-trash"></i></button>
           </div>
         `;
         lista.appendChild(row);
       });
     }
 
-    window.confirmarEnviarCocinaDirecto = function() {
-      abrirModalCarrito();
-    };
+    window.confirmarEnviarCocinaDirecto = function() { abrirModalCarrito(); };
 
     window.confirmarEnviarCocina = async function() {
       if (carrito.length === 0) return;
-
       const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
       const subtotalPedido = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
-      // Acumulamos en la sesión local limpia
       totalConsumidoSesion += subtotalPedido;
       localStorage.setItem(claveStorage, totalConsumidoSesion);
 
@@ -461,7 +396,6 @@
           estado: "PENDIENTE",
           fecha: new Date().toISOString()
         });
-
         alert("🚀 ¡Pedido enviado a la cocina con éxito!");
         carrito = [];
         actualizarBarraCarrito();
@@ -472,10 +406,8 @@
       }
     };
 
-    // Funciones para Pedir la Cuenta: 100% basado en la sesión actual, ignorando basuras de Firebase
     window.abrirModalPedirCuenta = function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
-
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
       const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
 
@@ -483,13 +415,8 @@
       document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
     };
 
-    window.cerrarModalPedirCuenta = function() {
-      document.getElementById("modal-pedir-cuenta").classList.add("hidden");
-    };
-
-    window.mostrarDatosTransferencia = function() {
-      document.getElementById("info-transferencia-oculta").classList.remove("hidden");
-    };
+    window.cerrarModalPedirCuenta = function() { document.getElementById("modal-pedir-cuenta").classList.add("hidden"); };
+    window.mostrarDatosTransferencia = function() { document.getElementById("info-transferencia-oculta").classList.remove("hidden"); };
 
     window.enviarSolicitudCuenta = async function(metodoPago) {
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
@@ -513,13 +440,7 @@
           confirmado_en_caja: false,
           fecha: new Date().toISOString()
         });
-
         alert(`✅ Solicitud enviada por $${montoTotalPagar.toLocaleString("es-CO")} COP. La mesera se acercará con la cuenta (${metodoPago}).`);
-        
-        // Al pedir la cuenta exitosamente, limpiamos la sesión de esta mesa
-        localStorage.removeItem(claveStorage);
-        totalConsumidoSesion = 0;
-        
         cerrarModalPedirCuenta();
       } catch (e) {
         console.error("Error al pedir la cuenta:", e);
@@ -536,9 +457,7 @@
           fecha: new Date().toISOString()
         });
         alert("🔔 Se ha notificado a la mesera. En breve te atenderá.");
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     };
   </script>
 </body>
