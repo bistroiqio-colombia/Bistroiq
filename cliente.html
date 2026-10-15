@@ -191,23 +191,35 @@
     let menuCompleto = [];
     let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
+    let saldoConsumidoMesa = 0;
 
     const params = new URLSearchParams(window.location.search);
     const mesaParam = params.get('mesa') || "Mesa #3";
-    const claveStorage = `bistroiq_sesion_${mesaParam.replace(/[^a-zA-Z0-9]/g, '')}`;
     
-    let totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
-
     document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
 
-    // Escuchar si el Administrador libera la mesa en caja para limpiar automáticamente
+    // ESCUCHADOR EN TIEMPO REAL: Sura los pedidos que la mesera ya marcó como ENTREGADOS para esta mesa
+    const qPedidosEntregados = query(collection(db, "pedidos_cocina"), where("mesa", "==", mesaParam));
+    onSnapshot(qPedidosEntregados, (snapshot) => {
+      let sumaTotal = 0;
+      snapshot.forEach((docSnap) => {
+        const pedido = docSnap.data();
+        // Solo sumamos si la mesera ya le dio el visto bueno de entregado (estado ENTREGADO o ATENDIDO)
+        const estado = (pedido.estado || '').toUpperCase();
+        if (estado === 'ENTREGADO' || estado === 'LISTO' || pedido.entregado === true) {
+          sumaTotal += Number(pedido.total || 0);
+        }
+      });
+      saldoConsumidoMesa = sumaTotal;
+    });
+
+    // Escuchar si el Administrador libera la mesa en caja para limpiar todo
     const qLiberacion = query(collection(db, "alertas"), where("mesa", "==", mesaParam), where("tipo", "==", "PEDIR_CUENTA"));
     onSnapshot(qLiberacion, (snapshot) => {
       snapshot.forEach((docSnap) => {
         const alerta = docSnap.data();
         if (alerta.confirmado_en_caja === true) {
-          localStorage.removeItem(claveStorage);
-          totalConsumidoSesion = 0;
+          saldoConsumidoMesa = 0;
         }
       });
     });
@@ -385,10 +397,6 @@
       const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
       const subtotalPedido = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
-      // Sincronizamos y actualizamos el almacenamiento local de inmediato
-      totalConsumidoSesion += subtotalPedido;
-      localStorage.setItem(claveStorage, totalConsumidoSesion);
-
       try {
         await addDoc(collection(db, "pedidos_cocina"), {
           mesa: mesaParam,
@@ -396,6 +404,7 @@
           resumen: resumen,
           total: subtotalPedido,
           estado: "PENDIENTE",
+          entregado: false,
           fecha: new Date().toISOString()
         });
         alert("🚀 ¡Pedido enviado a la cocina con éxito!");
@@ -411,10 +420,8 @@
     window.abrirModalPedirCuenta = function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
       
-      // Aseguramos leer siempre el valor fresco del almacenamiento local
-      totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
+      const montoTotalPagar = saldoConsumidoMesa + totalCarritoNoEnviado;
 
       document.getElementById("monto-total-cuenta").textContent = `$ ${montoTotalPagar.toLocaleString("es-CO")} COP`;
       document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
@@ -423,11 +430,9 @@
     window.cerrarModalPedirCuenta = function() { document.getElementById("modal-pedir-cuenta").classList.add("hidden"); };
     window.mostrarDatosTransferencia = function() { document.getElementById("info-transferencia-oculta").classList.remove("hidden"); };
 
-    // CORRECCIÓN CLAVE: Lee correctamente el monto total antes de validar y enviar la alerta
     window.enviarSolicitudCuenta = async function(metodoPago) {
-      totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
+      const montoTotalPagar = saldoConsumidoMesa + totalCarritoNoEnviado;
 
       if (montoTotalPagar <= 0) {
         alert("⚠️ No tienes consumos pendientes por pagar.");
