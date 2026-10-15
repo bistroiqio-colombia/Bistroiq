@@ -72,7 +72,7 @@
       </div>
     </section>
 
-    <!-- Menú e Inventario -->
+    <!-- Publicar Nuevo Plato -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
@@ -99,8 +99,25 @@
             </select>
           </div>
         </div>
+        <div>
+          <label class="text-sm font-bold text-slate-200 block mb-1.5">Descripción Corta:</label>
+          <input type="text" id="desc-plato" placeholder="Ej. Con patacones y ensalada." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white">
+        </div>
         <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl text-sm shadow">Guardar y Publicar Plato</button>
       </form>
+    </section>
+
+    <!-- Gestión del Menú Actual (Para Borrar lo Viejo) -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-700">
+        <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
+          <i class="fa-solid fa-tags text-indigo-400 text-lg"></i> Menú Actual en Firebase (Eliminar o Editar)
+        </h2>
+        <span id="contador-menu-admin" class="text-xs text-indigo-300 font-bold">0 Productos</span>
+      </div>
+      <div id="contenedor-menu-admin" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <div class="text-center text-slate-300 text-sm py-4 col-span-full">Cargando inventario...</div>
+      </div>
     </section>
 
     <!-- Cierre de Caja -->
@@ -140,8 +157,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    let menuAdminCompleto = [];
     let audioCtx = null;
-    let primeraCargaPagos = true;
 
     window.desbloquearAudioAdmin = function() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -181,7 +198,6 @@
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
       const contador = document.getElementById("contador-pagos");
-      contador.snapshotSize = snapshot.size;
       contador.textContent = `${snapshot.size} Por Confirmar`;
 
       if (snapshot.empty) {
@@ -214,18 +230,66 @@
       });
     });
 
+    // Cargar y mostrar el menú actual para poder borrarlo
+    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
+      menuAdminCompleto = [];
+      snapshot.forEach((docSnap) => {
+        menuAdminCompleto.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      renderizarMenuAdmin();
+    });
+
+    function renderizarMenuAdmin() {
+      const contenedorMenu = document.getElementById("contenedor-menu-admin");
+      const contadorMenu = document.getElementById("contador-menu-admin");
+      contadorMenu.textContent = `${menuAdminCompleto.length} Productos`;
+
+      if (menuAdminCompleto.length === 0) {
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-300 text-sm py-4 col-span-full">No hay platos en el menú. Usa el formulario de arriba para agregar nuevos.</div>`;
+        return;
+      }
+
+      contenedorMenu.innerHTML = "";
+      menuAdminCompleto.forEach((item) => {
+        const disponible = item.disponible !== undefined ? item.disponible : true;
+        const card = document.createElement("div");
+        card.className = "bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm gap-2";
+        card.innerHTML = `
+          <div class="space-y-1 overflow-hidden">
+            <h3 class="font-bold text-sm text-white truncate">${item.nombre}</h3>
+            <p class="text-xs text-indigo-300 font-bold capitalize">Categoría: ${item.categoria || 'sencillos'}</p>
+            <p class="text-emerald-400 text-sm font-black">$ ${Number(item.precio || 0).toLocaleString("es-CO")} COP</p>
+          </div>
+          <button onclick="eliminarPlatoFirebase('${item.id}', '${item.nombre}')" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/40 p-2.5 rounded-lg text-xs transition shrink-0" title="Eliminar plato">
+            <i class="fa-solid fa-trash"></i> Eliminar
+          </button>
+        `;
+        contenedorMenu.appendChild(card);
+      });
+    }
+
     window.agregarPlato = async function(event) {
       event.preventDefault();
       const nombre = document.getElementById("nombre-plato").value.trim();
       const precio = Number(document.getElementById("precio-plato").value);
       const categoria = document.getElementById("categoria-plato").value;
+      const desc = document.getElementById("desc-plato").value.trim();
       const idUnico = nombre.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
       try {
-        await setDoc(doc(db, "inventario_insumos", idUnico), { nombre, precio, categoria, disponible: true });
+        await setDoc(doc(db, "inventario_insumos", idUnico), { nombre, precio, categoria, desc, disponible: true });
         document.getElementById("form-nuevo-plato").reset();
         alert(`✅ Plato "${nombre}" publicado con éxito.`);
       } catch (e) { console.error(e); }
+    };
+
+    window.eliminarPlatoFirebase = async function(id, nombre) {
+      if (confirm(`¿Estás seguro de eliminar "${nombre}" del menú? Se borrará para los clientes y meseras.`)) {
+        try {
+          await deleteDoc(doc(db, "inventario_insumos", id));
+          alert(`🗑️ "${nombre}" eliminado correctamente.`);
+        } catch (e) { console.error(e); }
+      }
     };
 
     window.confirmarPago = async function(id, mesa) {
