@@ -314,7 +314,7 @@
       }
     };
 
-    // Escuchar ventas para la caja (Suma únicamente los pagos efectivamente confirmados por el administrador)
+    // Escuchar ventas para la caja (Suma robusta adaptada a cualquier nombre de campo y estado pagado)
     onSnapshot(collection(db, "alertas"), (snapshot) => {
       let totalVentas = 0;
       let totalEfectivo = 0;
@@ -322,10 +322,12 @@
 
       snapshot.forEach((docSnap) => {
         const alerta = docSnap.data();
-        if (alerta.tipo === "PEDIR_CUENTA" && alerta.pagado === true) {
-          const monto = Number(alerta.total || 0);
+        if (alerta.tipo === "PEDIR_CUENTA" && (alerta.pagado === true || alerta.atendido === true)) {
+          const monto = Number(alerta.total || alerta.monto || alerta.valor || 0);
           totalVentas += monto;
-          if (alerta.metodo === "EFECTIVO") {
+          
+          const metodoPago = (alerta.metodo || alerta.formaPago || 'EFECTIVO').toUpperCase();
+          if (metodoPago.includes("EFECTIVO")) {
             totalEfectivo += monto;
           } else {
             totalTransferencia += monto;
@@ -338,7 +340,7 @@
       document.getElementById("admin-transferencias").textContent = `$ ${totalTransferencia.toLocaleString("es-CO")} COP`;
     });
 
-    // Escuchar solicitudes de pago pendientes (Filtra por pagado == false para no depender de si la mesera atendió o no)
+    // Escuchar solicitudes de pago pendientes (Filtra por pagado == false)
     const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("pagado", "==", false));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
@@ -360,7 +362,9 @@
       snapshot.forEach((docSnap) => {
         const pago = docSnap.data();
         const id = docSnap.id;
-        const esEfectivo = pago.metodo === "EFECTIVO";
+        const montoTotal = Number(pago.total || pago.monto || pago.valor || 0);
+        const metodoPago = (pago.metodo || pago.formaPago || 'EFECTIVO').toUpperCase();
+        const esEfectivo = metodoPago.includes("EFECTIVO");
 
         const card = document.createElement("div");
         card.className = `p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${
@@ -375,7 +379,7 @@
               </span>
             </div>
             <div class="text-xs text-slate-200">
-              Solicitud de cuenta por <span class="font-bold text-emerald-400 text-sm">$${Number(pago.total || 0).toLocaleString("es-CO")} COP</span>. Confirma el cobro.
+              Solicitud de cuenta por <span class="font-bold text-emerald-400 text-sm">$${montoTotal.toLocaleString("es-CO")} COP</span>. Confirma el cobro.
             </div>
           </div>
           <div class="flex gap-2">
