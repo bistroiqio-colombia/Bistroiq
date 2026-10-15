@@ -35,7 +35,7 @@
   <!-- Contenido Principal -->
   <main class="flex-1 p-3.5 max-w-4xl mx-auto w-full space-y-5 overflow-x-hidden">
 
-    <!-- Sección 1: Solicitudes de Cuenta (Efectivo / Transferencia) -->
+    <!-- Sección 1: Solicitudes de Cuenta (Efectivo / Transferencia con Verificación de Monto) -->
     <section class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5 truncate">
@@ -48,7 +48,7 @@
       </div>
     </section>
 
-    <!-- Sección 2: Avisos de Cocina (Comandas Listas para Servir - Texto Completo) -->
+    <!-- Sección 2: Avisos de Cocina (Comandas Listas para Servir) -->
     <section class="bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-amber-400 text-xs sm:text-sm flex items-center gap-1.5 truncate">
@@ -232,7 +232,7 @@
       });
     });
 
-    // 2. Escuchar Solicitudes de Cuenta (Efectivo / Transferencia)
+    // 2. Escuchar Solicitudes de Cuenta (Efectivo / Transferencia con Verificación de Valor)
     const qCuentas = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
     onSnapshot(qCuentas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-cuentas-mesera");
@@ -249,31 +249,64 @@
       snapshot.forEach((docSnap) => {
         const cuenta = docSnap.data();
         const id = docSnap.id;
-        const esEfectivo = cuenta.metodo === "EFECTIVO";
+        const montoActual = Number(cuenta.total || cuenta.monto || cuenta.valor || 0);
+        const esEfectivo = (cuenta.metodo || 'EFECTIVO').toUpperCase().includes("EFECTIVO");
 
         const card = document.createElement("div");
-        card.className = `p-2.5 rounded-xl border flex items-center justify-between gap-2 w-full ${
+        card.className = `p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 w-full ${
           esEfectivo ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-indigo-950/30 border-indigo-500/40'
         }`;
         card.innerHTML = `
-          <div class="space-y-0.5 min-w-0 overflow-hidden">
+          <div class="space-y-1 min-w-0 overflow-hidden">
             <div class="flex items-center gap-1.5">
               <i class="fa-solid fa-file-invoice-dollar ${esEfectivo ? 'text-emerald-400' : 'text-indigo-400'} text-xs animate-pulse shrink-0"></i>
               <span class="font-bold text-white text-xs truncate">${cuenta.mesa || 'Mesa'} pide la cuenta</span>
             </div>
-            <p class="text-[10px] font-semibold truncate ${esEfectivo ? 'text-emerald-300' : 'text-indigo-300'}">
-              Pago: ${esEfectivo ? '💵 EFECTIVO' : '📲 TRANSFERENCIA'}
+            <p class="text-[11px] font-bold truncate ${esEfectivo ? 'text-emerald-300' : 'text-indigo-300'}">
+              Pago: ${esEfectivo ? '💵 EFECTIVO' : '📲 TRANSFERENCIA'} • <span class="text-amber-400 font-black">${montoActual > 0 ? '$ ' + montoActual.toLocaleString("es-CO") + ' COP' : 'Monto por confirmar'}</span>
             </p>
           </div>
-          <button onclick="atenderLlamado('${id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold transition shrink-0">
-            Atendido
-          </button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="confirmarMontoYEnviar('${id}', '${cuenta.mesa}', ${montoActual})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition shadow active:scale-95 flex items-center gap-1">
+              <i class="fa-solid fa-paper-plane text-[10px]"></i> Enviar Cuenta
+            </button>
+          </div>
         `;
         contenedor.appendChild(card);
       });
     });
 
-    // 3. Escuchar Alertas de Cocina (Platos Listos - Modificado para mostrar todo el texto sin recortar)
+    // Función para que la mesera verifique y envíe el monto de la cuenta al Administrador
+    window.confirmarMontoYEnviar = async function(id, mesa, montoActual) {
+      let valorFinal = montoActual;
+
+      if (valorFinal <= 0) {
+        const respuesta = prompt(`Ingrese el total consumido (COP) para ${mesa}:`, "35000");
+        if (!respuesta || isNaN(respuesta) || Number(respuesta) <= 0) {
+          alert("⚠️ Debe ingresar un monto válido para enviar la cuenta.");
+          return;
+        }
+        valorFinal = Number(respuesta);
+      } else {
+        if (!confirm(`¿Confirmar y enviar cuenta de ${mesa} por $${valorFinal.toLocaleString("es-CO")} COP al Administrador?`)) {
+          return;
+        }
+      }
+
+      try {
+        await updateDoc(doc(db, "alertas", id), {
+          total: valorFinal,
+          monto: valorFinal,
+          atendido: true,
+          confirmado_en_caja: false // Pasa al Administrador para su validación final en Antifraude
+        });
+        alert(`✅ Cuenta de ${mesa} enviada por $${valorFinal.toLocaleString("es-CO")} COP al Administrador.`);
+      } catch (e) {
+        console.error("Error al enviar la cuenta:", e);
+      }
+    };
+
+    // 3. Escuchar Alertas de Cocina
     const qListos = query(collection(db, "alertas"), where("tipo", "==", "PEDIDO_LISTO"), where("atendido", "==", false));
     onSnapshot(qListos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pedidos-listos");
