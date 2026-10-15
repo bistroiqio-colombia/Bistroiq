@@ -314,7 +314,7 @@
       }
     };
 
-    // Escuchar ventas para la caja
+    // Escuchar ventas para la caja (Suma únicamente los pagos efectivamente confirmados por el administrador)
     onSnapshot(collection(db, "alertas"), (snapshot) => {
       let totalVentas = 0;
       let totalEfectivo = 0;
@@ -322,7 +322,7 @@
 
       snapshot.forEach((docSnap) => {
         const alerta = docSnap.data();
-        if (alerta.tipo === "PEDIR_CUENTA" && alerta.atendido === true) {
+        if (alerta.tipo === "PEDIR_CUENTA" && alerta.pagado === true) {
           const monto = Number(alerta.total || 0);
           totalVentas += monto;
           if (alerta.metodo === "EFECTIVO") {
@@ -338,8 +338,8 @@
       document.getElementById("admin-transferencias").textContent = `$ ${totalTransferencia.toLocaleString("es-CO")} COP`;
     });
 
-    // Escuchar solicitudes de pago pendientes
-    const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
+    // Escuchar solicitudes de pago pendientes (Filtra por pagado == false para no depender de si la mesera atendió o no)
+    const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("pagado", "==", false));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
       const contador = document.getElementById("contador-pagos");
@@ -363,21 +363,23 @@
         const esEfectivo = pago.metodo === "EFECTIVO";
 
         const card = document.createElement("div");
-        card.className = "bg-slate-900 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm";
+        card.className = `p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${
+          esEfectivo ? 'bg-emerald-950/20 border-emerald-500/40' : 'bg-indigo-950/20 border-indigo-500/40'
+        }`;
         card.innerHTML = `
           <div class="space-y-1">
             <div class="flex items-center gap-2">
               <span class="font-extrabold text-white text-base">${pago.mesa || 'Mesa'}</span>
-              <span class="${esEfectivo ? 'bg-emerald-950 text-emerald-300 border-emerald-500/40' : 'bg-indigo-950 text-indigo-300 border-indigo-500/40'} border text-xs px-2.5 py-0.5 rounded font-bold">
-                ${esEfectivo ? '💵 Efectivo' : '📲 Transferencia'}
+              <span class="${esEfectivo ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'} border text-xs px-2.5 py-0.5 rounded font-bold">
+                ${esEfectivo ? '💵 EFECTIVO' : '📲 TRANSFERENCIA (NEQUI/DAVIPLATA)'}
               </span>
             </div>
-            <div class="text-xs text-slate-300">
-              Solicitud de cuenta por $${Number(pago.total || 0).toLocaleString("es-CO")} COP. Confirma el cobro.
+            <div class="text-xs text-slate-200">
+              Solicitud de cuenta por <span class="font-bold text-emerald-400 text-sm">$${Number(pago.total || 0).toLocaleString("es-CO")} COP</span>. Confirma el cobro.
             </div>
           </div>
           <div class="flex gap-2">
-            <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition active:scale-95">
+            <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition active:scale-95 shadow">
               <i class="fa-solid fa-check mr-1" aria-hidden="true"></i> Confirmar Cobro
             </button>
           </div>
@@ -515,19 +517,19 @@
       }
     };
 
-    // Confirmar pago
+    // Confirmar pago (Marca el cobro como pagado: true para acumular en caja)
     window.confirmarPago = async function(id, mesa) {
       try {
-        await updateDoc(doc(db, "alertas", id), { atendido: true, pagado: true });
-        alert(`✅ Pago de ${mesa} verificado y registrado.`);
+        await updateDoc(doc(db, "alertas", id), { pagado: true, atendido: true });
+        alert(`✅ Pago de ${mesa} verificado y registrado en caja.`);
       } catch (e) {
-        console.error(e);
+        console.error("Error al confirmar pago:", e);
       }
     };
 
     // Cierre de caja
     window.realizarCierreCaja = function() {
-      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario?')) {
+      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Esto pondrá los contadores a $0.')) {
         document.getElementById("admin-ventas-totales").textContent = "$ 0 COP";
         document.getElementById("admin-transferencias").textContent = "$ 0 COP";
         document.getElementById("admin-efectivo").textContent = "$ 0 COP";
