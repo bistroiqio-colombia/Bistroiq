@@ -59,7 +59,20 @@
       </div>
     </div>
 
-    <!-- Verificación Antifraude -->
+    <!-- NUEVO: Panel de Control y Cierre Directo de Meses -->
+    <section class="bg-slate-800 border border-indigo-500/40 rounded-2xl p-5 shadow-lg space-y-4">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-700">
+        <h2 class="font-bold text-indigo-400 text-base flex items-center gap-2">
+          <i class="fa-solid fa-table-cells text-indigo-400 text-lg"></i> Estado y Cierre Directo de Meses
+        </h2>
+        <span class="text-xs text-indigo-300 font-bold">Control de Salón</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3" id="panel-control-mesas">
+        <!-- Generado dinámicamente -->
+      </div>
+    </section>
+
+    <!-- Verificación Antifraude (Solicitudes de Cuenta de Clientes) -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
@@ -141,6 +154,7 @@
       updateDoc, 
       setDoc,
       deleteDoc,
+      addDoc,
       query, 
       where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -173,6 +187,51 @@
       btn.innerHTML = `<i class="fa-solid fa-volume-high text-xs"></i> <span>Activo</span>`;
     };
 
+    // Renderizar panel de control directo de mesas (Mesa 1 a Mesa 6)
+    function renderizarPanelMesas() {
+      const panel = document.getElementById("panel-control-mesas");
+      panel.innerHTML = "";
+
+      for (let i = 1; i <= 6; i++) {
+        const nombreMesa = `Mesa #${i}`;
+        const card = document.createElement("div");
+        card.className = "bg-slate-900 border border-slate-700 p-3.5 rounded-xl flex flex-col justify-between gap-3 text-center";
+        card.innerHTML = `
+          <div>
+            <p class="font-extrabold text-white text-sm">${nombreMesa}</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Control Salón</p>
+          </div>
+          <button onclick="cierreDirectoMesa('${nombreMesa}')" class="bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 py-2 px-2 rounded-lg text-xs font-bold transition active:scale-95 shadow">
+            Cerrar Mesa
+          </button>
+        `;
+        panel.appendChild(card);
+      }
+    }
+    renderizarPanelMesas();
+
+    // Función de Cierre Directo de Mesa (Libera la mesa y la pone en $0 en el cliente)
+    window.cierreDirectoMesa = async function(nombreMesa) {
+      if (confirm(`¿Estás seguro de realizar el Cierre de Mesa para ${nombreMesa}? Esto liberará la mesa y reiniciará su consumo a $0.`)) {
+        try {
+          // Creamos una alerta de cierre automático para que el cliente detecte el reseteo
+          await addDoc(collection(db, "alertas"), {
+            mesa: nombreMesa,
+            tipo: "PEDIR_CUENTA",
+            metodo: "CIERRE_DIRECTO",
+            total: 0,
+            atendido: true,
+            confirmado_en_caja: true,
+            fecha: new Date().toISOString()
+          });
+          alert(`✅ ${nombreMesa} cerrada y liberada exitosamente.`);
+        } catch (e) {
+          console.error("Error al cerrar mesa:", e);
+          alert("⚠️ Hubo un error al cerrar la mesa.");
+        }
+      }
+    };
+
     onSnapshot(collection(db, "alertas"), (snapshot) => {
       let totalVentas = 0;
       let totalEfectivo = 0;
@@ -180,7 +239,7 @@
 
       snapshot.forEach((docSnap) => {
         const alerta = docSnap.data();
-        if (alerta.tipo === "PEDIR_CUENTA" && alerta.confirmado_en_caja === true) {
+        if (alerta.tipo === "PEDIR_CUENTA" && alerta.confirmado_en_caja === true && alerta.total > 0) {
           const monto = Number(alerta.total || alerta.monto || alerta.valor || 0);
           totalVentas += monto;
           const metodoPago = (alerta.metodo || 'EFECTIVO').toUpperCase();
@@ -290,7 +349,6 @@
       }
     };
 
-    // Ajuste clave: Actualiza 'confirmado_en_caja: true' para sumar a caja y liberar automáticamente la mesa del cliente
     window.confirmarPago = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "alertas", id), { 
