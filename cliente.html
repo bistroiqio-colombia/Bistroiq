@@ -13,7 +13,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-32">
 
-  <!-- Encabezado Cliente -->
   <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-3">
       <div class="bg-emerald-500/20 p-2.5 rounded-xl border border-emerald-500/30">
@@ -37,7 +36,6 @@
     </div>
   </header>
 
-  <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-3xl mx-auto w-full space-y-5">
     <div class="bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-4 flex items-start gap-3.5 shadow-sm">
       <div class="bg-emerald-500/20 p-2.5 rounded-xl text-emerald-400 shrink-0 mt-0.5">
@@ -198,13 +196,11 @@
     
     document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
 
-    // ESCUCHADOR EN TIEMPO REAL: Sura los pedidos que la mesera ya marcó como ENTREGADOS para esta mesa
     const qPedidosEntregados = query(collection(db, "pedidos_cocina"), where("mesa", "==", mesaParam));
     onSnapshot(qPedidosEntregados, (snapshot) => {
       let sumaTotal = 0;
       snapshot.forEach((docSnap) => {
         const pedido = docSnap.data();
-        // Solo sumamos si la mesera ya le dio el visto bueno de entregado (estado ENTREGADO o ATENDIDO)
         const estado = (pedido.estado || '').toUpperCase();
         if (estado === 'ENTREGADO' || estado === 'LISTO' || pedido.entregado === true) {
           sumaTotal += Number(pedido.total || 0);
@@ -213,7 +209,6 @@
       saldoConsumidoMesa = sumaTotal;
     });
 
-    // Escuchar si el Administrador libera la mesa en caja para limpiar todo
     const qLiberacion = query(collection(db, "alertas"), where("mesa", "==", mesaParam), where("tipo", "==", "PEDIR_CUENTA"));
     onSnapshot(qLiberacion, (snapshot) => {
       snapshot.forEach((docSnap) => {
