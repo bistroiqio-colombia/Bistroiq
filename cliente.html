@@ -137,7 +137,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE PEDIR LA CUENTA (Efectivo / Transferencia con Cálculo de Sesión Limpia) -->
+  <!-- MODAL DE PEDIR LA CUENTA -->
   <div id="modal-pedir-cuenta" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-2xl p-6 space-y-5 shadow-2xl">
       <div class="text-center space-y-1">
@@ -178,11 +178,9 @@
     </div>
   </div>
 
-  <!-- MODAL / VENTANA EMERGENTE DEL CARRITO -->
+  <!-- MODAL CARRITO -->
   <div id="modal-carrito" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
     <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 space-y-5 shadow-2xl max-h-[85vh] flex flex-col">
-      
-      <!-- Encabezado del Modal -->
       <div class="flex justify-between items-center border-b border-slate-700 pb-3.5 shrink-0">
         <div>
           <h3 class="font-bold text-white text-lg flex items-center gap-2">
@@ -195,12 +193,8 @@
         </button>
       </div>
 
-      <!-- Lista de Ítems Agregados -->
-      <div id="lista-items-carrito" class="space-y-3.5 overflow-y-auto flex-1 pr-1">
-        <!-- Ítems dinámicos aquí -->
-      </div>
+      <div id="lista-items-carrito" class="space-y-3.5 overflow-y-auto flex-1 pr-1"></div>
 
-      <!-- Acciones de Cierre -->
       <div class="border-t border-slate-700 pt-3.5 space-y-3 shrink-0">
         <div class="grid grid-cols-2 gap-3">
           <button onclick="cerrarModalCarrito()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-3.5 rounded-xl text-sm font-bold transition">
@@ -211,18 +205,20 @@
           </button>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- Script Firebase y Lógica Integrada -->
+  <!-- Script Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getFirestore, 
       collection, 
       onSnapshot, 
-      addDoc 
+      addDoc,
+      getDocs,
+      query,
+      where 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -241,16 +237,12 @@
     let menuCompleto = [];
     let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
-    
-    // Mantiene estrictamente el total consumido acumulado en la sesión actual de esta mesa
-    let totalConsumidoSesion = 0;
+    let totalConsumidoMesa = 0;
 
-    // Capturar Mesa desde la URL (Ej. cliente.html?mesa=Mesa%203)
     const params = new URLSearchParams(window.location.search);
     const mesaParam = params.get('mesa') || "Mesa #3";
     document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
 
-    // Escuchar menú dinámico de "inventario_insumos"
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       menuCompleto = [];
       snapshot.forEach((docSnap) => {
@@ -259,7 +251,6 @@
       renderizarMenu();
     });
 
-    // Función para renderizar el menú aplicando el filtro de categoría
     function renderizarMenu() {
       const contenedorMenu = document.getElementById("contenedor-menu-cliente");
       const contadorLabel = document.getElementById("contador-platos-filtrados");
@@ -326,7 +317,6 @@
       });
     }
 
-    // Filtrar por Pestaña
     window.filtrarCategoria = function(cat, elemento) {
       categoriaSeleccionada = cat;
       document.querySelectorAll('.btn-cat').forEach(btn => {
@@ -336,7 +326,6 @@
       renderizarMenu();
     };
 
-    // Modal para Elegir "Comer Aquí" o "Para Llevar"
     window.solicitarTipoPedido = function(id, nombre, precio) {
       platoTemporalSeleccionado = { id, nombre, precio };
       document.getElementById("modal-tipo-titulo").textContent = nombre;
@@ -396,7 +385,6 @@
     function actualizarBarraCarrito() {
       const barra = document.getElementById("barra-pedido-flotante");
       const totalTexto = document.getElementById("total-pedido-flotante");
-
       const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
       if (totalItems > 0) {
@@ -408,7 +396,6 @@
       }
     }
 
-    // Modal Carrito
     window.abrirModalCarrito = function() {
       if (carrito.length === 0) return;
       renderizarModalCarrito();
@@ -421,14 +408,11 @@
 
     function renderizarModalCarrito() {
       const lista = document.getElementById("lista-items-carrito");
-
       if (carrito.length === 0) {
         lista.innerHTML = `<div class="text-center text-slate-300 py-6 text-sm">Tu carrito está vacío.</div>`;
         return;
       }
-
       lista.innerHTML = "";
-
       carrito.forEach((item) => {
         const row = document.createElement("div");
         row.className = "bg-slate-900/90 p-3.5 rounded-xl border border-slate-700 flex items-center justify-between gap-3";
@@ -439,14 +423,13 @@
               ${item.esParaLlevar ? '🛍️ Para Llevar (+ $1.000 empaque)' : '🍽️ Para Comer Aquí'}
             </p>
           </div>
-
           <div class="flex items-center gap-2 shrink-0">
             <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 gap-2">
               <button onclick="cambiarCantidad('${item.key}', -1)" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold text-slate-100 flex items-center justify-center">-</button>
               <span class="text-sm font-bold text-white px-1">${item.cantidad}</span>
               <button onclick="cambiarCantidad('${item.key}', 1)" class="w-7 h-7 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold text-slate-100 flex items-center justify-center">+</button>
             </div>
-            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-950/50 border border-rose-900/40 text-sm" title="Borrar este plato">
+            <button onclick="eliminarDelCarrito('${item.key}')" class="text-rose-400 hover:text-rose-300 p-2 rounded-lg bg-rose-950/50 border border-rose-900/40 text-sm" title="Borrar">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
@@ -455,7 +438,6 @@
       });
     }
 
-    // Confirmar Enviar Pedido a Cocina
     window.confirmarEnviarCocinaDirecto = function() {
       abrirModalCarrito();
     };
@@ -464,17 +446,14 @@
       if (carrito.length === 0) return;
 
       const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
-      const subtotalPedido = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-
-      // Suma limpia e incremental a la sesión actual del cliente
-      totalConsumidoSesion += subtotalPedido;
+      const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
       try {
         await addDoc(collection(db, "pedidos_cocina"), {
           mesa: mesaParam,
           comanda: Math.floor(100 + Math.random() * 900),
           resumen: resumen,
-          total: subtotalPedido,
+          total: total,
           estado: "PENDIENTE",
           fecha: new Date().toISOString()
         });
@@ -489,15 +468,42 @@
       }
     };
 
-    // Funciones para Pedir la Cuenta Basadas en la Sesión Actual Exacta
-    window.abrirModalPedirCuenta = function() {
+    // Funciones para Pedir la Cuenta: Filtra estrictamente solo los pedidos de HOY
+    window.abrirModalPedirCuenta = async function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
+      document.getElementById("monto-total-cuenta").textContent = "Calculando...";
 
-      // Si aún hay ítems en el carrito sin enviar a cocina, se suman al total
-      const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
+      try {
+        const qMesa = query(
+          collection(db, "pedidos_cocina"), 
+          where("mesa", "==", mesaParam)
+        );
+        const snapshot = await getDocs(qMesa);
 
-      document.getElementById("monto-total-cuenta").textContent = `$ ${montoTotalPagar.toLocaleString("es-CO")} COP`;
+        // Obtenemos la fecha de hoy en formato YYYY-MM-DD para ignorar días anteriores
+        const hoyStr = new Date().toISOString().split('T')[0];
+
+        totalConsumidoMesa = 0;
+        snapshot.forEach((docSnap) => {
+          const ped = docSnap.data();
+          const fechaPedido = (ped.fecha || "").split('T')[0];
+
+          // Suma únicamente si el pedido corresponde al día de hoy
+          if (fechaPedido === hoyStr) {
+            totalConsumidoMesa += Number(ped.total || ped.monto || ped.valor || 0);
+          }
+        });
+
+        // Sumamos también lo que esté actualmente en el carrito sin enviar
+        const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+        const totalFinalMesa = totalConsumidoMesa + totalCarritoNoEnviado;
+
+        document.getElementById("monto-total-cuenta").textContent = `$ ${totalFinalMesa.toLocaleString("es-CO")} COP`;
+      } catch (e) {
+        console.error("Error al calcular total consumido:", e);
+        document.getElementById("monto-total-cuenta").textContent = "$ 0 COP";
+      }
+
       document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
     };
 
@@ -511,10 +517,10 @@
 
     window.enviarSolicitudCuenta = async function(metodoPago) {
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
+      const montoTotalPagar = totalConsumidoMesa + totalCarritoNoEnviado;
 
       if (montoTotalPagar <= 0) {
-        alert("⚠️ No tienes consumos registrados para pedir la cuenta.");
+        alert("⚠️ No tienes consumos pendientes por pagar.");
         return;
       }
 
