@@ -13,7 +13,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-20" onclick="desbloquearAudioAdmin()">
 
-  <!-- Encabezado de Administrador -->
   <header class="bg-slate-800 border-b border-slate-700 p-3 sticky top-0 z-50 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-2 overflow-hidden">
       <div class="bg-purple-600/30 p-2 rounded-xl border border-purple-500/30 shrink-0">
@@ -35,169 +34,83 @@
     </div>
   </header>
 
-  <!-- Contenido Principal -->
   <main class="flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
-
-    <!-- Resumen de Ventas en Vivo (Caja) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-md">
         <div>
           <p class="text-xs text-slate-300 font-bold uppercase tracking-wider">Ventas Totales Hoy</p>
           <p class="text-2xl font-black text-emerald-400 mt-1" id="admin-ventas-totales">$ 0 COP</p>
         </div>
-        <div class="bg-emerald-500/10 p-3.5 rounded-2xl border border-emerald-500/20">
-          <i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl" aria-hidden="true"></i>
-        </div>
+        <div class="bg-emerald-500/10 p-3.5 rounded-2xl border border-emerald-500/20"><i class="fa-solid fa-sack-dollar text-emerald-400 text-2xl"></i></div>
       </div>
-
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-md">
         <div>
           <p class="text-xs text-slate-300 font-bold uppercase tracking-wider">Transferencias (Nequi/DaviPlata)</p>
           <p class="text-2xl font-black text-indigo-400 mt-1" id="admin-transferencias">$ 0 COP</p>
         </div>
-        <div class="bg-indigo-500/10 p-3.5 rounded-2xl border border-indigo-500/20">
-          <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl" aria-hidden="true"></i>
-        </div>
+        <div class="bg-indigo-500/10 p-3.5 rounded-2xl border border-indigo-500/20"><i class="fa-solid fa-mobile-screen-button text-indigo-400 text-2xl"></i></div>
       </div>
-
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-md">
         <div>
           <p class="text-xs text-slate-300 font-bold uppercase tracking-wider">Efectivo en Caja</p>
           <p class="text-2xl font-black text-amber-400 mt-1" id="admin-efectivo">$ 0 COP</p>
         </div>
-        <div class="bg-amber-500/10 p-3.5 rounded-2xl border border-amber-500/20">
-          <i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl" aria-hidden="true"></i>
-        </div>
+        <div class="bg-amber-500/10 p-3.5 rounded-2xl border border-amber-500/20"><i class="fa-solid fa-money-bill-wave text-amber-400 text-2xl"></i></div>
       </div>
     </div>
 
-    <!-- Gestión de Seguridad y PINs de Acceso -->
+    <!-- Verificación Antifraude -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-key text-amber-400 text-lg" aria-hidden="true"></i> Gestión de Claves y PINs de Acceso
-        </h2>
-        <span class="text-xs text-amber-300 font-bold">Seguridad del Negocio</span>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="text-sm font-bold text-slate-200 block mb-1.5">PIN Administrador:</label>
-          <input type="text" id="pin-admin" placeholder="Ej. 9999" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-bold">
-        </div>
-        <div>
-          <label class="text-sm font-bold text-slate-200 block mb-1.5">PIN Cocina (KDS):</label>
-          <input type="text" id="pin-cocina" placeholder="Ej. 5678" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-bold">
-        </div>
-        <div>
-          <label class="text-sm font-bold text-slate-200 block mb-1.5">PIN Mesera:</label>
-          <input type="text" id="pin-mesera" placeholder="Ej. 1234" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-bold">
-        </div>
-      </div>
-
-      <button onclick="guardarPinesSistema()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-shield-halved text-base" aria-hidden="true"></i> Guardar Nuevos PINs en el Sistema
-      </button>
-    </section>
-
-    <!-- Verificación Antifraude de Pagos -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-700">
-        <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-amber-500 text-lg" aria-hidden="true"></i> Verificación Antifraude de Cuentas
+          <i class="fa-solid fa-shield-halved text-amber-500 text-lg"></i> Verificación Antifraude de Cuentas
         </h2>
         <span id="contador-pagos" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-bold">0 Por Confirmar</span>
       </div>
-
       <div id="contenedor-pagos-pendientes" class="space-y-3">
         <div class="text-center text-slate-300 text-sm py-4">Cargando pagos pendientes en tiempo real...</div>
       </div>
     </section>
 
-    <!-- Agregar Nuevo Plato al Menú Real -->
+    <!-- Menú e Inventario -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-circle-plus text-purple-400 text-lg" aria-hidden="true"></i> Publicar Nuevo Plato al Menú
+          <i class="fa-solid fa-circle-plus text-purple-400 text-lg"></i> Publicar Nuevo Plato al Menú
         </h2>
-        <span class="text-xs text-purple-300 font-bold">Visibilidad Inmediata</span>
       </div>
-
       <form id="form-nuevo-plato" onsubmit="agregarPlato(event)" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="text-sm font-bold text-slate-200 block mb-1.5">Nombre del Plato:</label>
-            <input type="text" id="nombre-plato" required placeholder="Ej. Churrasco 300g" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-medium">
+            <label class="text-sm font-bold text-slate-200 block mb-1.5">Nombre:</label>
+            <input type="text" id="nombre-plato" required placeholder="Ej. Churrasco" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white">
           </div>
           <div>
             <label class="text-sm font-bold text-slate-200 block mb-1.5">Precio (COP):</label>
-            <input type="number" id="precio-plato" required placeholder="Ej. 35000" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-medium">
+            <input type="number" id="precio-plato" required placeholder="Ej. 35000" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white">
           </div>
           <div>
-            <label class="text-sm font-bold text-slate-200 block mb-1.5">Categoría / Sección:</label>
-            <select id="categoria-plato" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-bold">
-              <option value="sencillos">🍲 Sencillos / Corrientes</option>
-              <option value="asados">🥩 Asados / Carnes</option>
-              <option value="bebidas">🥤 Bebidas / Jugos</option>
-              <option value="porciones">🍟 Porciones / Acompañantes</option>
+            <label class="text-sm font-bold text-slate-200 block mb-1.5">Categoría:</label>
+            <select id="categoria-plato" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white font-bold">
+              <option value="sencillos">🍲 Sencillos</option>
+              <option value="asados">🥩 Asados</option>
+              <option value="bebidas">🥤 Bebidas</option>
+              <option value="porciones">🍟 Porciones</option>
             </select>
           </div>
         </div>
-
-        <div>
-          <label class="text-sm font-bold text-slate-200 block mb-1.5">Descripción Corta:</label>
-          <input type="text" id="desc-plato" placeholder="Ej. Con papas a la francesa y ensalada de la casa." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-base text-white focus:outline-none focus:border-purple-500 font-medium">
-        </div>
-
-        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cloud-arrow-up text-base" aria-hidden="true"></i> Guardar y Publicar Plato al Menú
-        </button>
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl text-sm shadow">Guardar y Publicar Plato</button>
       </form>
     </section>
 
-    <!-- Catálogo Activo del Menú por Categorías -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-700 gap-2">
-        <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-tags text-indigo-400 text-lg" aria-hidden="true"></i> Gestión de Menú por Categorías
-        </h2>
-        <span id="contador-menu-admin" class="text-xs text-indigo-300 font-bold">0 Productos</span>
-      </div>
-
-      <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-1 text-sm font-bold">
-        <button onclick="filtrarCategoriaAdmin('todas', this)" class="btn-cat-admin bg-purple-600 text-white px-4 py-2 rounded-xl shrink-0 transition">
-          📋 Todas
-        </button>
-        <button onclick="filtrarCategoriaAdmin('sencillos', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🍲 Sencillos
-        </button>
-        <button onclick="filtrarCategoriaAdmin('asados', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🥩 Asados
-        </button>
-        <button onclick="filtrarCategoriaAdmin('bebidas', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🥤 Bebidas
-        </button>
-        <button onclick="filtrarCategoriaAdmin('porciones', this)" class="btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition">
-          🍟 Porciones
-        </button>
-      </div>
-
-      <div id="contenedor-menu-admin" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-        <div class="text-center text-slate-300 text-sm py-4 col-span-full">Cargando menú en tiempo real...</div>
-      </div>
-    </section>
-
-    <!-- Cierre de Caja Diario -->
-    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row justify-between items-center gap-4">
+    <!-- Cierre de Caja -->
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex justify-between items-center gap-4">
       <div>
         <h3 class="font-bold text-white text-base">Cierre de Caja Diario</h3>
-        <p class="text-xs text-slate-300 mt-0.5">Finaliza la jornada, liquida los totales y deja los registros listos para el próximo turno.</p>
+        <p class="text-xs text-slate-300">Finaliza la jornada y limpia los registros.</p>
       </div>
-      <button onclick="realizarCierreCaja()" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-3 rounded-xl text-sm font-bold transition active:scale-95 w-full sm:w-auto flex items-center justify-center gap-2 shrink-0">
-        <i class="fa-solid fa-lock text-base" aria-hidden="true"></i> Ejecutar Cierre de Caja
-      </button>
+      <button onclick="realizarCierreCaja()" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-3 rounded-xl text-sm font-bold transition active:scale-95 shrink-0">Ejecutar Cierre de Caja</button>
     </section>
-
   </main>
 
   <script type="module">
@@ -207,7 +120,6 @@
       collection, 
       onSnapshot, 
       doc, 
-      getDoc,
       getDocs,
       updateDoc, 
       setDoc,
@@ -228,8 +140,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let menuAdminCompleto = [];
-    let filtroCatAdmin = 'todas';
     let audioCtx = null;
     let primeraCargaPagos = true;
 
@@ -244,76 +154,8 @@
       const btn = document.getElementById("btn-sonido-admin");
       btn.className = "bg-emerald-600 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-bold shadow flex items-center gap-1";
       btn.innerHTML = `<i class="fa-solid fa-volume-high text-xs"></i> <span>Activo</span>`;
-      reproducirAlarmaCaja();
     };
 
-    function reproducirAlarmaCaja() {
-      window.desbloquearAudioAdmin();
-      if (!audioCtx) return;
-      try {
-        const emitirTono = (frecuencia, inicio, duracion) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(frecuencia, audioCtx.currentTime + inicio);
-          gain.gain.setValueAtTime(0.35, audioCtx.currentTime + inicio);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + inicio + duracion);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(audioCtx.currentTime + inicio);
-          osc.stop(audioCtx.currentTime + inicio + duracion);
-        };
-        emitirTono(587.33, 0.0, 0.2);
-        emitirTono(880.00, 0.25, 0.4);
-      } catch (e) {
-        console.error("Error al reproducir audio de caja:", e);
-      }
-    }
-
-    // Cargar PINs
-    async function cargarPinesActuales() {
-      try {
-        const docRef = doc(db, "configuracion", "claves_sistema");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("pin-admin").value = data.pinAdmin || "9999";
-          document.getElementById("pin-cocina").value = data.pinCocina || "5678";
-          document.getElementById("pin-mesera").value = data.pinMesera || "1234";
-        } else {
-          document.getElementById("pin-admin").value = "9999";
-          document.getElementById("pin-cocina").value = "5678";
-          document.getElementById("pin-mesera").value = "1234";
-        }
-      } catch (e) {
-        console.error("Error al cargar PINs:", e);
-      }
-    }
-    cargarPinesActuales();
-
-    window.guardarPinesSistema = async function() {
-      const pinAdmin = document.getElementById("pin-admin").value.trim();
-      const pinCocina = document.getElementById("pin-cocina").value.trim();
-      const pinMesera = document.getElementById("pin-mesera").value.trim();
-
-      if (!pinAdmin || !pinCocina || !pinMesera) {
-        alert("⚠️ Por favor completa todos los campos de PIN.");
-        return;
-      }
-
-      try {
-        await setDoc(doc(db, "configuracion", "claves_sistema"), {
-          pinAdmin,
-          pinCocina,
-          pinMesera
-        });
-        alert("🔒 ¡PINs de acceso guardados exitosamente!");
-      } catch (e) {
-        console.error("Error al guardar PINs:", e);
-      }
-    };
-
-    // Escuchar ventas de caja: Solo suma cobros confirmados explícitamente en esta sesión (confirmado_en_caja == true)
     onSnapshot(collection(db, "alertas"), (snapshot) => {
       let totalVentas = 0;
       let totalEfectivo = 0;
@@ -324,13 +166,9 @@
         if (alerta.tipo === "PEDIR_CUENTA" && alerta.confirmado_en_caja === true) {
           const monto = Number(alerta.total || alerta.monto || alerta.valor || 0);
           totalVentas += monto;
-          
-          const metodoPago = (alerta.metodo || alerta.formaPago || 'EFECTIVO').toUpperCase();
-          if (metodoPago.includes("EFECTIVO")) {
-            totalEfectivo += monto;
-          } else {
-            totalTransferencia += monto;
-          }
+          const metodoPago = (alerta.metodo || 'EFECTIVO').toUpperCase();
+          if (metodoPago.includes("EFECTIVO")) totalEfectivo += monto;
+          else totalTransferencia += monto;
         }
       });
 
@@ -339,18 +177,12 @@
       document.getElementById("admin-transferencias").textContent = `$ ${totalTransferencia.toLocaleString("es-CO")} COP`;
     });
 
-    // Escuchar solicitudes de pago pendientes (Muestra todas las que no hayan sido confirmadas en caja todavía)
     const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("confirmado_en_caja", "!=", true));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
       const contador = document.getElementById("contador-pagos");
-      
+      contador.snapshotSize = snapshot.size;
       contador.textContent = `${snapshot.size} Por Confirmar`;
-
-      if (!primeraCargaPagos && snapshot.docChanges().some(change => change.type === 'added')) {
-        reproducirAlarmaCaja();
-      }
-      primeraCargaPagos = false;
 
       if (snapshot.empty) {
         contenedor.innerHTML = `<div class="text-center text-slate-300 text-sm py-4">No hay pagos pendientes de verificación en este momento.</div>`;
@@ -362,165 +194,40 @@
         const pago = docSnap.data();
         const id = docSnap.id;
         const montoTotal = Number(pago.total || pago.monto || pago.valor || 0);
-        const metodoPago = (pago.metodo || pago.formaPago || 'EFECTIVO').toUpperCase();
-        const esEfectivo = metodoPago.includes("EFECTIVO");
+        const esEfectivo = (pago.metodo || 'EFECTIVO').toUpperCase().includes("EFECTIVO");
 
         const card = document.createElement("div");
-        card.className = `p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${
-          esEfectivo ? 'bg-emerald-950/20 border-emerald-500/40' : 'bg-indigo-950/20 border-indigo-500/40'
-        }`;
+        card.className = `p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${esEfectivo ? 'bg-emerald-950/20 border-emerald-500/40' : 'bg-indigo-950/20 border-indigo-500/40'}`;
         card.innerHTML = `
           <div class="space-y-1">
             <div class="flex items-center gap-2">
               <span class="font-extrabold text-white text-base">${pago.mesa || 'Mesa'}</span>
-              <span class="${esEfectivo ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'} border text-xs px-2.5 py-0.5 rounded font-bold">
-                ${esEfectivo ? '💵 EFECTIVO' : '📲 TRANSFERENCIA (NEQUI/DAVIPLATA)'}
-              </span>
+              <span class="${esEfectivo ? 'bg-emerald-500/20 text-emerald-300' : 'bg-indigo-500/20 text-indigo-300'} border text-xs px-2.5 py-0.5 rounded font-bold">${esEfectivo ? '💵 EFECTIVO' : '📲 TRANSFERENCIA'}</span>
             </div>
-            <div class="text-xs text-slate-200">
-              Solicitud de cuenta por <span class="font-bold text-emerald-400 text-sm">$${montoTotal.toLocaleString("es-CO")} COP</span>. Confirma el cobro.
-            </div>
+            <div class="text-xs text-slate-200">Solicitud por <span class="font-bold text-emerald-400 text-sm">$${montoTotal.toLocaleString("es-CO")} COP</span>.</div>
           </div>
-          <div class="flex gap-2">
-            <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition active:scale-95 shadow">
-              <i class="fa-solid fa-check mr-1" aria-hidden="true"></i> Confirmar Cobro
-            </button>
-          </div>
+          <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow">
+            <i class="fa-solid fa-check mr-1"></i> Confirmar Cobro y Liberar Mesa
+          </button>
         `;
         contenedor.appendChild(card);
       });
     });
 
-    // Escuchar el menú dinámico
-    onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
-      menuAdminCompleto = [];
-      snapshot.forEach((docSnap) => {
-        menuAdminCompleto.push({ id: docSnap.id, ...docSnap.data() });
-      });
-      renderizarMenuAdmin();
-    });
-
-    function renderizarMenuAdmin() {
-      const contenedorMenu = document.getElementById("contenedor-menu-admin");
-      const contadorMenu = document.getElementById("contador-menu-admin");
-
-      const listaFiltrada = menuAdminCompleto.filter(item => {
-        if (filtroCatAdmin === 'todas') return true;
-        const cat = (item.categoria || '').toLowerCase();
-        return cat.includes(filtroCatAdmin);
-      });
-
-      contadorMenu.textContent = `${listaFiltrada.length} Productos`;
-
-      if (listaFiltrada.length === 0) {
-        contenedorMenu.innerHTML = `<div class="text-center text-slate-300 text-sm py-4 col-span-full">No hay productos en esta categoría.</div>`;
-        return;
-      }
-
-      contenedorMenu.innerHTML = "";
-      listaFiltrada.forEach((item) => {
-        const disponible = item.disponible !== undefined ? item.disponible : true;
-
-        const card = document.createElement("div");
-        card.className = "bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm gap-2";
-        
-        card.innerHTML = `
-          <div class="space-y-1 overflow-hidden">
-            <div class="flex items-center gap-2">
-              <h3 class="font-bold text-sm text-white truncate">${item.nombre}</h3>
-              <span class="text-[10px] px-2 py-0.5 rounded font-bold shrink-0 ${disponible ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
-                ${disponible ? 'OK' : 'Agotado'}
-              </span>
-            </div>
-            <p class="text-xs text-indigo-300 font-bold capitalize">Categoría: ${item.categoria || 'Sencillos'}</p>
-            <p class="text-emerald-400 text-sm font-black">$ ${Number(item.precio || 0).toLocaleString("es-CO")} COP</p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button onclick="cambiarDisponibilidad('${item.id}', ${disponible})" class="p-2.5 rounded-lg text-xs font-bold transition ${disponible ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}" title="Agotar / Habilitar">
-              ${disponible ? 'Agotar' : 'Activar'}
-            </button>
-            <button onclick="editarPrecioFirebase('${item.id}', '${item.nombre}', ${item.precio})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-lg text-xs transition" title="Editar precio">
-              <i class="fa-solid fa-pen" aria-hidden="true"></i>
-            </button>
-            <button onclick="eliminarPlatoFirebase('${item.id}', '${item.nombre}')" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/40 p-2.5 rounded-lg text-xs transition" title="Eliminar del menú">
-              <i class="fa-solid fa-trash" aria-hidden="true"></i>
-            </button>
-          </div>
-        `;
-        contenedorMenu.appendChild(card);
-      });
-    }
-
-    window.filtrarCategoriaAdmin = function(cat, elemento) {
-      filtroCatAdmin = cat;
-      document.querySelectorAll('.btn-cat-admin').forEach(btn => {
-        btn.className = 'btn-cat-admin bg-slate-900 text-slate-300 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl shrink-0 transition';
-      });
-      elemento.className = 'btn-cat-admin bg-purple-600 text-white px-4 py-2 rounded-xl shrink-0 transition font-bold';
-      renderizarMenuAdmin();
-    };
-
-    // Agregar plato
     window.agregarPlato = async function(event) {
       event.preventDefault();
       const nombre = document.getElementById("nombre-plato").value.trim();
       const precio = Number(document.getElementById("precio-plato").value);
       const categoria = document.getElementById("categoria-plato").value;
-      const desc = document.getElementById("desc-plato").value.trim();
-
       const idUnico = nombre.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
       try {
-        await setDoc(doc(db, "inventario_insumos", idUnico), {
-          nombre: nombre,
-          precio: precio,
-          categoria: categoria,
-          desc: desc,
-          disponible: true
-        });
-
+        await setDoc(doc(db, "inventario_insumos", idUnico), { nombre, precio, categoria, disponible: true });
         document.getElementById("form-nuevo-plato").reset();
-        alert(`✅ ¡Plato "${nombre}" agregado a la categoría ${categoria.toUpperCase()}!`);
-      } catch (e) {
-        console.error("Error al agregar plato:", e);
-      }
+        alert(`✅ Plato "${nombre}" publicado con éxito.`);
+      } catch (e) { console.error(e); }
     };
 
-    // Cambiar estado Disponible / Agotado
-    window.cambiarDisponibilidad = async function(id, estadoActual) {
-      try {
-        await updateDoc(doc(db, "inventario_insumos", id), { disponible: !estadoActual });
-      } catch (e) {
-        console.error("Error al cambiar estado:", e);
-      }
-    };
-
-    // Editar precio
-    window.editarPrecioFirebase = async function(id, nombre, precioActual) {
-      const nuevoPrecio = prompt(`Ingrese el nuevo precio en COP para ${nombre}:`, precioActual);
-      if (nuevoPrecio && !isNaN(nuevoPrecio)) {
-        try {
-          await updateDoc(doc(db, "inventario_insumos", id), { precio: Number(nuevoPrecio) });
-          alert(`💲 Precio actualizado a $${Number(nuevoPrecio).toLocaleString("es-CO")} COP.`);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-
-    // Eliminar plato
-    window.eliminarPlatoFirebase = async function(id, nombre) {
-      if (confirm(`¿Eliminar "${nombre}" del menú?`)) {
-        try {
-          await deleteDoc(doc(db, "inventario_insumos", id));
-          alert(`🗑️ "${nombre}" eliminado.`);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-
-    // Confirmar pago (Marca 'confirmado_en_caja: true' para que recién en ese instante se sume a las tarjetas de arriba)
     window.confirmarPago = async function(id, mesa) {
       try {
         await updateDoc(doc(db, "alertas", id), { 
@@ -528,35 +235,24 @@
           pagado: true, 
           atendido: true 
         });
-        alert(`✅ Pago de ${mesa} verificado y sumado a caja exitosamente.`);
+        alert(`✅ Pago de ${mesa} verificado, sumado a caja y mesa liberada con éxito.`);
       } catch (e) {
         console.error("Error al confirmar pago:", e);
       }
     };
 
-    // Cierre de caja (Limpia las alertas pasadas en Firebase para dejar todo en $0 de forma permanente para el siguiente turno)
     window.realizarCierreCaja = async function() {
-      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Esto limpiará los registros y dejará la caja en $0.')) {
+      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Esto limpiará los registros.')) {
         try {
           const snapshot = await getDocs(collection(db, "alertas"));
           const borrados = snapshot.docs.map(docSnap => deleteDoc(doc(db, "alertas", docSnap.id)));
           await Promise.all(borrados);
-
-          document.getElementById("admin-ventas-totales").textContent = "$ 0 COP";
-          document.getElementById("admin-transferencias").textContent = "$ 0 COP";
-          document.getElementById("admin-efectivo").textContent = "$ 0 COP";
-
-          alert('🔒 Cierre de caja realizado con éxito. Los contadores quedaron en $0 COP.');
-        } catch (e) {
-          console.error("Error al realizar el cierre de caja:", e);
-          alert(" Error al reiniciar la caja.");
-        }
+          alert('🔒 Cierre de caja realizado con éxito.');
+        } catch (e) { console.error(e); }
       }
     };
 
-    window.volverInicio = function() {
-      window.location.href = 'index.html';
-    };
+    window.volverInicio = function() { window.location.href = 'index.html'; };
   </script>
 </body>
 </html>
