@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-24 overflow-x-hidden" onclick="desbloquearAudioMesera()">
 
-  <!-- Encabezado Mesera -->
   <header class="bg-slate-800 border-b border-slate-700 p-3 sticky top-0 z-50 flex justify-between items-center shadow-md w-full">
     <div class="flex items-center gap-2 overflow-hidden min-w-0">
       <div class="bg-indigo-500/20 p-2 rounded-xl border border-indigo-500/30 shrink-0">
@@ -31,10 +30,7 @@
     </div>
   </header>
 
-  <!-- Contenido Principal -->
   <main class="flex-1 p-3.5 max-w-4xl mx-auto w-full space-y-5 overflow-x-hidden">
-
-    <!-- Cuentas Solicitadas -->
     <section class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5 truncate">
@@ -47,7 +43,6 @@
       </div>
     </section>
 
-    <!-- Avisos de Cocina (Platos Listos) -->
     <section class="bg-slate-800 border border-amber-500/30 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-amber-400 text-xs sm:text-sm flex items-center gap-1.5 truncate">
@@ -60,7 +55,6 @@
       </div>
     </section>
 
-    <!-- Llamados de Clientes -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700 gap-2">
         <h2 class="font-bold text-slate-200 text-xs sm:text-sm flex items-center gap-1.5 truncate">
@@ -73,7 +67,6 @@
       </div>
     </section>
 
-    <!-- Selector de Mesas -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <label class="text-xs font-bold text-slate-300 block">Selecciona Mesa a Atender:</label>
       <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="grid-mesas-selector">
@@ -86,7 +79,6 @@
       </div>
     </section>
 
-    <!-- Menú Dinámico -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3 w-full">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-xs sm:text-sm flex items-center gap-1.5">
@@ -99,10 +91,8 @@
         <div class="text-center text-slate-400 text-xs py-4 col-span-full">Cargando catálogo dinámico...</div>
       </div>
     </section>
-
   </main>
 
-  <!-- Barra Flotante -->
   <footer id="barra-pedido-mesera" class="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-md border-t border-slate-700 p-3 shadow-2xl z-40 hidden">
     <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
       <div class="overflow-hidden">
@@ -181,7 +171,6 @@
       } catch (e) { console.error(e); }
     }
 
-    // 1. Escuchar Llamados de Clientes
     const qAlertas = query(collection(db, "alertas"), where("tipo", "==", "LLAMAR_MESERA"), where("atendido", "==", false));
     onSnapshot(qAlertas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-alertas-mesera");
@@ -215,7 +204,6 @@
       });
     });
 
-    // 2. Escuchar Cuentas Solicitadas
     const qCuentas = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", false));
     onSnapshot(qCuentas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-cuentas-mesera");
@@ -278,7 +266,6 @@
       } catch (e) { console.error(e); }
     };
 
-    // 3. ESCUCHADOR DE PLATOS LISTOS (DIRECTO DE PEDIDOS_COCINA PARA GARANTIZAR RECEPCIÓN)
     const qPedidosListosCocina = query(collection(db, "pedidos_cocina"), where("estado", "==", "LISTO"));
     onSnapshot(qPedidosListosCocina, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pedidos-listos");
@@ -317,31 +304,29 @@
       });
     });
 
-    // FUNCIÓN DE ENTREGA QUE DISPARA EL SALDO DEL CLIENTE Y REGISTRO EN ADMIN
+    // FUNCIÓN BLINDADA Y SINCRONIZADA
     window.marcarPedidoEntregadoDirecto = async function(idPedido, mesaNombre) {
       try {
-        // A. Actualizamos el pedido en pedidos_cocina a ENTREGADO
         await updateDoc(doc(db, "pedidos_cocina", idPedido), { 
           estado: "ENTREGADO", 
           entregado: true 
         });
 
-        // B. Notificamos en alertas que se entregó para limpiar notificaciones
         await addDoc(collection(db, "alertas"), {
           mesa: mesaNombre,
-          tipo: "PEDIDO_ENTREGADO",
+          tipo: "MESA_ACTIVA",
+          mensaje: `${mesaNombre} tiene pedidos entregados y está activa en salón`,
           atendido: true,
           fecha: new Date().toISOString()
         });
 
-        alert(`✅ Pedido de ${mesaNombre} entregado con éxito. Saldo cargado en la cuenta del cliente.`);
+        alert(`✅ Pedido de ${mesaNombre} entregado con éxito. Saldo cargado al cliente y mesa activa notificada.`);
       } catch (e) {
         console.error("Error al marcar pedido como entregado:", e);
         alert("⚠️ Hubo un detalle al procesar la entrega.");
       }
     };
 
-    // 4. Menú y Envíos
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       const contenedorMenu = document.getElementById("contenedor-menu-mesera");
       if (snapshot.empty) {
