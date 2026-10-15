@@ -47,7 +47,7 @@
       </div>
     </div>
 
-    <!-- Sección de Control de Menú (Platos Disponibles / Agotados) -->
+    <!-- Sección de Control de Menú -->
     <section class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-3">
       <div class="flex justify-between items-center pb-2 border-b border-slate-700">
         <h2 class="font-bold text-slate-200 text-sm flex items-center gap-2">
@@ -93,12 +93,8 @@
     let primeraCarga = true;
 
     window.desbloquearAudioGeneral = function() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     };
 
     window.activarSonidoCocina = function(e) {
@@ -117,37 +113,28 @@
       }
     }
 
-    // Alarma Potente Doble para Cocina (Buzzer de Comanda)
     function reproducirAlarmaCocina() {
       window.desbloquearAudioGeneral();
       if (!audioCtx) return;
-
       try {
         const emitirBeep = (frecuencia, inicio, duracion) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
-          osc.type = 'square'; // Onda cuadrada para un sonido más penetrante tipo comanda
+          osc.type = 'square';
           osc.frequency.setValueAtTime(frecuencia, audioCtx.currentTime + inicio);
-          
           gain.gain.setValueAtTime(0.4, audioCtx.currentTime + inicio);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + inicio + duracion);
-          
           osc.connect(gain);
           gain.connect(audioCtx.destination);
-          
           osc.start(audioCtx.currentTime + inicio);
           osc.stop(audioCtx.currentTime + inicio + duracion);
         };
-
-        // Doble beep penetrante (Llegada de Comanda)
-        emitirBeep(987.77, 0.0, 0.25); // Nota B5
-        emitirBeep(1318.51, 0.3, 0.40); // Nota E6
-      } catch (e) {
-        console.error("Error reproduciendo audio:", e);
-      }
+        emitirBeep(987.77, 0.0, 0.25);
+        emitirBeep(1318.51, 0.3, 0.40);
+      } catch (e) { console.error(e); }
     }
 
-    // 1. Listener Firebase en Tiempo Real para Comandas Pendientes
+    // 1. Escuchar Comandas Pendientes
     const qComandas = query(collection(db, "pedidos_cocina"), where("estado", "==", "PENDIENTE"));
     onSnapshot(qComandas, (snapshot) => {
       const contenedor = document.getElementById("contenedor-comandas");
@@ -189,15 +176,13 @@
       });
     });
 
-    // 2. Listener Firebase para el Inventario / Menú (Control de Agotados)
+    // 2. Inventario
     onSnapshot(collection(db, "inventario_insumos"), (snapshot) => {
       const contenedorMenu = document.getElementById("contenedor-control-menu");
-
       if (snapshot.empty) {
-        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay productos registrados en el inventario.</div>`;
+        contenedorMenu.innerHTML = `<div class="text-center text-slate-400 text-xs py-4 col-span-full">No hay productos registrados.</div>`;
         return;
       }
-
       contenedorMenu.innerHTML = "";
       snapshot.forEach((docSnap) => {
         const plato = docSnap.data();
@@ -205,23 +190,14 @@
         const disponible = plato.disponible !== undefined ? plato.disponible : true;
 
         const card = document.createElement("div");
-        card.className = `bg-slate-900 border rounded-xl p-3 flex justify-between items-center space-x-2 transition w-full ${
-          disponible ? 'border-slate-700 shadow-sm' : 'border-rose-900/50 bg-rose-950/10'
-        }`;
-
+        card.className = `bg-slate-900 border rounded-xl p-3 flex justify-between items-center space-x-2 transition w-full ${disponible ? 'border-slate-700 shadow-sm' : 'border-rose-900/50 bg-rose-950/10'}`;
         card.innerHTML = `
           <div class="space-y-0.5 overflow-hidden min-w-0">
             <h3 class="font-bold text-xs text-white truncate">${plato.nombre}</h3>
-            <p class="text-[10px] font-semibold ${disponible ? 'text-emerald-400' : 'text-rose-400'}">
-              ${disponible ? '● Disponible' : '✕ Agotado'}
-            </p>
+            <p class="text-[10px] font-semibold ${disponible ? 'text-emerald-400' : 'text-rose-400'}">${disponible ? '● Disponible' : '✕ Agotado'}</p>
           </div>
           <div class="shrink-0">
-            <button onclick="toggleDisponibilidad('${id}', ${disponible})" class="${
-              disponible 
-                ? 'bg-rose-600 hover:bg-rose-500 text-white' 
-                : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-            } px-3 py-1.5 rounded-lg text-xs font-bold transition active:scale-95 shadow">
+            <button onclick="toggleDisponibilidad('${id}', ${disponible})" class="${disponible ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white px-3 py-1.5 rounded-lg text-xs font-bold transition active:scale-95 shadow">
               ${disponible ? 'Marcar Agotado' : 'Marcar Disponible'}
             </button>
           </div>
@@ -230,24 +206,20 @@
       });
     });
 
-    // Función para alternar disponibilidad del plato
     window.toggleDisponibilidad = async function(id, estadoActual) {
-      try {
-        await updateDoc(doc(db, "inventario_insumos", id), {
-          disponible: !estadoActual
-        });
-      } catch (e) {
-        console.error("Error al actualizar disponibilidad:", e);
-        alert("⚠️ No se pudo actualizar el estado del plato.");
-      }
+      try { await updateDoc(doc(db, "inventario_insumos", id), { disponible: !estadoActual }); } catch (e) { console.error(e); }
     };
 
+    // ENVÍO GARANTIZADO DE PLATO LISTO HACIA LA MESERA
     window.marcarComandaLista = async function(id, mesa, resumen) {
       try {
+        // A. Actualizamos el estado de la comanda principal a LISTO
         await updateDoc(doc(db, "pedidos_cocina", id), { estado: "LISTO" });
+
+        // B. Enviamos la alerta explícita a la colección de alertas
         await addDoc(collection(db, "alertas"), {
           mesa: mesa,
-          pedido_id: id, // <-- VINCULACIÓN CLAVE PARA LA MESERA Y EL CLIENTE
+          pedido_id: id,
           resumen: resumen || "Orden completa",
           mensaje: `${mesa} • ${resumen || 'Orden lista para servir'}`,
           tipo: "PEDIDO_LISTO",
@@ -255,13 +227,11 @@
           fecha: new Date().toISOString()
         });
       } catch (e) {
-        console.error("Error al actualizar comanda:", e);
+        console.error("Error al marcar comanda lista:", e);
       }
     };
 
-    window.volverInicio = function() {
-      window.location.href = 'index.html';
-    };
+    window.volverInicio = function() { window.location.href = 'index.html'; };
   </script>
 </body>
 </html>
