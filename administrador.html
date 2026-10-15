@@ -13,7 +13,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col pb-20" onclick="desbloquearAudioAdmin()">
 
-  <!-- Encabezado de Administrador (Optimizado para Móvil) -->
+  <!-- Encabezado de Administrador -->
   <header class="bg-slate-800 border-b border-slate-700 p-3 sticky top-0 z-50 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-2 overflow-hidden">
       <div class="bg-purple-600/30 p-2 rounded-xl border border-purple-500/30 shrink-0">
@@ -29,7 +29,7 @@
       <button id="btn-sonido-admin" onclick="activarSonidoAdmin(event)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition active:scale-95 shadow flex items-center gap-1">
         <i class="fa-solid fa-volume-xmark text-xs"></i> <span>Sonido</span>
       </button>
-      <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition active:scale-95 flex items-center gap-1" aria-label="Salir al inicio">
+      <button onclick="volverInicio()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition active:scale-95 flex items-center gap-1">
         <i class="fa-solid fa-house text-xs"></i> Salir
       </button>
     </div>
@@ -164,7 +164,6 @@
         <span id="contador-menu-admin" class="text-xs text-indigo-300 font-bold">0 Productos</span>
       </div>
 
-      <!-- Pestañas de Categoría para Filtrar Administración -->
       <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-1 text-sm font-bold">
         <button onclick="filtrarCategoriaAdmin('todas', this)" class="btn-cat-admin bg-purple-600 text-white px-4 py-2 rounded-xl shrink-0 transition">
           📋 Todas
@@ -201,7 +200,6 @@
 
   </main>
 
-  <!-- Script Firebase Integrado y Audio Web -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -210,6 +208,7 @@
       onSnapshot, 
       doc, 
       getDoc,
+      getDocs,
       updateDoc, 
       setDoc,
       deleteDoc,
@@ -264,8 +263,8 @@
           osc.start(audioCtx.currentTime + inicio);
           osc.stop(audioCtx.currentTime + inicio + duracion);
         };
-        emitirTono(587.33, 0.0, 0.2); // D5
-        emitirTono(880.00, 0.25, 0.4); // A5
+        emitirTono(587.33, 0.0, 0.2);
+        emitirTono(880.00, 0.25, 0.4);
       } catch (e) {
         console.error("Error al reproducir audio de caja:", e);
       }
@@ -314,7 +313,7 @@
       }
     };
 
-    // Escuchar ventas para la caja (Suma robusta adaptada a cualquier nombre de campo y estado pagado)
+    // Escuchar ventas de caja: Solo suma cobros confirmados explícitamente en esta sesión (confirmado_en_caja == true)
     onSnapshot(collection(db, "alertas"), (snapshot) => {
       let totalVentas = 0;
       let totalEfectivo = 0;
@@ -322,7 +321,7 @@
 
       snapshot.forEach((docSnap) => {
         const alerta = docSnap.data();
-        if (alerta.tipo === "PEDIR_CUENTA" && (alerta.pagado === true || alerta.atendido === true)) {
+        if (alerta.tipo === "PEDIR_CUENTA" && alerta.confirmado_en_caja === true) {
           const monto = Number(alerta.total || alerta.monto || alerta.valor || 0);
           totalVentas += monto;
           
@@ -340,8 +339,8 @@
       document.getElementById("admin-transferencias").textContent = `$ ${totalTransferencia.toLocaleString("es-CO")} COP`;
     });
 
-    // Escuchar solicitudes de pago pendientes (Filtra por pagado == false)
-    const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("pagado", "==", false));
+    // Escuchar solicitudes de pago pendientes (Muestra todas las que no hayan sido confirmadas en caja todavía)
+    const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("confirmado_en_caja", "!=", true));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
       const contador = document.getElementById("contador-pagos");
@@ -521,24 +520,37 @@
       }
     };
 
-    // Confirmar pago (Marca el cobro como pagado: true para acumular en caja)
+    // Confirmar pago (Marca 'confirmado_en_caja: true' para que recién en ese instante se sume a las tarjetas de arriba)
     window.confirmarPago = async function(id, mesa) {
       try {
-        await updateDoc(doc(db, "alertas", id), { pagado: true, atendido: true });
-        alert(`✅ Pago de ${mesa} verificado y registrado en caja.`);
+        await updateDoc(doc(db, "alertas", id), { 
+          confirmado_en_caja: true, 
+          pagado: true, 
+          atendido: true 
+        });
+        alert(`✅ Pago de ${mesa} verificado y sumado a caja exitosamente.`);
       } catch (e) {
         console.error("Error al confirmar pago:", e);
       }
     };
 
-    // Cierre de caja
-    window.realizarCierreCaja = function() {
-      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Esto pondrá los contadores a $0.')) {
-        document.getElementById("admin-ventas-totales").textContent = "$ 0 COP";
-        document.getElementById("admin-transferencias").textContent = "$ 0 COP";
-        document.getElementById("admin-efectivo").textContent = "$ 0 COP";
+    // Cierre de caja (Limpia las alertas pasadas en Firebase para dejar todo en $0 de forma permanente para el siguiente turno)
+    window.realizarCierreCaja = async function() {
+      if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Esto limpiará los registros y dejará la caja en $0.')) {
+        try {
+          const snapshot = await getDocs(collection(db, "alertas"));
+          const borrados = snapshot.docs.map(docSnap => deleteDoc(doc(db, "alertas", docSnap.id)));
+          await Promise.all(borrados);
 
-        alert('🔒 Cierre de caja realizado con éxito.');
+          document.getElementById("admin-ventas-totales").textContent = "$ 0 COP";
+          document.getElementById("admin-transferencias").textContent = "$ 0 COP";
+          document.getElementById("admin-efectivo").textContent = "$ 0 COP";
+
+          alert('🔒 Cierre de caja realizado con éxito. Los contadores quedaron en $0 COP.');
+        } catch (e) {
+          console.error("Error al realizar el cierre de caja:", e);
+          alert(" Error al reiniciar la caja.");
+        }
       }
     };
 
