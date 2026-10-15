@@ -215,10 +215,7 @@
       getFirestore, 
       collection, 
       onSnapshot, 
-      addDoc,
-      getDocs,
-      query,
-      where 
+      addDoc 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -237,7 +234,10 @@
     let menuCompleto = [];
     let categoriaSeleccionada = 'sencillos';
     let platoTemporalSeleccionado = null;
-    let totalConsumidoMesa = 0;
+
+    // Memoria de sesión estrictamente local para esta mesa y dispositivo
+    const claveStorage = `bistroiq_sesion_${window.location.search || 'mesa3'}`;
+    let totalConsumidoSesion = Number(localStorage.getItem(claveStorage) || 0);
 
     const params = new URLSearchParams(window.location.search);
     const mesaParam = params.get('mesa') || "Mesa #3";
@@ -446,14 +446,18 @@
       if (carrito.length === 0) return;
 
       const resumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
-      const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+      const subtotalPedido = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+
+      // Acumulamos en la sesión local limpia
+      totalConsumidoSesion += subtotalPedido;
+      localStorage.setItem(claveStorage, totalConsumidoSesion);
 
       try {
         await addDoc(collection(db, "pedidos_cocina"), {
           mesa: mesaParam,
           comanda: Math.floor(100 + Math.random() * 900),
           resumen: resumen,
-          total: total,
+          total: subtotalPedido,
           estado: "PENDIENTE",
           fecha: new Date().toISOString()
         });
@@ -468,42 +472,14 @@
       }
     };
 
-    // Funciones para Pedir la Cuenta: Filtra estrictamente solo los pedidos de HOY
-    window.abrirModalPedirCuenta = async function() {
+    // Funciones para Pedir la Cuenta: 100% basado en la sesión actual, ignorando basuras de Firebase
+    window.abrirModalPedirCuenta = function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
-      document.getElementById("monto-total-cuenta").textContent = "Calculando...";
 
-      try {
-        const qMesa = query(
-          collection(db, "pedidos_cocina"), 
-          where("mesa", "==", mesaParam)
-        );
-        const snapshot = await getDocs(qMesa);
+      const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
 
-        // Obtenemos la fecha de hoy en formato YYYY-MM-DD para ignorar días anteriores
-        const hoyStr = new Date().toISOString().split('T')[0];
-
-        totalConsumidoMesa = 0;
-        snapshot.forEach((docSnap) => {
-          const ped = docSnap.data();
-          const fechaPedido = (ped.fecha || "").split('T')[0];
-
-          // Suma únicamente si el pedido corresponde al día de hoy
-          if (fechaPedido === hoyStr) {
-            totalConsumidoMesa += Number(ped.total || ped.monto || ped.valor || 0);
-          }
-        });
-
-        // Sumamos también lo que esté actualmente en el carrito sin enviar
-        const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-        const totalFinalMesa = totalConsumidoMesa + totalCarritoNoEnviado;
-
-        document.getElementById("monto-total-cuenta").textContent = `$ ${totalFinalMesa.toLocaleString("es-CO")} COP`;
-      } catch (e) {
-        console.error("Error al calcular total consumido:", e);
-        document.getElementById("monto-total-cuenta").textContent = "$ 0 COP";
-      }
-
+      document.getElementById("monto-total-cuenta").textContent = `$ ${montoTotalPagar.toLocaleString("es-CO")} COP`;
       document.getElementById("modal-pedir-cuenta").classList.remove("hidden");
     };
 
@@ -517,7 +493,7 @@
 
     window.enviarSolicitudCuenta = async function(metodoPago) {
       const totalCarritoNoEnviado = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-      const montoTotalPagar = totalConsumidoMesa + totalCarritoNoEnviado;
+      const montoTotalPagar = totalConsumidoSesion + totalCarritoNoEnviado;
 
       if (montoTotalPagar <= 0) {
         alert("⚠️ No tienes consumos pendientes por pagar.");
@@ -539,6 +515,11 @@
         });
 
         alert(`✅ Solicitud enviada por $${montoTotalPagar.toLocaleString("es-CO")} COP. La mesera se acercará con la cuenta (${metodoPago}).`);
+        
+        // Al pedir la cuenta exitosamente, limpiamos la sesión de esta mesa
+        localStorage.removeItem(claveStorage);
+        totalConsumidoSesion = 0;
+        
         cerrarModalPedirCuenta();
       } catch (e) {
         console.error("Error al pedir la cuenta:", e);
