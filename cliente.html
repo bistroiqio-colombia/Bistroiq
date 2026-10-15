@@ -474,6 +474,7 @@
           resumen: resumen,
           total: total,
           estado: "PENDIENTE",
+          pagado: false, // Control para sumar solo consumos pendientes
           fecha: new Date().toISOString()
         });
 
@@ -487,20 +488,25 @@
       }
     };
 
-    // Funciones para Pedir la Cuenta con Cálculo Automático de lo Consumido
+    // Funciones para Pedir la Cuenta con Cálculo Automático Estricto
     window.abrirModalPedirCuenta = async function() {
       document.getElementById("info-transferencia-oculta").classList.add("hidden");
       document.getElementById("monto-total-cuenta").textContent = "Calculando...";
 
-      // Sumar los pedidos enviados a cocina por esta mesa
+      // Sumar únicamente los pedidos activos/pendientes de esta mesa
       try {
-        const qMesa = query(collection(db, "pedidos_cocina"), where("mesa", "==", mesaParam));
+        const qMesa = query(
+          collection(db, "pedidos_cocina"), 
+          where("mesa", "==", mesaParam)
+        );
         const snapshot = await getDocs(qMesa);
 
         totalConsumidoMesa = 0;
         snapshot.forEach((docSnap) => {
           const ped = docSnap.data();
-          totalConsumidoMesa += Number(ped.total || ped.monto || ped.valor || 0);
+          if (!ped.pagado) {
+            totalConsumidoMesa += Number(ped.total || ped.monto || ped.valor || 0);
+          }
         });
 
         document.getElementById("monto-total-cuenta").textContent = `$ ${totalConsumidoMesa.toLocaleString("es-CO")} COP`;
@@ -521,6 +527,11 @@
     };
 
     window.enviarSolicitudCuenta = async function(metodoPago) {
+      if (totalConsumidoMesa <= 0) {
+        alert("⚠️ No tienes consumos pendientes por pagar.");
+        return;
+      }
+
       try {
         await addDoc(collection(db, "alertas"), {
           mesa: mesaParam,
