@@ -72,7 +72,7 @@
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700">
         <h2 class="font-bold text-slate-100 text-base flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-amber-500 text-lg"></i> Verificación Antifraude de Cuentas
+          <i class="fa-solid fa-shield-halved text-amber-500 text-lg"></i> Verificación de Cuentas Enviadas por Mesera
         </h2>
         <span id="contador-pagos" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-bold">0 Por Confirmar</span>
       </div>
@@ -127,7 +127,6 @@
       </div>
     </section>
 
-    <!-- CIERRE DE CAJA DIRECTO (LIMPIA ALERTAS Y COMANDAS SIN ENTRAR A FIREBASE) -->
     <section class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg flex justify-between items-center gap-4">
       <div>
         <h3 class="font-bold text-white text-base">Cierre de Caja Diario</h3>
@@ -244,7 +243,7 @@
       document.getElementById("admin-transferencias").textContent = `$ ${totalTransferencia.toLocaleString("es-CO")} COP`;
     });
 
-    const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("confirmado_en_caja", "!=", true));
+    const qPagos = query(collection(db, "alertas"), where("tipo", "==", "PEDIR_CUENTA"), where("atendido", "==", true), where("confirmado_en_caja", "!=", true));
     onSnapshot(qPagos, (snapshot) => {
       const contenedor = document.getElementById("contenedor-pagos-pendientes");
       const contador = document.getElementById("contador-pagos");
@@ -270,7 +269,7 @@
               <span class="font-extrabold text-white text-base">${pago.mesa || 'Mesa'}</span>
               <span class="${esEfectivo ? 'bg-emerald-500/20 text-emerald-300' : 'bg-indigo-500/20 text-indigo-300'} border text-xs px-2.5 py-0.5 rounded font-bold">${esEfectivo ? '💵 EFECTIVO' : '📲 TRANSFERENCIA'}</span>
             </div>
-            <div class="text-xs text-slate-200">Solicitud por <span class="font-bold text-emerald-400 text-sm">$${montoTotal.toLocaleString("es-CO")} COP</span>.</div>
+            <div class="text-xs text-slate-200">Cuenta enviada por la mesera por <span class="font-bold text-emerald-400 text-sm">$${montoTotal.toLocaleString("es-CO")} COP</span>.</div>
           </div>
           <button onclick="confirmarPago('${id}', '${pago.mesa}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow">
             <i class="fa-solid fa-check mr-1"></i> Confirmar Cobro y Liberar Mesa
@@ -353,7 +352,6 @@
       }
     };
 
-    // CIERRE DE CAJA BLINDADO (Limpia tanto alertas como comandas de cocina de golpe)
     window.realizarCierreCaja = async function() {
       if (confirm('⚠️ ¿Estás seguro de realizar el cierre de caja diario? Esto limpiará todas las alertas y comandas para dejar el sistema en ceros.')) {
         try {
