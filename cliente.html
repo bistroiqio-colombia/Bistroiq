@@ -43,7 +43,7 @@
       </div>
       <div class="text-sm text-slate-200 leading-relaxed">
         <p class="font-bold text-white text-base mb-0.5">¿Cómo hacer tu pedido?</p>
-        Agrega los platillos que desees. Abajo in la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista o cambiar cantidades.
+        Agrega los platillos que desees. Abajo en la barra flotante puedes tocar en <span class="text-emerald-400 font-bold">"Ver / Editar mi Pedido"</span> para revisar la lista o cambiar cantidades.
       </div>
     </div>
 
@@ -196,12 +196,10 @@
     
     document.getElementById("label-mesa-cliente").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ${mesaParam} • Pedido en Línea`;
 
-    // ESCUCHADOR DE SALDO CORREGIDO Y BLINDADO (Filtra por número de mesa, estado entregado y evita duplicar con comandas viejas)
+    // ESCUCHADOR BLINDADO Y PERSISTENTE DE SALDO (Suma los pedidos entregados/listos de la sesión actual)
     const qPedidosEntregados = query(collection(db, "pedidos_cocina"), where("mesa", "==", mesaParam));
     onSnapshot(qPedidosEntregados, (snapshot) => {
       let sumaTotal = 0;
-      
-      // Obtenemos la fecha de hoy para ignorar comandas acumuladas de días anteriores
       const inicioHoy = new Date();
       inicioHoy.setHours(0,0,0,0);
 
@@ -209,7 +207,6 @@
         const pedido = docSnap.data();
         const fechaPedido = pedido.fecha ? new Date(pedido.fecha) : new Date();
 
-        // Validamos que sea de la sesión actual (de hoy) y no haya sido marcado como pagado
         if (fechaPedido >= inicioHoy && pedido.pagado !== true) {
           const estado = (pedido.estado || '').toUpperCase();
           if (estado === 'ENTREGADO' || estado === 'LISTO' || pedido.entregado === true) {
