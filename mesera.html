@@ -304,7 +304,6 @@
       });
     });
 
-    // FUNCIÓN BLINDADA Y SINCRONIZADA
     window.marcarPedidoEntregadoDirecto = async function(idPedido, mesaNombre) {
       try {
         await updateDoc(doc(db, "pedidos_cocina", idPedido), { 
@@ -312,15 +311,7 @@
           entregado: true 
         });
 
-        await addDoc(collection(db, "alertas"), {
-          mesa: mesaNombre,
-          tipo: "MESA_ACTIVA",
-          mensaje: `${mesaNombre} tiene pedidos entregados y está activa en salón`,
-          atendido: true,
-          fecha: new Date().toISOString()
-        });
-
-        alert(`✅ Pedido de ${mesaNombre} entregado con éxito. Saldo cargado al cliente y mesa activa notificada.`);
+        alert(`✅ Pedido de ${mesaNombre} entregado con éxito. Saldo cargado al cliente.`);
       } catch (e) {
         console.error("Error al marcar pedido como entregado:", e);
         alert("⚠️ Hubo un detalle al procesar la entrega.");
